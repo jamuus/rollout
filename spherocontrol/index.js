@@ -1,19 +1,7 @@
 let sphero = require('sphero');
 
-
-
 let fs = require('fs');
 let log = console.log;
-
-// let orb = sphero('/dev/tty.Sphero-YBR-AMP-SPP');
-// orb.on('error', data => {
-//     log(data);
-// });
-
-// log('connecting');
-// orb.connect(a => {
-//     log('connected');
-// });
 
 let connectedSpheros = {
         instances: [],
@@ -39,18 +27,19 @@ function updateSpheros() {
 
             for (let newSpheroDev of unconnectedSpheros) {
                 let spheroInstance = sphero('/dev/' + newSpheroDev);
-                spheroInstance.on('error', err => {
-                    log('[ERROR] in spheroOpen', err);
-                    log('        Trying again in 1 second');
-                    setTimeout(updateSpheros, 1000);
-                });
 
                 let spheroConnectCallback = ((instance, deviceName) => {
                     return (err) => {
-                        log('Succesfully connected', deviceName);
-                        setupSpheroInstance(instance, deviceName);
-                        connectedSpheros.instances.push(instance);
-                        connectedSpheros.deviceNames.push(deviceName);
+                        if (err) {
+                            log('[ERROR] in spheroOpen', err);
+                            log('        Trying again in 1 second');
+                            setTimeout(updateSpheros, 1000);
+                        } else {
+                            log('Succesfully connected', deviceName);
+                            setupSpheroInstance(instance, deviceName);
+                            connectedSpheros.instances.push(instance);
+                            connectedSpheros.deviceNames.push(deviceName);
+                        }
                     }
                 })(spheroInstance, newSpheroDev);
                 log('Connecting to', newSpheroDev);
@@ -78,7 +67,16 @@ function setupSpheroInstance(sphero, deviceName) {
     });
     // other events include:
     //      ready, open, async, response, data
+    sphero.on("collision", function(data) {
+        console.log("collision detected");
+        console.log("  data:", data);
 
+        sphero.color("red");
+
+        setTimeout(function() {
+            sphero.color("green");
+        }, 1000);
+    });
 }
 
 updateSpheros();
