@@ -1,14 +1,14 @@
 {
-  "name": "spherocontrol",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "hybridgroup-spheron": "hybridgroup/spheron"
-  }
+    "name": "spherocontrol",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "sphero": "^0.3.0"
+    }
 }

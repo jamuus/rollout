@@ -1,7 +1,19 @@
-let sphero = require('hybridgroup-spheron');
+let sphero = require('sphero');
+
+
 
 let fs = require('fs');
 let log = console.log;
+
+// let orb = sphero('/dev/tty.Sphero-YBR-AMP-SPP');
+// orb.on('error', data => {
+//     log(data);
+// });
+
+// log('connecting');
+// orb.connect(a => {
+//     log('connected');
+// });
 
 let connectedSpheros = {
         instances: [],
@@ -9,7 +21,7 @@ let connectedSpheros = {
     },
     desiredSpheros = 1;
 
-let spheroDeviceRegex = /cu\.Sphero.*/
+let spheroDeviceRegex = /tty\.Sphero.*/
 
 function updateSpheros() {
     if (connectedSpheros.instances.length < desiredSpheros) {
@@ -26,26 +38,23 @@ function updateSpheros() {
                 log('None found');
 
             for (let newSpheroDev of unconnectedSpheros) {
-                let spheroInstance = sphero.sphero()
-                    .resetTimeout(true)
-                    .requestAcknowledgement(true);
+                let spheroInstance = sphero('/dev/' + newSpheroDev);
+                spheroInstance.on('error', err => {
+                    log('[ERROR] in spheroOpen', err);
+                    log('        Trying again in 1 second');
+                    setTimeout(updateSpheros, 1000);
+                });
 
                 let spheroConnectCallback = ((instance, deviceName) => {
                     return (err) => {
-                        if (err) {
-                            log('[ERROR] in spheroOpen', err);
-                            log('        Trying again in 1 second');
-                            setTimeout(updateSpheros, 1000);
-                        } else {
-                            log('Succesfully connected', deviceName);
-                            setupSpheroInstance(instance, deviceName);
-                            connectedSpheros.instances.push(instance);
-                            connectedSpheros.deviceNames.push(deviceName);
-                        }
+                        log('Succesfully connected', deviceName);
+                        setupSpheroInstance(instance, deviceName);
+                        connectedSpheros.instances.push(instance);
+                        connectedSpheros.deviceNames.push(deviceName);
                     }
                 })(spheroInstance, newSpheroDev);
                 log('Connecting to', newSpheroDev);
-                spheroInstance.open('/dev/' + newSpheroDev, spheroConnectCallback);
+                spheroInstance.connect(spheroConnectCallback);
             }
         });
     }
@@ -67,14 +76,9 @@ function setupSpheroInstance(sphero, deviceName) {
         removeSphero(sphero, deviceName);
         updateSpheros();
     });
+    // other events include:
+    //      ready, open, async, response, data
 
-    sphero.on('end', () => {
-        log('ended D:');
-    });
-
-    sphero.setDataStreaming((err, data) => {
-        log('Data from sphero', err, data);
-    });
 }
 
 updateSpheros();
