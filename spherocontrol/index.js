@@ -1,53 +1,89 @@
-var roundRobot = require('node-sphero');
-var sphero = new roundRobot.Sphero();
+let sphero = require('./spheron/lib');
 
-var guy;
+let fs = require('fs');
+let log = console.log;
 
-sphero.on('connected', function(ball) {
-    console.log('Connected, sending commands.');
-    sphero.setDataStreaming([sphero.sensors.imu_pitch], null, null, null, function function_name(data) {
-        console.log(data);
-    });
-    guy = ball;
-    setInterval(tick, 1000 / 20);
-    // sphero.setDataStreaming()
-});
-var r = 254,
-    g = 0,
-    b = 0;
-var state = 0;
+let connectedSpheros = {
+        instances: [],
+        deviceNames: []
+    },
+    desiredSpheros = 1;
 
-function updateRainbow() {
-    if (state === 0) {
-        r--;
-        g++;
-        if (r === 0)
-            state = 1;
-    } else if (state === 1) {
-        g--;
-        b++;
-        if (g === 0)
-            state = 2;
-    } else if (state === 2) {
-        b--;
-        r++;
-        if (b === 0)
-            state = 0;
+let spheroDeviceRegex = /cu\.Sphero.*/
+
+function updateSpheros() {
+    if (connectedSpheros.instances.length < desiredSpheros) {
+        fs.readdir('/dev/', (err, files) => {
+            if (err)
+                return log('[ERROR] in readdir:', err);
+            log('Searching for spheros...');
+            let unconnectedSpheros = files.filter(device => {
+                return device.match(spheroDeviceRegex);
+            }).filter(spheroDevice => {
+                return connectedSpheros.deviceNames.indexOf(spheroDevice) === -1;
+            });
+            if (unconnectedSpheros.length === 0)
+                log('None found');
+
+            for (let newSpheroDev of unconnectedSpheros) {
+                let spheroInstance = sphero.sphero()
+                    .resetTimeout(true)
+                    .requestAcknowledgement(true);
+
+                let spheroConnectCallback = ((instance, deviceName) => {
+                    return (err) => {
+                        if (err) {
+                            log('[ERROR] in spheroOpen', err);
+                            log('        Trying again in 1 second');
+                            setTimeout(updateSpheros, 1000);
+                        } else {
+                            log('Succesfully connected', deviceName);
+                            setupSpheroInstance(instance, deviceName);
+                            connectedSpheros.instances.push(instance);
+                            connectedSpheros.deviceNames.push(deviceName);
+                        }
+                    }
+                })(spheroInstance, newSpheroDev);
+                log('Connecting to', newSpheroDev);
+                spheroInstance.open('/dev/' + newSpheroDev, spheroConnectCallback);
+            }
+        });
     }
 }
 
-
-function tick() {
-    // console.log('Setting colour to (' + r + ', ' + g + ', ' + b + ')');
-    updateRainbow();
-    guy.setBackLED(1);
-    guy.setRGBLED(r, g, b, false);
-    // console.log('Setting backLED to', backLED / 100);
-    // guy.setBackLED(254);
+function removeSphero(sphero, deviceName) {
+    connectedSpheros.instances.splice(sphero);
+    connectedSpheros.deviceNames.splice(deviceName);
 }
-sphero.on('error', function(err) {
-    console.log('Sphero error:', err);
-});
 
-console.log('Connecting to sphero...');
-sphero.connect();
+function setupSpheroInstance(sphero, deviceName) {
+    sphero.on('error', (err) => {
+        log('[ERROR] in sphero', deviceName, '-', err);
+        // remove?
+    });
+
+    sphero.on('close', () => {
+        log('Connection to', deviceName, 'closed');
+        removeSphero(sphero, deviceName);
+        updateSpheros();
+    });
+
+    sphero.on('end', () => {
+        log('ended D:');
+    });
+
+    sphero.setDataStreaming((err, data) => {
+        log('Data from sphero', err, data);
+    });
+}
+
+updateSpheros();
+
+// let i = 0;
+
+// setInterval(() => {
+//     connectedSpheros.instances.forEach((sphero) => {
+//         i = (i + 1) % 255;
+//         sphero.setRGB(0x000000 + i);
+//     });
+// }, 1000 / 60);
