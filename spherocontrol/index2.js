@@ -70,6 +70,10 @@ function setupSpheroInstance(sphero, deviceName) {
         removeSphero(sphero, deviceName);
         updateSpheros();
     });
+
+    sphero.on('end', () => {
+        log('ended D:');
+    });
 }
 
 updateSpheros();
