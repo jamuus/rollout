@@ -1,4 +1,4 @@
-let sphero = require('./spheron/lib');
+let sphero = require('hybridgroup-spheron');
 
 let fs = require('fs');
 let log = console.log;
