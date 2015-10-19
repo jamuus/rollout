@@ -3,19 +3,16 @@ let sphero = require('./spheron/lib');
 let fs = require('fs');
 let log = console.log;
 
-let state = {
-    connectedSpheros: {
+let connectedSpheros = {
         instances: [],
         deviceNames: []
     },
-    desiredSpheros: 1
-}
-
+    desiredSpheros = 1;
 
 let spheroDeviceRegex = /cu\.Sphero.*/
 
 function updateSpheros() {
-    if (state.connectedSpheros.instances.length < state.desiredSpheros) {
+    if (connectedSpheros.instances.length < desiredSpheros) {
         fs.readdir('/dev/', (err, files) => {
             if (err)
                 return log('[ERROR] in readdir:', err);
@@ -23,7 +20,7 @@ function updateSpheros() {
             let unconnectedSpheros = files.filter(device => {
                 return device.match(spheroDeviceRegex);
             }).filter(spheroDevice => {
-                return state.connectedSpheros.deviceNames.indexOf(spheroDevice) === -1;
+                return connectedSpheros.deviceNames.indexOf(spheroDevice) === -1;
             });
             if (unconnectedSpheros.length === 0)
                 log('None found');
@@ -42,8 +39,8 @@ function updateSpheros() {
                         } else {
                             log('Succesfully connected', deviceName);
                             setupSpheroInstance(instance, deviceName);
-                            state.connectedSpheros.instances.push(instance);
-                            state.connectedSpheros.deviceNames.push(deviceName);
+                            connectedSpheros.instances.push(instance);
+                            connectedSpheros.deviceNames.push(deviceName);
                         }
                     }
                 })(spheroInstance, newSpheroDev);
@@ -55,8 +52,8 @@ function updateSpheros() {
 }
 
 function removeSphero(sphero, deviceName) {
-    state.connectedSpheros.instances.splice(sphero);
-    state.connectedSpheros.deviceNames.splice(deviceName);
+    connectedSpheros.instances.splice(sphero);
+    connectedSpheros.deviceNames.splice(deviceName);
 }
 
 function setupSpheroInstance(sphero, deviceName) {
@@ -74,6 +71,19 @@ function setupSpheroInstance(sphero, deviceName) {
     sphero.on('end', () => {
         log('ended D:');
     });
+
+    sphero.setDataStreaming((err, data) => {
+        log('Data from sphero', err, data);
+    });
 }
 
 updateSpheros();
+
+// let i = 0;
+
+// setInterval(() => {
+//     connectedSpheros.instances.forEach((sphero) => {
+//         i = (i + 1) % 255;
+//         sphero.setRGB(0x000000 + i);
+//     });
+// }, 1000 / 60);
