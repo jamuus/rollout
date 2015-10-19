@@ -82,12 +82,3 @@ function setupSpheroInstance(sphero, deviceName) {
 }
 
 updateSpheros();
-
-// let i = 0;
-
-// setInterval(() => {
-//     connectedSpheros.instances.forEach((sphero) => {
-//         i = (i + 1) % 255;
-//         sphero.setRGB(0x000000 + i);
-//     });
-// }, 1000 / 60);
