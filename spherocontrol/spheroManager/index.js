@@ -1,4 +1,4 @@
-let debug = false;
+let debug = true;
 
 module.exports = function() {
     let _onSpheroConnect = () => {};
