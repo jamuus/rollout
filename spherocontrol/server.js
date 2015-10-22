@@ -77,7 +77,7 @@ socket.bind(PORT, IP);
 
 function spheroState() {
     var api = {
-        count: 0
+
     };
 
     var instances = [];
@@ -95,7 +95,6 @@ function spheroState() {
             api[newSphero.name].dx = data.xVelocity;
             api[newSphero.name].dy = data.yVelocity;
         });
-        api.count++;
     });
     return api;
 }
