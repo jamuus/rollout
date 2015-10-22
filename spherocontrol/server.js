@@ -23,7 +23,7 @@ var client;
 
 socket.on("message", function(data, remote) {
     if (!client)
-        setInterval(sendState, 1000 / 10);
+        setInterval(sendState, 1000 / 1);
     client = remote;
     var type = data[0];
     switch (type) {
@@ -42,20 +42,11 @@ socket.on("message", function(data, remote) {
                 console.log("Set server to big endian.");
             break;
         case MESSAGE_TYPE_ROLL_SPHERO:
-            var direction = "";
-            if (data[1] & 0x01)
-                direction += "N";
-            if (data[1] & 0x02)
-                direction += "E";
-            if (data[1] & 0x04)
-                direction += "S";
-            if (data[1] & 0x08)
-                direction += "W";
-            var force = isLittleEndian ? data.readFloatLE(2) : data.readFloatBE(2);
-            var name = data.toString("ascii", 7);
+            var direction = isLittleEndian ? data.readFloatLE(1) : data.readFloatBE(1);
+            var force = isLittleEndian ? data.readFloatLE(5) : data.readFloatBE(5);
+            var name = data.toString("ascii", 9);
 
             console.log("Rolling sphero '" + name + "' " + direction + " with force " + force + ".");
-            // sendState();
             break;
         default:
             console.log("Unknown message.");
@@ -85,6 +76,7 @@ function spheroState() {
 
     manager.onSpheroConnect(function(newSphero) {
         instances.push(newSphero);
+        log(newSphero);
         api[newSphero.name] = {
             x: 0,
             y: 0,
@@ -107,8 +99,10 @@ function sendState() {
     for (var name in state) {
         var sphero = state[name];
         var idx = 0;
+        var length = new Buffer(1);
+        length[0] = name.length;
         var header = Buffer.concat([
-            new Buffer(name.length),
+            length,
             new Buffer(name, 'ascii')
         ]);
         var buf = new Buffer(2 * 4);
@@ -122,7 +116,6 @@ function sendState() {
         }
         message = Buffer.concat([message, header, buf]);
     }
-
     socket.send(message, 0, message.length, client.port + 1, client.address, function(err) {
         if (err)
             throw err;
