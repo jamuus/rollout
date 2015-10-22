@@ -3,24 +3,38 @@ using System.Collections;
 
 public class CollisionAttack : MonoBehaviour
 {
-    public int collisionAttackValue = 20;
-    public UniversalHealth health;
-	private float speed;
+    public int collisionAttackValue = 10; //Base attack value
+    public UniversalHealth health; // Access to UniversalHealth class
+	public Vector3 otherPlayerVel; // velocity of other player. Used for damage
+	public GameObject otherPlayer; // another Player's sphere
+	//private float speed;
     void Start()
     {
 		health = GetComponent<UniversalHealth> ();
 		if (gameObject.name == "player1") {
-			speed = GetComponent<PlayerControl> ().speed;
+			otherPlayer = GameObject.FindWithTag("Player2");
+			otherPlayerVel = otherPlayer.GetComponent<Player2Control>().velocity;
 		} else if (gameObject.name == "player2") {
-			speed = GetComponent<Player2Control>().speed;
+			otherPlayer = GameObject.FindWithTag("Player1");
+			otherPlayerVel = otherPlayer.GetComponent<PlayerControl>().velocity;
+		}
+	}
+	void FixedUpdate()
+	{
+		if (gameObject.name == "player1") {
+			otherPlayerVel = otherPlayer.GetComponent<Player2Control> ().velocity;
+		} else if (gameObject.name == "player2") {
+			otherPlayerVel = otherPlayer.GetComponent<PlayerControl>().velocity;
 		}
 	}
     void OnCollisionEnter(Collision col)
     {
-		if (col.gameObject.name == "player1" || col.gameObject.name == "player2")
+		if (otherPlayer != null && col.gameObject.name == otherPlayer.name)
 		{
-			GameObject otherPlayer = col.gameObject;
-			health.damagePlayer ((int)(collisionAttackValue * otherPlayer.GetComponent<Rigidbody>().velocity.magnitude));
+			print(otherPlayerVel);
+			float attackMagnitude = otherPlayerVel.magnitude;
+			Debug.LogWarning(("player " + otherPlayer.name + "  " +  attackMagnitude));
+			health.damagePlayer ((int)(collisionAttackValue * attackMagnitude));
 		}
     }
 }
