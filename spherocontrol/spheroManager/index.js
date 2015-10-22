@@ -5,6 +5,7 @@ module.exports = function() {
     let api = {
         count: 0,
         names: [],
+        instaces: [],
         onSpheroConnect: callback => {
             _onSpheroConnect = callback;
         }
@@ -71,7 +72,10 @@ module.exports = function() {
         connectedSpheros.instances.splice(sphero);
         connectedSpheros.deviceNames.splice(deviceName);
         api.names.splice(deviceName);
-        api[deviceName] = undefined;
+        var i = api.instances.indexOf(sphero);
+        if (i !== -1) {
+            api.instaces.splice(i);
+        }
     }
 
     function setupSpheroInstance(sphero, deviceName) {
@@ -86,7 +90,8 @@ module.exports = function() {
         }, 1000 / updatePerSecond);
         api.names.push(deviceName);
         api.count++;
-        api[deviceName] = {
+        api.instances.push({
+            name: deviceName,
             newDataCallback: callback => {
                 _newDataCallback = callback;
             },
@@ -98,7 +103,7 @@ module.exports = function() {
                 spheroForce.direction = direction;
                 spheroForce.power = power;
             }
-        };
+        });
 
         sphero.streamVelocity(dataPerSecond);
         sphero.on("velocity", _data => {
