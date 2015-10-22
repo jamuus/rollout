@@ -9,7 +9,7 @@ public class Test : MonoBehaviour {
 	// Use this for initialization
     void Awake () {
         var message = new Server.Message(Server.MessageType.RollSphero);
-        message.AddContent((byte)(SpheroDirection.North | SpheroDirection.West));
+        message.AddContent(180.0f));
         message.AddContent(0.25f);
         message.AddContent("SPHERO-BOO");
 
