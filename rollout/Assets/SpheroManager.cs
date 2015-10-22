@@ -24,7 +24,6 @@ public static class SpheroManager
 public class Sphero
 {
     public string DeviceName { get; set; }
-    public string FriendlyName { get; set; }
     public Vector2 Velocity { get; set; }
 
     // RollSphero message format:

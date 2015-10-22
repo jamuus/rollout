@@ -16,11 +16,10 @@ public class Test : MonoBehaviour {
         Server.OpenConnection("127.0.0.1", 7777);
         Server.SendEndianness();
         Server.Send(message);
-        //Server.CloseConnection();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
+    void OnApplicationQuit()
+    {
+        Server.CloseConnection();
+    }
 }

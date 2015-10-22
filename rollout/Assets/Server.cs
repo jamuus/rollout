@@ -87,6 +87,7 @@ public static class Server
 
     private static UdpClient connection_;
     private static IPEndPoint ip_;
+    private static Thread listener_;
 
     public static void OpenConnection(string ip, int port)
     {
@@ -95,17 +96,23 @@ public static class Server
 
         // Create a sepratate thread to listen for any incoming states
         // from server.
-        new Thread(() =>
+        listener_ = new Thread(() =>
         {
             Thread.CurrentThread.IsBackground = true;
 
             UdpClient localConnection = new UdpClient(7779);
             IPEndPoint ipe = new IPEndPoint(IPAddress.Any, 0);
 
-            //while (true)
-            ProcessReceivedBytes(localConnection.Receive(ref ipe));
-            Thread.CurrentThread.Abort();  //TODO this should be an infinite loop but it breaks unity. Need to fix.
-        }).Start();
+            while (true)
+                ProcessReceivedBytes(localConnection.Receive(ref ipe));
+            //Thread.CurrentThread.Abort();  //TODO this should be an infinite loop but it breaks unity. Need to fix.
+        });
+        listener_.Start();
+    }
+
+    public static void CloseConnection()
+    {
+        listener_.Abort();
     }
 
     public static void Send(Message message)
@@ -125,7 +132,6 @@ public static class Server
     //  + MessageType   - 1 byte
     //  + Multiple repeats of the following:
     //   + DeviceName    - 1 + n bytes
-    //   + FriendlyName  - 1 + n bytes
     //   + Velocity      - 8 bytes
     private static void ProcessReceivedBytes(byte[] bytes)
     {
@@ -149,8 +155,6 @@ public static class Server
         {
             string deviceName = Encoding.ASCII.GetString(bytes, index + 1, bytes[index]);
             index += deviceName.Length + 1;
-            string friendlyName = Encoding.ASCII.GetString(bytes, index + 1, bytes[index]);
-            index += friendlyName.Length + 1;
             Vector2 velocity = new Vector2();
             velocity.x = BitConverter.ToSingle(bytes, index);
             index += 4;
@@ -166,10 +170,9 @@ public static class Server
 
             // For now, update everything.
             sphero.DeviceName = deviceName;
-            sphero.FriendlyName = friendlyName;
             sphero.Velocity = velocity;
 
-            string output = string.Format("DNAME: {0}, FNAME: {1}, VEL: ({2},{3})", deviceName, friendlyName, velocity.x, velocity.y);
+            string output = string.Format("DNAME: {0}, VEL: ({1},{2})", deviceName, velocity.x, velocity.y);
             Debug.Log(output);
         }
     }
