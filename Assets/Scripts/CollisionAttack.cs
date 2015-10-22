@@ -15,7 +15,7 @@ public class CollisionAttack : MonoBehaviour
 		particles = GetComponent<ParticleSystem> ();
 		if (gameObject.name == "player1") {
 			otherPlayer = GameObject.FindWithTag ("Player2");
-			otherPlayerVel = otherPlayer.GetComponent<Player2Control> ().velocity;
+			otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
 		} else if (gameObject.name == "player2") {
 			otherPlayer = GameObject.FindWithTag ("Player1");
 			otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
@@ -25,10 +25,8 @@ public class CollisionAttack : MonoBehaviour
 
 	void FixedUpdate()
 	{
-		if (gameObject.name == "player1" && otherPlayer) {
-			otherPlayerVel = otherPlayer.GetComponent<Player2Control> ().velocity;
-		} else if (gameObject.name == "player2") {
-			otherPlayerVel = otherPlayer.GetComponent<PlayerControl>().velocity;
+		if (otherPlayer) {
+			otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
 		}
 	}
     void OnCollisionEnter(Collision col)
