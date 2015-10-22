@@ -7,7 +7,7 @@ using System.Net.Sockets;
 public class Test : MonoBehaviour {
 
 	// Use this for initialization
-	void Awake () {
+    void Awake () {
         var message = new Server.Message(Server.MessageType.RollSphero);
         message.AddContent((byte)(SpheroDirection.North | SpheroDirection.West));
         message.AddContent(0.25f);

@@ -175,5 +175,6 @@ public static class Server
             string output = string.Format("DNAME: {0}, VEL: ({1},{2})", deviceName, velocity.x, velocity.y);
             Debug.Log(output);
         }
+        Debug.Log("Done");
     }
 }
