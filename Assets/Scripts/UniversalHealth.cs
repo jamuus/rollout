@@ -9,7 +9,6 @@ public class UniversalHealth : MonoBehaviour {
 	void Start () {
         int currentHealth = maxHealth;
 	}
-	
 	// Update is called once per frame
 	void Update () {
 	

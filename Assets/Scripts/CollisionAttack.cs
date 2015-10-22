@@ -4,9 +4,9 @@ using System.Collections;
 public class CollisionAttack : MonoBehaviour
 {
     public int collisionAttackValue = 10; //Base attack value
-    public UniversalHealth health; // Access to UniversalHealth class
-	public Vector3 otherPlayerVel; // velocity of other player. Used for damage
-	public GameObject otherPlayer; // another Player's sphere
+    private UniversalHealth health; // Access to UniversalHealth class
+	private Vector3 otherPlayerVel; // velocity of other player. Used for damage
+	private GameObject otherPlayer; // another Player's sphere
 	//private float speed;
     void Start()
     {
@@ -21,7 +21,7 @@ public class CollisionAttack : MonoBehaviour
 	}
 	void FixedUpdate()
 	{
-		if (gameObject.name == "player1") {
+		if (gameObject.name == "player1" && otherPlayer) {
 			otherPlayerVel = otherPlayer.GetComponent<Player2Control> ().velocity;
 		} else if (gameObject.name == "player2") {
 			otherPlayerVel = otherPlayer.GetComponent<PlayerControl>().velocity;
@@ -29,12 +29,12 @@ public class CollisionAttack : MonoBehaviour
 	}
     void OnCollisionEnter(Collision col)
     {
-		if (otherPlayer != null && col.gameObject.name == otherPlayer.name)
+		if (otherPlayer && col.gameObject.name == otherPlayer.name)
 		{
-			print(otherPlayerVel);
 			float attackMagnitude = otherPlayerVel.magnitude;
-			Debug.LogWarning(("player " + otherPlayer.name + "  " +  attackMagnitude));
-			health.damagePlayer ((int)(collisionAttackValue * attackMagnitude));
+			int damage = (int)(collisionAttackValue * attackMagnitude);
+			health.damagePlayer(damage);
+			print(otherPlayer.name + " deals " + damage + " damage");
 		}
     }
 }
