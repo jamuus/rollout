@@ -76,6 +76,7 @@ module.exports = function() {
         if (i !== -1) {
             api.instances.splice(i);
         }
+        clearInterval(sphero.powerStateInterval);
     }
 
     function setupSpheroInstance(sphero, deviceName) {
@@ -89,7 +90,7 @@ module.exports = function() {
         }, 1000 / updatePerSecond);
         api.names.push(deviceName);
         api.count++;
-        api.instances.push({
+        var inst = {
             name: deviceName,
             newDataCallback: function newDataCallback(callback) {
                 _newDataCallback = callback;
@@ -99,17 +100,25 @@ module.exports = function() {
                 if (power < 0) power = 0;
                 spheroForce.direction = direction;
                 spheroForce.power = power;
-            }
-        });
+            },
+        };
+        api.instances.push(inst);
 
         sphero.streamVelocity(dataPerSecond);
         sphero.on('velocity', function(_data) {
-            // parse data
             var data = {
-                xVelocity: _data.xVelocity.value[0],
-                yVelocity: _data.yVelocity.value[0]
+                dx: _data.xVelocity.value[0],
+                dy: _data.yVelocity.value[0]
             };
             _newDataCallback(data);
+        });
+        sphero.streamOdometer();
+
+        sphero.on("odometer", function(data) {
+            _newDataCallback({
+                x: data.xOdometer.value[0],
+                y: data.yOdometer.value[0],
+            });
         });
 
         sphero.on('error', function(err) {
@@ -123,19 +132,18 @@ module.exports = function() {
             removeSphero(sphero, deviceName);
             updateSpheros();
         });
+        inst.powerStateInterval = setInterval(function() {
+            sphero.getPowerState(function(err, data) {
+                if (err) {
+                    log("[ERROR] in getPowerState:", err);
+                    return;
+                }
 
-        sphero.getPowerState(function(err, data) {
-            if (err) {
-                console.log("error: ", err);
-            } else {
-                console.log("data:");
-                console.log("  recVer:", data.recVer);
-                console.log("  batteryState:", data.batteryState);
-                console.log("  batteryVoltage:", data.batteryVoltage);
-                console.log("  chargeCount:", data.chargeCount);
-                console.log("  secondsSinceCharge:", data.secondsSinceCharge);
-            }
-        });
+                _newDataCallback({
+                    batteryVoltage: data.batteryVoltage
+                });
+            });
+        }, 1000);
 
         _onSpheroConnect(api.instances[api.instances.length - 1]);
     }
