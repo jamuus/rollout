@@ -14,6 +14,7 @@ public class Test : MonoBehaviour {
         message.AddContent("SPHERO-BOO");
 
         Server.OpenConnection("127.0.0.1", 7777);
+
         Server.SendEndianness();
         Server.Send(message);
 	}
