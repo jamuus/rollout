@@ -108,7 +108,7 @@ function sendState() {
             length,
             new Buffer(name, 'ascii')
         ]);
-        var buf = new Buffer(2 * 4);
+        var buf = new Buffer(5 * 4);
 
         if (isLittleEndian) {
             buf.writeFloatLE(sphero.dx, idx);
@@ -117,7 +117,7 @@ function sendState() {
             buf.writeFloatBE(sphero.dx, idx);
             buf.writeFloatBE(sphero.dx, idx + 4);
         }
-        idx += 4;
+        idx += 8;
         if (isLittleEndian) {
             buf.writeFloatLE(sphero.x, idx);
             buf.writeFloatLE(sphero.y, idx + 4);
@@ -125,7 +125,7 @@ function sendState() {
             buf.writeFloatBE(sphero.x, idx);
             buf.writeFloatBE(sphero.x, idx + 4);
         }
-        idx += 4;
+        idx += 8;
         if (isLittleEndian) {
             buf.writeFloatLE(sphero.batteryVoltage, idx);
         } else {
