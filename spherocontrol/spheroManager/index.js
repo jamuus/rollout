@@ -14,7 +14,7 @@ module.exports = function() {
     };
 
     // todo: parameterise
-    var updatePerSecond = 10;
+    var updatePerSecond = 30;
     var dataPerSecond = 30;
 
     var sphero = require('sphero');

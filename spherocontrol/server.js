@@ -23,7 +23,7 @@ var client;
 
 socket.on("message", function(data, remote) {
     if (!client)
-        setInterval(sendState, 1000 / 1);
+        setInterval(sendState, 1000 / 60);
     client = remote;
     var type = data[0];
     switch (type) {
@@ -76,7 +76,6 @@ function spheroState() {
 
     manager.onSpheroConnect(function(newSphero) {
         instances.push(newSphero);
-        log(newSphero);
         api[newSphero.name] = {
             x: 0,
             y: 0,
@@ -88,7 +87,6 @@ function spheroState() {
             for (var dataName in data) {
                 api[newSphero.name][dataName] = data[dataName]
             }
-            log(api[newSphero.name]);
         });
     });
     return api;
@@ -136,7 +134,7 @@ function sendState() {
     socket.send(message, 0, message.length, client.port + 1, client.address, function(err) {
         if (err)
             throw err;
-        console.log("Sent state to client " + client.address + ":" + (client.port + 1) + ".");
+        // console.log("Sent state to client " + client.address + ":" + (client.port + 1) + ".");
     })
 }
 
