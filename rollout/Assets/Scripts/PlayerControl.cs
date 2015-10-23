@@ -12,14 +12,25 @@ public class PlayerControl : MonoBehaviour
         velocity = GetComponent<Rigidbody> ().velocity;
     }
 
+    void Awake()
+    {
+        Server.OpenConnection("127.0.0.1", 7777);
+        Server.SendEndianness();
+    }
+
     void FixedUpdate()
     {
-        float moveHorizontal = Input.GetAxis(horizontalAxis);
-        float moveVertical = Input.GetAxis(verticalAxis);
-        Rigidbody rb = GetComponent<Rigidbody>();
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-        velocity = rb.velocity;
+        var sphero = SpheroManager.Instances["tty.Sphero-YBR-AMP-SPP"];
+        float moveHorizontal = sphero.Position.x ;
+        float moveVertical = sphero.Position.y;
 
-        rb.AddForce(speed * movement);
+        Rigidbody rb = GetComponent<Rigidbody>();
+        Vector3 position = new Vector3(moveHorizontal, 0.5f, moveVertical);
+        rb.position = position;
+    }
+
+    void OnApplicationQuit()
+    {
+        Server.CloseConnection();
     }
 }
