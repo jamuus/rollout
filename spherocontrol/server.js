@@ -82,10 +82,13 @@ function spheroState() {
             y: 0,
             dx: 0,
             dy: 0,
+            batteryVoltage: 0,
         };
         newSphero.newDataCallback(function(data) {
-            api[newSphero.name].dx = data.xVelocity;
-            api[newSphero.name].dy = data.yVelocity;
+            for (var dataName in data) {
+                api[newSphero.name][dataName] = data[dataName]
+            }
+            log(api[newSphero.name]);
         });
     });
     return api;
