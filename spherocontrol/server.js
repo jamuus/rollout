@@ -114,8 +114,22 @@ function sendState() {
             buf.writeFloatLE(sphero.dx, idx);
             buf.writeFloatLE(sphero.dy, idx + 4);
         } else {
-            buf.writeFloatBE(sphero.vel.x, idx);
-            buf.writeFloatBE(sphero.vel.y, idx + 4);
+            buf.writeFloatBE(sphero.dx, idx);
+            buf.writeFloatBE(sphero.dx, idx + 4);
+        }
+        idx += 4;
+        if (isLittleEndian) {
+            buf.writeFloatLE(sphero.x, idx);
+            buf.writeFloatLE(sphero.y, idx + 4);
+        } else {
+            buf.writeFloatBE(sphero.x, idx);
+            buf.writeFloatBE(sphero.x, idx + 4);
+        }
+        idx += 4;
+        if (isLittleEndian) {
+            buf.writeFloatLE(sphero.batteryVoltage, idx);
+        } else {
+            buf.writeFloatBE(sphero.batteryVoltage, idx);
         }
         message = Buffer.concat([message, header, buf]);
     }
