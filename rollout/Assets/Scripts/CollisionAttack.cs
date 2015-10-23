@@ -14,10 +14,10 @@ public class CollisionAttack : MonoBehaviour
 		health = GetComponent<UniversalHealth> ();
 		particles = GetComponent<ParticleSystem> ();
 		if (gameObject.name == "player1") {
-			otherPlayer = GameObject.FindWithTag ("Player2");
+			otherPlayer = GameObject.Find ("player2");
 			otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
 		} else if (gameObject.name == "player2") {
-			otherPlayer = GameObject.FindWithTag ("Player1");
+			otherPlayer = GameObject.Find ("player1");
 			otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
 		}
 

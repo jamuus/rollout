@@ -30,7 +30,7 @@ public class UniversalHealth : MonoBehaviour {
         }
         else
         {
-            currentHealth += maxHealth;
+            currentHealth += healValue;
         }
     }
 }
