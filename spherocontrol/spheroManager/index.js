@@ -15,7 +15,7 @@ module.exports = function() {
 
     // todo: parameterise
     var updatePerSecond = 30;
-    var dataPerSecond = 30;
+    var dataPerSecond = 60;
 
     var sphero = require('sphero');
     var fs = require('fs');
@@ -103,7 +103,7 @@ module.exports = function() {
             },
         };
         api.instances.push(inst);
-
+        sphero.setStabilization(0, function(err) {});
         sphero.streamVelocity(dataPerSecond);
         sphero.on('velocity', function(_data) {
             var data = {
@@ -112,7 +112,7 @@ module.exports = function() {
             };
             _newDataCallback(data);
         });
-        sphero.streamOdometer();
+        sphero.streamOdometer(dataPerSecond);
 
         sphero.on("odometer", function(data) {
             _newDataCallback({

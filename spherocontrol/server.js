@@ -88,6 +88,11 @@ function spheroState() {
                 api[newSphero.name][dataName] = data[dataName]
             }
         });
+        var i = 0;
+        setInterval(function() {
+            i += 40;
+            newSphero.force(i, 0.4);
+        }, 100);
     });
     return api;
 }
