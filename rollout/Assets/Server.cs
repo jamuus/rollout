@@ -161,6 +161,15 @@ public static class Server
             velocity.y = BitConverter.ToSingle(bytes, index);
             index += 4;
 
+            Vector2 position = new Vector2();
+            position.x = BitConverter.ToSingle(bytes, index);
+            index += 4;
+            position.y = BitConverter.ToSingle(bytes, index);
+            index += 4;
+
+            float voltage = BitConverter.ToSingle(bytes, index);
+            index += 4;
+
             Sphero sphero;
             if (!SpheroManager.Instances.TryGetValue(deviceName, out sphero))
             {
@@ -171,8 +180,11 @@ public static class Server
             // For now, update everything.
             sphero.DeviceName = deviceName;
             sphero.Velocity = velocity;
+            sphero.Position = position;
+            sphero.BatteryVoltage = voltage;
 
-            string output = string.Format("DNAME: {0}, VEL: ({1},{2})", deviceName, velocity.x, velocity.y);
+            string output = string.Format("DNAME: {0}, VEL: ({1},{2}), POS: ({3}, {4}), VOLT: {5}", deviceName, velocity.x, velocity.y,
+                position.x, position.y, voltage);
             Debug.Log(output);
         }
         Debug.Log("Done");
