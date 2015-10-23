@@ -11,7 +11,7 @@ public class CollisionAttack : MonoBehaviour
     //private float speed;
     void Start()
     {
-<<<<<<< HEAD
+
 		health = GetComponent<UniversalHealth> ();
 		particles = GetComponent<ParticleSystem> ();
 		if (gameObject.name == "player1") {
@@ -21,17 +21,6 @@ public class CollisionAttack : MonoBehaviour
 			otherPlayer = GameObject.Find ("player1");
 			otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
 		}
-=======
-        health = GetComponent<UniversalHealth> ();
-        particles = GetComponent<ParticleSystem> ();
-        if (gameObject.name == "player1") {
-            otherPlayer = GameObject.FindWithTag ("Player2");
-            otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
-        } else if (gameObject.name == "player2") {
-            otherPlayer = GameObject.FindWithTag ("Player1");
-            otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
-        }
->>>>>>> 13cf94bc9e506243c733ac255b948029ac40044d
 
     }
 
