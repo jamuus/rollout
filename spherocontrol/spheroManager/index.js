@@ -7,7 +7,7 @@ module.exports = function() {
     var api = {
         count: 0,
         names: [],
-        instaces: [],
+        instances: [],
         onSpheroConnect: function onSpheroConnect(callback) {
             _onSpheroConnect = callback;
         }
@@ -74,7 +74,7 @@ module.exports = function() {
         api.names.splice(deviceName);
         var i = api.instances.indexOf(sphero);
         if (i !== -1) {
-            api.instaces.splice(i);
+            api.instances.splice(i);
         }
     }
 
@@ -114,6 +114,8 @@ module.exports = function() {
 
         sphero.on('error', function(err) {
             log('[ERROR] in sphero', deviceName, '-', err);
+            removeSphero(sphero, deviceName);
+            sphero.disconnect();
         });
 
         sphero.on('close', function() {
@@ -122,7 +124,20 @@ module.exports = function() {
             updateSpheros();
         });
 
-        _onSpheroConnect(api[deviceName]);
+        sphero.getPowerState(function(err, data) {
+            if (err) {
+                console.log("error: ", err);
+            } else {
+                console.log("data:");
+                console.log("  recVer:", data.recVer);
+                console.log("  batteryState:", data.batteryState);
+                console.log("  batteryVoltage:", data.batteryVoltage);
+                console.log("  chargeCount:", data.chargeCount);
+                console.log("  secondsSinceCharge:", data.secondsSinceCharge);
+            }
+        });
+
+        _onSpheroConnect(api.instances[api.instances.length - 1]);
     }
 
     updateSpheros();
