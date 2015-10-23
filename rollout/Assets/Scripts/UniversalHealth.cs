@@ -12,25 +12,10 @@ public class UniversalHealth : MonoBehaviour
         int currentHealth = maxHealth;
     }
 
-    void DrawQuad(Rect position, Color color)
-    {
-        Texture2D texture = new Texture2D(1, 1);
-        texture.SetPixel(0, 0, color);
-        texture.Apply();
-        GUI.skin.box.normal.background = texture;
-        GUI.Box(position, GUIContent.none);
-    }
-
     // Update is called once per frame
     void Update ()
     {
 
-    }
-
-    void OnGUI()
-    {
-        //Draw the health bar for the player
-        DrawQuad(new Rect(20, this.name == "player1"? 20 : 80, 200 * (currentHealth/maxHealth), 20), Color.blue);
     }
 
     public void damagePlayer(int damage)
