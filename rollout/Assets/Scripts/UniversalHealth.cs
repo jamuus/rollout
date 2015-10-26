@@ -19,7 +19,11 @@ public class UniversalHealth : MonoBehaviour
 
     public void damagePlayer(int damage)
     {
-        currentHealth -= damage;
+        if (damage > 0)
+        {
+            currentHealth -= damage;
+            print(gameObject.name + " takes " + damage + " damage"); // console log
+        } 
         if (currentHealth < minHealth) {
             Destroy(this.gameObject);
         }
@@ -28,6 +32,7 @@ public class UniversalHealth : MonoBehaviour
     {
         if (currentHealth + healValue > maxHealth) {
             currentHealth = maxHealth;
+            print(gameObject.name + " heals " + healValue + " damage"); // console log
         }
         else {
             currentHealth += healValue;
