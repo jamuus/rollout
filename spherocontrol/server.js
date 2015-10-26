@@ -56,15 +56,6 @@ socket.on("message", function(data, remote) {
 
 socket.bind(PORT, IP);
 
-// var instances = [{
-//     dname: "SPHERO-BOO",
-//     fname: "Boo",
-//     vel: {
-//         x: 1.5,
-//         y: 0.25
-//     }
-// }];
-
 
 function spheroState() {
     var api = {
@@ -76,16 +67,28 @@ function spheroState() {
 
     manager.onSpheroConnect(function(newSphero) {
         instances.push(newSphero);
-        api[newSphero.name] = {
+        var spheroData = api[newSphero.name] = {
             x: 0,
             y: 0,
             dx: 0,
             dy: 0,
+            lastVelocityUpdate: -1,
             batteryVoltage: 0,
         };
-        newSphero.newDataCallback(function(data) {
+        newSphero.newDataCallback(function(data, type) {
             for (var dataName in data) {
-                api[newSphero.name][dataName] = data[dataName]
+                api[newSphero.name][dataName] = data[dataName];
+            }
+            if (type === 'velocity') {
+                if (spheroData.lastVelocityUpdate !== -1) {
+                    var now = new Date().getTime();
+                    var diff = now - spheroData.lastVelocityUpdate;
+
+                    spheroData.x += (diff / 1000) * spheroData.dx;
+                    spheroData.y += (diff / 1000) * spheroData.dy;
+
+                    spheroData.lastVelocityUpdate = now;
+                }
             }
         });
         var i = 0;

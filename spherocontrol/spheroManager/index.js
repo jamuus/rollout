@@ -2,7 +2,8 @@
 
 var debug = true;
 
-module.exports = function() {
+module.exports = function(opts) {
+    opts = opts || {};
     var _onSpheroConnect = function _onSpheroConnect() {};
     var api = {
         count: 0,
@@ -13,9 +14,8 @@ module.exports = function() {
         }
     };
 
-    // todo: parameterise
-    var updatePerSecond = 30;
-    var dataPerSecond = 60;
+    var updatePerSecond = 100;
+    var dataPerSecond = opts.dataPerSecond || 100;
 
     var sphero = require('sphero');
     var fs = require('fs');
@@ -110,16 +110,16 @@ module.exports = function() {
                 dx: _data.xVelocity.value[0],
                 dy: _data.yVelocity.value[0]
             };
-            _newDataCallback(data);
+            _newDataCallback(data, 'velocity');
         });
-        sphero.streamOdometer(dataPerSecond);
+        // sphero.streamOdometer(dataPerSecond);
 
-        sphero.on("odometer", function(data) {
-            _newDataCallback({
-                x: data.xOdometer.value[0],
-                y: data.yOdometer.value[0],
-            });
-        });
+        // sphero.on("odometer", function(data) {
+        //     _newDataCallback({
+        //         x: data.xOdometer.value[0],
+        //         y: data.yOdometer.value[0],
+        //     });
+        // });
 
         sphero.on('error', function(err) {
             log('[ERROR] in sphero', deviceName, '-', err);
@@ -141,7 +141,7 @@ module.exports = function() {
 
                 _newDataCallback({
                     batteryVoltage: data.batteryVoltage
-                });
+                }, 'battery');
             });
         }, 1000);
 
