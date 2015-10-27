@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Rewired;
 
 public class PlayerControl : MonoBehaviour
 {
@@ -7,6 +8,9 @@ public class PlayerControl : MonoBehaviour
     public Vector3 velocity;
     public string horizontalAxis;
     public string verticalAxis;
+
+    private Player player;
+
     void Start()
     {
         velocity = GetComponent<Rigidbody> ().velocity;
@@ -16,21 +20,41 @@ public class PlayerControl : MonoBehaviour
     {
         Server.OpenConnection("127.0.0.1", 7777);
         Server.SendEndianness();
+
+        player = ReInput.players.GetPlayer(0);
     }
 
     void FixedUpdate()
     {
-        var sphero = SpheroManager.Instances["tty.Sphero-YBR-AMP-SPP"];
-        float moveHorizontal = sphero.Position.x ;
-        float moveVertical = sphero.Position.y;
+        Sphero sphero;
+        if (SpheroManager.Instances.TryGetValue("tty.Sphero-YBR-AMP-SPP", out sphero)) {
+            float moveHorizontal = sphero.Position.x;
+            float moveVertical = sphero.Position.y;
 
-        Rigidbody rb = GetComponent<Rigidbody>();
-        Vector3 position = new Vector3(moveHorizontal, 0.5f, moveVertical);
-        rb.position = position;
+            Rigidbody rb = GetComponent<Rigidbody>();
+            Vector3 position = new Vector3(moveHorizontal, 0.5f, moveVertical);
+            rb.position = position;
+
+            float X = player.GetAxis("Horizontalx");
+            float Y = player.GetAxis("Verticalx");
+
+            float force = Mathf.Sqrt(Mathf.Pow(X, 2)
+                                     + Mathf.Pow(Y, 2));
+            float direction = Vector2.Angle(new Vector2(0, 1), new Vector2(X, Y));
+            if (X < 0) direction = -direction + 360.0f;
+            // direction = Mathf.Rad2Deg * direction;
+
+            sphero.Roll(direction, force);
+        }
     }
+
+    // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
+    // Debug.Log(string.Format("{0}", player));
+
 
     void OnApplicationQuit()
     {
         Server.CloseConnection();
     }
+
 }

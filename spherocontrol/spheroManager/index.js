@@ -14,8 +14,8 @@ module.exports = function(opts) {
         }
     };
 
-    var updatePerSecond = 100;
-    var dataPerSecond = opts.dataPerSecond || 100;
+    var updatePerSecond = 1;
+    var dataPerSecond = opts.dataPerSecond || 20;
 
     var sphero = require('sphero');
     var fs = require('fs');
@@ -85,9 +85,21 @@ module.exports = function(opts) {
             direction: 0,
             power: 0
         };
-        setInterval(function() {
-            sphero.roll(Math.round(spheroForce.power * 255), spheroForce.direction % 360);
-        }, 1000 / updatePerSecond);
+
+        function doRoll() {
+            var newpower = Math.round(spheroForce.power * 255);
+            var newangle = spheroForce.direction % 360;
+            if (newpower !== 0) {
+                log('rolling', newpower);
+                sphero.roll(newpower, newangle, function() {
+                    doRoll();
+                });
+            } else {
+                // log(newpower);
+                setTimeout(doRoll, 100);
+            }
+        }
+        doRoll();
         api.names.push(deviceName);
         api.count++;
         var inst = {
@@ -103,7 +115,7 @@ module.exports = function(opts) {
             },
         };
         api.instances.push(inst);
-        sphero.setStabilization(0, function(err) {});
+        // sphero.setStabilization(1, function(err) {});
         sphero.streamVelocity(dataPerSecond);
         sphero.on('velocity', function(_data) {
             var data = {

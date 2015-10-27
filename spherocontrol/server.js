@@ -44,9 +44,11 @@ socket.on("message", function(data, remote) {
         case MESSAGE_TYPE_ROLL_SPHERO:
             var direction = isLittleEndian ? data.readFloatLE(1) : data.readFloatBE(1);
             var force = isLittleEndian ? data.readFloatLE(5) : data.readFloatBE(5);
-            var name = data.toString("ascii", 9);
+            // todo fix
+            var name = data.slice(1).toString("ascii", 9);
 
-            console.log("Rolling sphero '" + name + "' " + direction + " with force " + force + ".");
+            // console.log("Rolling sphero '" + name + "' " + direction + " with force " + force + ".");
+            state[name].force(direction, force);
             break;
         default:
             console.log("Unknown message.");
@@ -58,9 +60,7 @@ socket.bind(PORT, IP);
 
 
 function spheroState() {
-    var api = {
-
-    };
+    var api = {};
 
     var instances = [];
     var manager = require('./spheroManager')();
@@ -74,6 +74,7 @@ function spheroState() {
             dy: 0,
             lastVelocityUpdate: -1,
             batteryVoltage: 0,
+            force: newSphero.force,
         };
         newSphero.newDataCallback(function(data, type) {
             for (var dataName in data) {
@@ -91,11 +92,11 @@ function spheroState() {
                 }
             }
         });
-        var i = 0;
-        setInterval(function() {
-            i += 40;
-            newSphero.force(i, 0.4);
-        }, 100);
+        // var i = 0;
+        // setInterval(function() {
+        //     i += 40;
+        //     newSphero.force(i, 0.4);
+        // }, 100);
     });
     return api;
 }
