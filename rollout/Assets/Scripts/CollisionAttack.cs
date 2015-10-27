@@ -38,7 +38,7 @@ public class CollisionAttack : MonoBehaviour
     void OnCollisionEnter(Collision col)
     {
         if (otherPlayer && col.gameObject.name == otherPlayer.name) {
-            int damage = calculateDamage(col);
+            int damage = calculateDamage(col) * collisionAttackValue;
             health.damagePlayer(damage);
 
             particles.Play (); // play collision particle effect
@@ -47,16 +47,18 @@ public class CollisionAttack : MonoBehaviour
     int calculateDamage(Collision col)
     {
         float damage;
-        Vector3 relativePlayerVel = col.relativeVelocity.normalized;
+        Vector3 colImpulse = col.impulse.normalized;
         // get relative position on collision is inpulse
         //print ("this player's vel: " + thisPlayerVel.normalized +"  relative Velocity on collision = " + relativePlayerVel);
-        if (relativePlayerVel.x < 0) {relativePlayerVel.x = 0 ;}
-        if (relativePlayerVel.y < 0) {relativePlayerVel.y = 0 ;}
-        if (relativePlayerVel.z < 0) {relativePlayerVel.z = 0 ;}
-        Vector3 collisionAttackValue = (Vector3.Project(col.impulse, relativePlayerVel - thisPlayerVel.normalized).normalized); 
-
+        Vector3 tempThisPlayerVel = thisPlayerVel.normalized;
+        
+        //Vector3 collisionAttackValue = (Vector3.Project(tempThisPlayerVel, col.impulse));
+        //if (collisionAttackValue.x < 0) {collisionAttackValue.x = 0 ;}
+        //if (collisionAttackValue.y < 0) {collisionAttackValue.y = 0 ;}
+        //if (collisionAttackValue.z < 0) {collisionAttackValue.z = 0 ;}
+        float collisionAttackValue = Vector3.Dot(otherPlayerVel.normalized, gameObject.transform.position - otherPlayer.transform.position);
         float attackMagnitude = otherPlayerVel.magnitude;
-        damage = (collisionAttackValue.magnitude * attackMagnitude);
+        damage = (collisionAttackValue * attackMagnitude);
         return (int)damage;
     }
 }
