@@ -7,37 +7,31 @@ public class Projectile : MonoBehaviour
 	public float speed;
 
 	public int projectileDamage;
-	private UniversalHealth health; // Access to UniversalHealth class
+	private UniversalHealth health; 
 
 	//private ParticleSystem particles;
 
-
-    /*void start()
-    {
-       Rigidbody rb = GetComponent<Rigidbody>();
-    }*/
-
     public void Initialise(Vector3 givenVelocity)
 	{
+        //Immediately make the projectile move in the desired direction
 		velocity = givenVelocity;
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.velocity = velocity.normalized * speed;
-
-        Debug.Log(speed);
 	}
-
-    public void FixedUpdate()
-    {
-       // Rigidbody rb = GetComponent<Rigidbody>();
-       // rb.velocity = velocity * speed;
-    }
 
     void OnCollisionEnter(Collision col)
 	{
+        //Damage whatever collided with the projectile
 		GameObject collidedObject = col.gameObject;
 		health = collidedObject.GetComponent<UniversalHealth>();
 		health.damagePlayer (projectileDamage);
 		
 		Destroy (gameObject);
 	}
+
+    void Update()
+    {
+        //Destroys the projectile afer 1.3 seconds
+        Destroy(gameObject, 1.3f);
+    }
 }
