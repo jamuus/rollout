@@ -4,6 +4,7 @@ using System.Collections;
 public class PlayerControl : MonoBehaviour
 {
     public float speed;
+<<<<<<< HEAD
     public Vector3 velocity;
     public string horizontalAxis;
     public string verticalAxis;
@@ -11,6 +12,19 @@ public class PlayerControl : MonoBehaviour
     {
         velocity = GetComponent<Rigidbody> ().velocity;
     }
+=======
+	public Vector3 velocity;
+	public string horizontalAxis;
+	public string verticalAxis;
+
+	//public Projectile projectile;
+   // private Vector3 projectilePosition;
+
+	void Start()
+	{
+		velocity = GetComponent<Rigidbody> ().velocity;
+	}
+>>>>>>> refs/remotes/origin/Projectiles
 
     void FixedUpdate()
     {
@@ -21,5 +35,23 @@ public class PlayerControl : MonoBehaviour
         velocity = rb.velocity;
 
         rb.AddForce(speed * movement);
+
     }
+
+	//public void Update()
+	//{
+ //       if (Input.GetButtonDown ("Fire1"))
+ //       {
+ //           velocity = GetComponent<Rigidbody>().velocity;
+
+ //           if (velocity.magnitude == 0)
+ //           {
+ //               velocity = new Vector3(0.5f, 0f, 0.5f);
+ //           }
+
+ //           projectilePosition = transform.position + velocity.normalized;
+ //           var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
+ //           spawnedProjectile.Initialise(velocity);
+ //       }
+	//}
 }
