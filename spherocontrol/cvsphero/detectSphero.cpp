@@ -42,7 +42,7 @@ int main(int, char**)
             circle( blueImg, center, radius, Scalar(0, 0, 255), 3, 8, 0 );
         }
         imshow("Hough Circles", blueImg);
-        if (waitKey(25) == 27)  break; // esc to quit
+        if (waitKey(25) == 27)  break; // esc to quit, waits 25ms ~= 40fps
     }
     camera.release();
     return 0;
