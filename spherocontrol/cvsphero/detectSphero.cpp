@@ -19,24 +19,26 @@ int main(int, char**)
         return -1;
     vector<Vec3f> detectedcircles;
     Mat frame,
-        blueImg;
+        blueImg,
+        hsvImg;
 
     namedWindow("Hough", 1);
 
     while (true) {
         camera >> frame;
 
-        cv::inRange(frame, cv::Scalar(30, 0, 0), cv::Scalar(255, 30, 30), blueImg);
+        cvtColor(frame, hsvImg, CV_BGR2HSV);
+        inRange(hsvImg, cv::Scalar(0, 150, 100), cv::Scalar(20, 255, 255), blueImg);
 
-        GaussianBlur( blueImg, blueImg, Size(15, 15), 10, 10 );
+        GaussianBlur(blueImg, blueImg, Size(11, 11), 5, 5);
 
         HoughCircles( blueImg,
                       detectedcircles,    // where to output the circles
                       CV_HOUGH_GRADIENT,
                       1,
                       blueImg.rows / 8,   // min dist between detected circles
-                      100,                // edge threshold
-                      70,                 // hough space threshold
+                      50,                // edge threshold
+                      20,                 // hough space threshold
                       0,
                       0);
 
