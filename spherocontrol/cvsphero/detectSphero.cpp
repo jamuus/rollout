@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <math.h>
-#include "/usr/local/opencv-2.4/include/opencv2/opencv.hpp"
-#include "/usr/local/opencv-2.4/include/opencv2/core/core.hpp"
-#include "/usr/local/opencv-2.4/include/opencv2/highgui/highgui.hpp"
+#ifdef __APPLE__
+#   include "/usr/local/opencv-2.4/include/opencv2/opencv.hpp"
+#   include "/usr/local/opencv-2.4/include/opencv2/core/core.hpp"
+#   include "/usr/local/opencv-2.4/include/opencv2/highgui/highgui.hpp"
+#else
+#   include <opencv2/opencv.hpp>
+#   include <opencv2/core/core.hpp>
+#   include <opencv2/highgui/highgui.hpp>
+#endif
 
 using namespace cv;
 
