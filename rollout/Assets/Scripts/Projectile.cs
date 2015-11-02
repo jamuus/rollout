@@ -17,7 +17,10 @@ public class Projectile : MonoBehaviour
 		velocity = givenVelocity;
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.velocity = velocity.normalized * speed;
-	}
+
+        //Schedule to destroy the projectile after 1.3 seconds
+        Destroy(gameObject, 1.3f);
+    }
 
     void OnCollisionEnter(Collision col)
 	{
@@ -26,12 +29,11 @@ public class Projectile : MonoBehaviour
 		health = collidedObject.GetComponent<UniversalHealth>();
 		health.damagePlayer (projectileDamage);
 		
+        //Remove the projectile
 		Destroy (gameObject);
 	}
 
     void Update()
     {
-        //Destroys the projectile afer 1.3 seconds
-        Destroy(gameObject, 1.3f);
     }
 }
