@@ -37,7 +37,7 @@ int main(int, char**)
                       CV_HOUGH_GRADIENT,
                       1,
                       blueImg.rows / 8,   // min dist between detected circles
-                      50,                // edge threshold
+                      50,                 // edge threshold
                       20,                 // hough space threshold
                       0,
                       0);
@@ -50,7 +50,7 @@ int main(int, char**)
             circle( blueImg, center, radius, Scalar(0, 0, 255), 3, 8, 0 );
         }
         imshow("Hough Circles", blueImg);
-        if (waitKey(25) == 27)  break; // esc to quit, waits 25ms ~= 40fps
+        if (waitKey(25) == 27)  break;     // esc to quit, waits 25ms ~= 40fps
     }
     camera.release();
     return 0;
