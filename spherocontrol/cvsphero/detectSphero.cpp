@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <sys/socket.h>
 
 #ifdef __APPLE__
 #   include "/usr/local/opencv-2.4/include/opencv2/opencv.hpp"
@@ -13,15 +14,61 @@
 
 using namespace cv;
 
+void doNetworkyStuff()
+{
+    struct sockaddr_in servaddr;  /* our address */
+    int fd; /* our socket */
+    unsigned int alen;  /* length of address (for getsockname) */
+
+    // create        ipv4     udp                   socket
+    if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("cannot create socket");
+        return 0;
+    }
+    printf("created socket: %d\n", fd);
+
+    memset((void *)&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    // set port
+    servaddr.sin_port = htons(1337);
+
+    if (bind(fd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+        perror("bind failed");
+        return 0;
+    }
+
+    // alen = sizeof(servaddr);
+    // if (getsockname(fd, (struct sockaddr *)&servaddr, &alen) < 0) {
+    //     perror("getsockname failed");
+    //     return 0;
+    // }
+
+    printf("bind complete. Port number = %d\n", ntohs(servaddr.sin_port));
+
+    char *my_message = "this is a test message";
+    // send a message to the server
+    if (sendto(fd, my_message, strlen(my_message), 0, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+        perror("sendto failed");
+        return 0;
+    }
+
+}
+
+
+
 int main(int, char**)
 {
     VideoCapture camera(0);
     if (!camera.isOpened())
         return -1;
-    vector<Vec3f> detectedcircles;
+    vector<Vec3f> detectedOrangeCircles,
+           detectedBlueCircles;
     Mat frame,
-        blueImg,
-        hsvImg;
+        orangeImage,
+        blueImage,
+        hsvImg,
+        output;
 
     namedWindow("Hough", 1);
 
@@ -29,28 +76,52 @@ int main(int, char**)
         camera >> frame;
 
         cvtColor(frame, hsvImg, CV_BGR2HSV);
-        inRange(hsvImg, cv::Scalar(0, 150, 100), cv::Scalar(20, 255, 255), blueImg);
+        inRange(hsvImg, cv::Scalar(0, 150, 100), cv::Scalar(20, 255, 255), orangeImage);
+        // needs adjusting
+        inRange(hsvImg, cv::Scalar(128, 100, 100), cv::Scalar(192, 255, 255), blueImage);
 
-        GaussianBlur(blueImg, blueImg, Size(11, 11), 5, 5);
+        GaussianBlur(orangeImage, orangeImage, Size(11, 11), 5, 5);
+        GaussianBlur(blueImage, blueImage, Size(11, 11), 5, 5);
 
-        HoughCircles( blueImg,
-                      detectedcircles,    // where to output the circles
+        blueImage.copyTo(output);
+
+        HoughCircles( orangeImage,
+                      detectedOrangeCircles,        // where to output the circles
                       CV_HOUGH_GRADIENT,
                       1,
-                      blueImg.rows / 8,   // min dist between detected circles
-                      50,                 // edge threshold
-                      20,                 // hough space threshold
+                      orangeImage.rows / 4,   // min dist between detected circles
+                      50,                     // edge threshold
+                      40,                     // hough space threshold
                       0,
                       0);
 
-        for (size_t i = 0; i < detectedcircles.size(); i++) {
-            Point center(cvRound(detectedcircles[i][0]),
-                         cvRound(detectedcircles[i][1]));
-            int radius = cvRound(detectedcircles[i][2]);
-            circle( blueImg, center, 3, Scalar(0, 255, 0), -1, 8, 0 );
-            circle( blueImg, center, radius, Scalar(0, 0, 255), 3, 8, 0 );
+        HoughCircles( blueImage,
+                      detectedBlueCircles,        // where to output the circles
+                      CV_HOUGH_GRADIENT,
+                      1,
+                      blueImage.rows / 4,   // min dist between detected circles
+                      50,                     // edge threshold
+                      40,                     // hough space threshold
+                      0,
+                      0);
+
+        for (size_t i = 0; i < detectedOrangeCircles.size(); i++) {
+            Point center(cvRound(detectedOrangeCircles[i][0]),
+                         cvRound(detectedOrangeCircles[i][1]));
+            int radius = cvRound(detectedOrangeCircles[i][2]);
+            circle( output, center, 3, Scalar(0, 255, 0), -1, 8, 0 );
+            circle( output, center, radius, Scalar(0, 0, 255), 3, 8, 0 );
         }
-        imshow("Hough Circles", blueImg);
+
+        for (size_t i = 0; i < detectedBlueCircles.size(); i++) {
+            Point center(cvRound(detectedBlueCircles[i][0]),
+                         cvRound(detectedBlueCircles[i][1]));
+            int radius = cvRound(detectedBlueCircles[i][2]);
+            circle( output, center, 3, Scalar(0, 255, 0), -1, 8, 0 );
+            circle( output, center, radius, Scalar(0, 0, 255), 3, 8, 0 );
+        }
+
+        imshow("Hough Circles", output);
         if (waitKey(25) == 27)  break;     // esc to quit, waits 25ms ~= 40fps
     }
     camera.release();
