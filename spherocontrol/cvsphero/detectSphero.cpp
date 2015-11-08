@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+
 #ifdef __APPLE__
 #   include "/usr/local/opencv-2.4/include/opencv2/opencv.hpp"
 #   include "/usr/local/opencv-2.4/include/opencv2/core/core.hpp"
