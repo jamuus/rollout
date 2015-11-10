@@ -23,3 +23,10 @@ sysinfo.txt
 
 node_modules/
 .DS_Store
+
+rollout_app/.gradle
+rollout_app/local.properties
+rollout_app/.idea/workspace.xml
+rollout_app/.idea/libraries
+rollout_app/.DS_Store
+rollout_app/build
