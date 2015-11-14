@@ -12,6 +12,18 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ServerMessage message = new ServerMessage();
+                message.setType(ServerMessage.Type.TEST);
+                message.addContent("Hello from Android!");
+
+                Server.openConnection("192.168.0.5", 7777);
+                Server.send(message);
+            }
+        }).start();
     }
 
     @Override
