@@ -13,17 +13,14 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ServerMessage message = new ServerMessage();
-                message.setType(ServerMessage.Type.TEST);
-                message.addContent("Hello from Android!");
+        ServerMessage message = new ServerMessage();
+        message.setType(ServerMessage.Type.ROLL_SPHERO);
+        message.addContent(180.0f);
+        message.addContent(34.5f);
+        message.addContent("SPHERO-BOO");
 
-                Server.openConnection("192.168.0.5", 7777);
-                Server.send(message);
-            }
-        }).start();
+        Server.openConnection("192.168.0.5", 7777);
+        Server.send(message);
     }
 
     @Override
