@@ -15,10 +15,10 @@ public class ServerMessage {
         public static final int ROLL_SPHERO     = 0x08;
     }
 
-    private static final String TAG = "SERVER.MESSAGE";
+    private static final String TAG = "SERVER_MESSAGE";
 
     private int         type_;
-    private List<Byte> data_;
+    private List<Byte>  data_;
 
     public ServerMessage() {
         this.data_ = new ArrayList<>();
