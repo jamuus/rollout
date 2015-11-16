@@ -5,11 +5,22 @@ public class ProjectileControl : MonoBehaviour
 {
     private Vector3 velocity;
     public Projectile projectile;
+    public HomingMissile homingMissile;
     private Vector3 projectilePosition;
+    private GameObject otherPlayer;
 
     void Start()
     {
         velocity = GetComponent<Rigidbody>().velocity;
+
+        if (gameObject.name == "player1")
+        {
+            otherPlayer = GameObject.Find("player2");
+        }
+        else if (gameObject.name == "player2")
+        {
+            otherPlayer = GameObject.Find("player1");
+        }
     }
 
 
@@ -29,6 +40,14 @@ public class ProjectileControl : MonoBehaviour
             projectilePosition = transform.position + velocity.normalized;
             var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
             spawnedProjectile.Initialise(velocity);
+        }
+
+        if (Input.GetButtonDown("Fire3") && gameObject.name == ("player1"))
+        {
+            velocity = otherPlayer.GetComponent<Rigidbody>().velocity;
+            projectilePosition = transform.position + (velocity.normalized * 3);
+            var spawnedMissile = (HomingMissile)Instantiate(homingMissile, projectilePosition, transform.rotation);
+            spawnedMissile.Initialise(velocity, otherPlayer);
         }
     }
         
