@@ -15,9 +15,10 @@ public class HomingMissile : MonoBehaviour
     public void Initialise(Vector3 givenVelocity, GameObject givenOtherPlayer)
     {
         otherPlayer = givenOtherPlayer;
-
-        //Immediately make the projectile move in the desired direction
         homingMissile = GetComponent<Rigidbody>();
+
+        //Schedule to destroy the missile after 8 seconds
+        Destroy(gameObject, 8f);
     }
 
     void OnCollisionEnter(Collision col)
@@ -33,7 +34,6 @@ public class HomingMissile : MonoBehaviour
         Destroy(gameObject);
     }
 	
-	// Update is called once per frame
 	void Update ()
     {
 	
@@ -44,7 +44,7 @@ public class HomingMissile : MonoBehaviour
         if (otherPlayer != null)
         {
             //Rotates the missile towards the other player
-            var targetRotation = Quaternion.LookRotation(otherPlayer.transform.position - transform.position);
+            var targetRotation = Quaternion.LookRotation(otherPlayer.transform.position - transform.position, Vector3.up);
             homingMissile.MoveRotation(Quaternion.RotateTowards(transform.rotation, targetRotation, turnSpeed));
         }
         homingMissile.velocity = transform.forward * speed;

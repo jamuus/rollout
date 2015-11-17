@@ -8,6 +8,7 @@ public class ProjectileControl : MonoBehaviour
     public HomingMissile homingMissile;
     private Vector3 projectilePosition;
     private GameObject otherPlayer;
+    private Quaternion projectileRotation;
 
     void Start()
     {
@@ -48,16 +49,19 @@ public class ProjectileControl : MonoBehaviour
             //if the other player is alive, set the direction of the missile towards it, otherwise set it in direction of movement
             if (otherPlayer != null)
             {
-                //Set the spawn position of the missile to be towards the other player
+                //Set the spawn position and rotation to be towards the other player
                 velocity = otherPlayer.transform.position - transform.position;
+                projectileRotation = Quaternion.LookRotation(otherPlayer.transform.position - transform.position, Vector3.up);
             }
             else
             {
+                //Set the spawn position and rotation to be in the direction of movement
                 velocity = GetComponent<Rigidbody>().velocity;
+                projectileRotation = Quaternion.LookRotation(velocity.normalized, Vector3.up);
             }
 
             projectilePosition = transform.position + (velocity.normalized * 2);
-            var spawnedMissile = (HomingMissile)Instantiate(homingMissile, projectilePosition, transform.rotation);
+            var spawnedMissile = (HomingMissile)Instantiate(homingMissile, projectilePosition, projectileRotation);
             spawnedMissile.Initialise(velocity, otherPlayer);
         }
     }
