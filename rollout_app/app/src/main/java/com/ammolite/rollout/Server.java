@@ -11,6 +11,7 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -34,6 +35,11 @@ public final class Server {
         } catch (SocketException ex) {
             Log.d(TAG, "Encountered a socket exception when opening server connection.", ex);
         }
+    }
+
+    public static void closeConnection() {
+        if (connection_ != null)
+            connection_.close();
     }
 
     public static void sendSync(ServerMessage message) {
@@ -103,6 +109,7 @@ public final class Server {
         try {
             byte[] recv = new byte[1];
             DatagramPacket response = new DatagramPacket(recv, recv.length);
+            socket.setSoTimeout(10000);
             socket.receive(response);
 
             Log.d(TAG, "Got response from server " + response.getAddress().getHostAddress() + ".");
@@ -111,6 +118,9 @@ public final class Server {
                         response.getAddress().getHostAddress(),
                         response.getPort()
                 ));
+        } catch (SocketTimeoutException ex) {
+            socket.close();
+            return null;
         } catch (IOException ex) {
             Log.d(TAG, "Failed while getting discovery response.", ex);
         } finally {

@@ -1,32 +1,32 @@
 package com.ammolite.rollout;
 
-import android.app.ProgressDialog;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import java.util.List;
-import java.util.concurrent.Future;
-
+import android.view.View;
 
 public class MainActivity extends ActionBarActivity {
+    private static final String TAG = "MAIN_ACTIVITY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        /*
-        ServerMessage message = new ServerMessage();
-        message.setType(ServerMessage.Type.ROLL_SPHERO);
-        message.addContent(180.0f);
-        message.addContent(34.5f);
-        message.addContent("SPHERO-BOO");
 
-        Server.openConnection("192.168.0.5", 7777);
-        Server.send(message);*/
+        findViewById(R.id.btn_connect).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "SERVER - Button clicked.");
+                new ServerConnectionTask(MainActivity.this).execute();
+            }
+        });
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
         new ServerConnectionTask(this).execute();
     }
 
@@ -35,25 +35,6 @@ public class MainActivity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
-
-    @Override
-    protected void onStart()  {
-        super.onStart();
-
-
-
-       /* try {
-            Future<List<Pair<String, Integer>>> serverFuture = Server.discoverServers();
-            //List<Pair<String, Integer>> servers = serverFuture.get();
-            //for (Pair<String, Integer> p : servers) {
-            //    Log.d("MAIN", "SERVER: " +  p.getFirst() + ":" + p.getSecond());
-            //}
-        } catch (Exception ex) {
-            Log.d("MAIN", "Failed to do future.", ex);
-        }*/
-
-        //pd.dismiss();
     }
 
     @Override
