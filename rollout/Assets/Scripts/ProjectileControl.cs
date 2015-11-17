@@ -45,8 +45,18 @@ public class ProjectileControl : MonoBehaviour
 
         if (Input.GetButtonDown("Fire3") && gameObject.name == ("player1"))
         {
-            velocity = otherPlayer.transform.position - transform.position;
-            projectilePosition = transform.position + velocity.normalized;
+            //if the other player is alive, set the direction of the missile towards it, otherwise set it in direction of movement
+            if (otherPlayer != null)
+            {
+                //Set the spawn position of the missile to be towards the other player
+                velocity = otherPlayer.transform.position - transform.position;
+            }
+            else
+            {
+                velocity = GetComponent<Rigidbody>().velocity;
+            }
+
+            projectilePosition = transform.position + (velocity.normalized * 2);
             var spawnedMissile = (HomingMissile)Instantiate(homingMissile, projectilePosition, transform.rotation);
             spawnedMissile.Initialise(velocity, otherPlayer);
         }
