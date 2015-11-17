@@ -13,6 +13,7 @@ public class ServerMessage {
         public static final int SET_ENDIANNESS  = 0x02;
         public static final int UPDATE_STATE    = 0x04;
         public static final int ROLL_SPHERO     = 0x08;
+        public static final int SERVER_DISCOVER = 0x10;
     }
 
     private static final String TAG = "SERVER_MESSAGE";
