@@ -45,8 +45,8 @@ public class ProjectileControl : MonoBehaviour
 
         if (Input.GetButtonDown("Fire3") && gameObject.name == ("player1"))
         {
-            velocity = otherPlayer.GetComponent<Rigidbody>().velocity;
-            projectilePosition = transform.position + (velocity.normalized * 3);
+            velocity = otherPlayer.transform.position - transform.position;
+            projectilePosition = transform.position + velocity.normalized;
             var spawnedMissile = (HomingMissile)Instantiate(homingMissile, projectilePosition, transform.rotation);
             spawnedMissile.Initialise(velocity, otherPlayer);
         }
