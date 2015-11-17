@@ -3,6 +3,7 @@ package com.ammolite.rollout;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -51,6 +52,7 @@ public class ServerConnectionTask extends AsyncTask<Void, Void, List<Pair<String
 
             dialog.dismiss();
             Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            context.startActivity(new Intent(context, ControllerActivity.class));
         } else {
             dialog.dismiss();
             Toast.makeText(context, "Failed to connect to server.", Toast.LENGTH_LONG).show();

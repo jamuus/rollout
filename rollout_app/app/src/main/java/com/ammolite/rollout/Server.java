@@ -65,6 +65,7 @@ public final class Server {
 
         try {
             socket = new DatagramSocket();
+            socket.setBroadcast(true);
         } catch (SocketException ex) {
             Log.d(TAG, "Exception occurred creating socket for server discovery.", ex);
             return servers;
