@@ -4,61 +4,70 @@ using System;
 
 public class CollisionAttack : MonoBehaviour
 {
-    public int collisionAttackValue = 10; //Base attack value
-    private UniversalHealth health; // Access to UniversalHealth class
+    //Base attack value
+    public int collisionAttackValue = 10; 
+
+    //Accessing other parts of the players
+    private UniversalHealth health;
     private ParticleSystem particles;
-    private Vector3 otherPlayerVel; // velocity of other player. Used for damage
-    private Vector3 thisPlayerVel;  // Velocity of this player. Used for damage
-    private GameObject otherPlayer; // another Player's sphere
-    //private float speed;
+
+    //Player Velocities
+    private Vector3 otherPlayerVel;
+    private Vector3 thisPlayerVel;
+
+    //The other player
+    private GameObject otherPlayer;
+
     void Start()
     {
-
+        //Get the other parts of the player
 		health = GetComponent<UniversalHealth> ();
 		particles = GetComponent<ParticleSystem> ();
-		if (gameObject.name == "player1") {
-			otherPlayer = GameObject.Find ("player2");
-			//otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
-            //thisPlayerVel = gameObject.GetComponent<PlayerControl> ().velocity;
-		} else if (gameObject.name == "player2") {
-			otherPlayer = GameObject.Find ("player1");
-			//otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
-            //hisPlayerVel = gameObject.GetComponent<PlayerControl> ().velocity;
-		}
 
+        //Get the other player
+        otherPlayer = GameObject.Find(gameObject.name == "player1" ? "player2" : "player1");
     }
 
     void FixedUpdate()
     {
-        if (otherPlayer) {
-            otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
-            thisPlayerVel = gameObject.GetComponent<PlayerControl> ().velocity;
+        //If the other player object has been set
+        if (otherPlayer)
+        {
+            //Update the players velocities
+            otherPlayerVel = otherPlayer.GetComponent<PlayerControl>().velocity;
+            thisPlayerVel = gameObject.GetComponent<PlayerControl>().velocity;
         }
     }
+
     void OnCollisionEnter(Collision col)
     {
-        if (otherPlayer && col.gameObject.name == otherPlayer.name) {
+        //If you collided with the other player
+        if (otherPlayer && col.gameObject.name == otherPlayer.name)
+        {
+            //Calculate and deal some damage to the player
             int damage = calculateDamage(col) * collisionAttackValue;
             health.damagePlayer(damage);
 
-            particles.Play (); // play collision particle effect
+            //Play collision particle effect
+            particles.Play (); 
         }
     }
+
     int calculateDamage(Collision col)
     {
-        float damage;
         Vector3 colImpulse = col.impulse.normalized;
-        // get relative position on collision is inpulse
-        //print ("this player's vel: " + thisPlayerVel.normalized +"  relative Velocity on collision = " + relativePlayerVel);
-        Vector3 tempThisPlayerVel = thisPlayerVel.normalized;
         
-        //Vector3 collisionAttackValue = (Vector3.Project(tempThisPlayerVel, col.impulse));
-        //if (collisionAttackValue.x < 0) {collisionAttackValue.x = 0 ;}
-        //if (collisionAttackValue.y < 0) {collisionAttackValue.y = 0 ;}
-        //if (collisionAttackValue.z < 0) {collisionAttackValue.z = 0 ;}
+        //Get relative position on collision is impulse
+        Vector3 tempThisPlayerVel = thisPlayerVel.normalized;
+
+        //DEBUG
+        //print ("this player's vel: " + thisPlayerVel.normalized +"  relative Velocity on collision = " + relativePlayerVel);
+
+        //Calculate the damage to be dealt to the other player
         float collisionAttackValue = Vector3.Dot(otherPlayerVel.normalized, gameObject.transform.position - otherPlayer.transform.position);
         float attackMagnitude = otherPlayerVel.magnitude;
-        damage = (collisionAttackValue * attackMagnitude);
+        float damage = (collisionAttackValue * attackMagnitude);
+
         return (int)damage;
     }
 }

@@ -22,6 +22,7 @@ public class GUIController : MonoBehaviour {
         //Get the health of both players
         int playerHealth = player.GetComponent<UniversalHealth>().currentHealth;
 
+        //Draw the health bar
         lineRenderer.SetPosition(0, player.transform.position + new Vector3(1, 1, -1));
         lineRenderer.SetPosition(1, player.transform.position + new Vector3(1 + (10 * getPlayerHealth(player)), 1, -1));
     }
