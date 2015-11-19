@@ -144,18 +144,19 @@ module.exports = function(opts) {
             removeSphero(sphero, deviceName);
             updateSpheros();
         });
-        inst.powerStateInterval = setInterval(function() {
-            sphero.getPowerState(function(err, data) {
-                if (err) {
-                    log("[ERROR] in getPowerState:", err);
-                    return;
-                }
+        // inst.powerStateInterval = setInterval(function() {
+            //     sphero.getPowerState(function(err, data) {
+            //         if (err) {
+            //             log("[ERROR] in getPowerState:", err);
+            //             return;
+            //         }
 
-                _newDataCallback({
-                    batteryVoltage: data.batteryVoltage
-                }, 'battery');
-            });
-        }, 1000);
+            //         _newDataCallback({
+            //             batteryVoltage: data.batteryVoltage
+            //         }, 'battery');
+            //     });
+            // }, 1000);
+
 
         _onSpheroConnect(api.instances[api.instances.length - 1]);
     }

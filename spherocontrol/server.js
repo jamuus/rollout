@@ -62,43 +62,10 @@ socket.bind(PORT, IP);
 function spheroState() {
     var api = {};
 
-    var instances = [];
     var manager = require('./spheroManager')();
+    var spheroLoc = require('./spheroLoc.js')(manager);
 
-    manager.onSpheroConnect(function(newSphero) {
-        instances.push(newSphero);
-        var spheroData = api[newSphero.name] = {
-            x: 0,
-            y: 0,
-            dx: 0,
-            dy: 0,
-            lastVelocityUpdate: -1,
-            batteryVoltage: 0,
-            force: newSphero.force,
-        };
-        newSphero.newDataCallback(function(data, type) {
-            for (var dataName in data) {
-                api[newSphero.name][dataName] = data[dataName];
-            }
-            if (type === 'velocity') {
-                if (spheroData.lastVelocityUpdate !== -1) {
-                    var now = new Date().getTime();
-                    var diff = now - spheroData.lastVelocityUpdate;
-
-                    spheroData.x += (diff / 1000) * spheroData.dx;
-                    spheroData.y += (diff / 1000) * spheroData.dy;
-
-                    spheroData.lastVelocityUpdate = now;
-                }
-            }
-        });
-        // var i = 0;
-        // setInterval(function() {
-        //     i += 40;
-        //     newSphero.force(i, 0.4);
-        // }, 100);
-    });
-    return api;
+    return spheroLoc;
 }
 
 var state = spheroState();

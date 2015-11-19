@@ -28,6 +28,7 @@ public class PlayerControl : MonoBehaviour
     {
         Sphero sphero;
         if (SpheroManager.Instances.TryGetValue("tty.Sphero-YBR-AMP-SPP", out sphero)) {
+            // move ingame sphero
             float moveHorizontal = sphero.Position.x;
             float moveVertical = sphero.Position.y;
 
@@ -35,6 +36,9 @@ public class PlayerControl : MonoBehaviour
             Vector3 position = new Vector3(moveHorizontal, 0.5f, moveVertical);
             rb.position = position;
 
+            // Debug.Log(string.Format("{0}, {1}", moveHorizontal, moveVertical));
+
+            // get controller input and omve sphero
             float X = player.GetAxis("Horizontalx");
             float Y = player.GetAxis("Verticalx");
 
