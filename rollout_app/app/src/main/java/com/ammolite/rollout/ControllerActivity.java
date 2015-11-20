@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -38,6 +39,10 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
                 vibrator.vibrate(1000);
             }
         });
+
+        //Override the on draw method of the thumbstick
+        ThumbstickControl thumbstick = new ThumbstickControl(this);
+        ((RelativeLayout)findViewById(R.id.root)).addView(thumbstick);
     }
 
     @Override
