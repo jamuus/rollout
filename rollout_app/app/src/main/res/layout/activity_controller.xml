@@ -1,24 +1,28 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:gravity="center">
+    android:id="@+id/root"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center">
 
     <Button
         android:id="@+id/btn_vibrate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/vibrate" />
+        android:text="@string/vibrate"
+        android:layout_alignParentLeft="true"/>
 
     <Button
         android:id="@+id/btn_shoot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/shoot" />
+        android:text="@string/shoot"
+        android:layout_alignParentLeft="true"/>
 
     <TextView
         android:id="@+id/txt_gyro"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"/>
 
 </RelativeLayout>

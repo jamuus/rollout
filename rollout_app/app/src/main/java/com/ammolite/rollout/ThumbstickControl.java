@@ -13,6 +13,7 @@ public class ThumbstickControl extends View
     public ThumbstickControl(Context context)
     {
         super(context);
+        setId(R.id.thumbstick);
     }
 
     @Override

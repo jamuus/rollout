@@ -1,16 +1,20 @@
 package com.ammolite.rollout;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.PersistableBundle;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.LayoutDirection;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -40,15 +44,24 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
             }
         });
 
-        //Override the on draw method of the thumbstick
+        //Create the thumbstick control and add it to the page
         ThumbstickControl thumbstick = new ThumbstickControl(this);
-        ((RelativeLayout)findViewById(R.id.root)).addView(thumbstick);
+        thumbstick.setBackgroundColor(getResources().getColor(R.color.material_deep_teal_500));
+
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params.setMargins(60, 60, 60, 60);
+        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        thumbstick.setLayoutParams(params);
+        ((RelativeLayout) findViewById(R.id.root)).addView(thumbstick);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_controller, menu);
+        ViewGroup.LayoutParams params = (findViewById(R.id.thumbstick)).getLayoutParams();
+        params.width = ((ThumbstickControl)findViewById(R.id.thumbstick)).getHeight();
+        (findViewById(R.id.thumbstick)).setLayoutParams(params);
         return true;
     }
 
