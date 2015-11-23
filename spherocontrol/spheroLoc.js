@@ -49,6 +49,7 @@ module.exports = function(spheroManager) {
         var data = {};
         var parts = message.toString().split(',');
         data.id = parts[0];
+        // absolute position update
         data.x = parseInt(parts[1]);
         data.y = parseInt(parts[2]);
 
