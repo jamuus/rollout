@@ -5,7 +5,6 @@ public class ProjectileControl : MonoBehaviour
 {
     private Vector3 velocity;
     public Projectile projectile;
-    private Vector3 projectilePosition;
 
     void Start()
     {
@@ -26,8 +25,8 @@ public class ProjectileControl : MonoBehaviour
             }
 
             //spawn the projectile outside of the player in the direction you are aiming
-            projectilePosition = transform.position + velocity.normalized;
-            var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
+            Vector3 projectilePosition = transform.position + velocity.normalized;
+            Projectile spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
             spawnedProjectile.Initialise(velocity);
         }
     }

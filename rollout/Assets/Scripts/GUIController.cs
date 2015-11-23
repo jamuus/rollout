@@ -19,11 +19,18 @@ public class GUIController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        //Get the health of both players
-        int playerHealth = player.GetComponent<UniversalHealth>().currentHealth;
+        if (player)
+        {
+            //Get the health of both players
+            int playerHealth = player.GetComponent<UniversalHealth>().currentHealth;
 
-        lineRenderer.SetPosition(0, player.transform.position + new Vector3(1, 1, -1));
-        lineRenderer.SetPosition(1, player.transform.position + new Vector3(1 + (10 * getPlayerHealth(player)), 1, -1));
+            lineRenderer.SetPosition(0, player.transform.position + new Vector3(1, 1, -1));
+            lineRenderer.SetPosition(1, player.transform.position + new Vector3(1 + (10 * getPlayerHealth(player)), 1, -1));
+    
+        }
+        else {
+            Destroy(gameObject);
+        }
     }
 
     float getPlayerHealth(GameObject player)

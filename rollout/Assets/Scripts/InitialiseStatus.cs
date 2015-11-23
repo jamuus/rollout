@@ -13,7 +13,7 @@ public struct Status
 
 public class InitialiseStatus: MonoBehaviour
 {
-    public Status[] statuses;
+    public Status[] statuses = new Status[5];
 
     void Start()
     {
