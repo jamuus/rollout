@@ -24,4 +24,4 @@ sysinfo.txt
 node_modules/
 .DS_Store
 
-.mp4
+*.mp4
