@@ -11,6 +11,7 @@ public class UniversalHealth : MonoBehaviour
     {
         int currentHealth = maxHealth;
     }
+
     // Update is called once per frame
     void Update ()
     {
@@ -19,7 +20,11 @@ public class UniversalHealth : MonoBehaviour
 
     public void damagePlayer(int damage)
     {
-        currentHealth -= damage;
+        if (damage > 0)
+        {
+            currentHealth -= damage;
+            print(gameObject.name + " takes " + damage + " damage"); // console log
+        } 
         if (currentHealth < minHealth) {
             Destroy(this.gameObject);
         }
@@ -28,8 +33,10 @@ public class UniversalHealth : MonoBehaviour
     {
         if (currentHealth + healValue > maxHealth) {
             currentHealth = maxHealth;
-        } else {
-            currentHealth += maxHealth;
+            print(gameObject.name + " heals " + healValue + " damage"); // console log
+        }
+        else {
+            currentHealth += healValue;
         }
     }
 }
