@@ -66,7 +66,7 @@ int sendToServer(int *fd, sockaddr_in *servaddr, spheroLoc loc)
 int main(int, char**)
 {
 #ifndef DEBUG
-    VideoCapture camera(0);
+    VideoCapture camera("/Users/Iman/rollout/spherocontrol/cvsphero/test.mp4");
     if (!camera.isOpened())
         return -1;
     namedWindow("Hough", 1);
@@ -87,6 +87,7 @@ int main(int, char**)
     setupServerConnection(&serverAddress, &socketDescriptor);
 
     while (true) {
+
 #ifdef DEBUG
         // sphero1.x = ((sphero1.x + 1) % 20) - 10;
         sendToServer(&socketDescriptor, &serverAddress, sphero1);

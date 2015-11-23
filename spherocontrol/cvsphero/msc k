@@ -1,0 +1,123 @@
+//#pragma OPENCL EXTENSION cl_khr_fp64: enable
+ 
+__kernel void acc(__global float* cells0,   __global float* cells1,
+    __global float* cells2, __global float* cells3, __global float* cells4,
+    __global float* cells5, __global float* cells6, __global float* cells7,
+    __global float* cells8, __global char* obstacles){
+    int jj = get_global_id(0) + Idx;
+    if( !obstacles[jj] && 
+            (cells3[jj] - accel / 9.0f) > 0.0f &&
+            (cells6[jj] - accel / 36.0f) > 0.0f &&
+            (cells7[jj] - accel / 36.0f) > 0.0f ) {
+        cells1[jj] += accel / 9.0f;
+        cells5[jj] += accel / 36.0f;
+        cells8[jj] += accel / 36.0f;
+        cells3[jj] -= accel / 9.0f;
+        cells6[jj] -= accel / 36.0f;
+        cells7[jj] -= accel / 36.0f;
+    }
+}
+ 
+ 
+__kernel void pro_reb_col_av(
+    __global float* cells0, __global float* cells1, __global float* cells2,
+    __global float* cells3, __global float* cells4, __global float* cells5,
+    __global float* cells6, __global float* cells7, __global float* cells8,
+    __global float* tmp_cells0, __global float* tmp_cells1, __global float* tmp_cells2, 
+    __global float* tmp_cells3, __global float* tmp_cells4, __global float* tmp_cells5, 
+    __global float* tmp_cells6, __global float* tmp_cells7, __global float* tmp_cells8, 
+    __global char* obstacles,__global float* partial_tot_u, int idx){
+     
+    __local float local_tot_u[localSize];
+    float tmpS[9];            
+    float local_density, u_x, u_y, tot_u;   
+    int loop = get_global_id(0);
+    int local_id = get_local_id(0);
+    int group_id = get_group_id(0);
+    int ii,jj;
+    int left, right;
+     
+     
+    ii = loop / nx;
+    jj = loop % nx;
+ 
+    if (jj == 0) left = nx - 1;
+    else left = jj - 1;
+    if (jj + 1 >= nx) right = 0;
+    else right = jj + 1;
+    tmpS[0]  = cells0[loop]; 
+    tmpS[1]  = cells1[loop - jj + left];
+    tmpS[3]  = cells3[loop - jj + right]; 
+    if (ii == 0) {
+        tmpS[2]  = cells2[loop + (ny - 1) * nx]; 
+        tmpS[5]  = cells5[loop + (ny - 1) * nx - jj + left]; 
+        tmpS[6]  = cells6[loop + (ny - 1) * nx - jj + right]; 
+    }
+    else {
+        tmpS[2]  = cells2[loop - nx]; 
+        tmpS[5]  = cells5[loop - nx - jj + left]; 
+        tmpS[6]  = cells6[loop - nx - jj + right]; 
+    }
+    if (ii + 1 >= ny) {
+        tmpS[4]  = cells4[loop - ii * nx]; 
+        tmpS[7]  = cells7[loop - ii * nx - jj + right]; 
+        tmpS[8]  = cells8[loop - ii * nx - jj + left]; 
+    }
+    else {
+        tmpS[4]  = cells4[loop + nx]; 
+        tmpS[7]  = cells7[loop + nx - jj + right]; 
+        tmpS[8]  = cells8[loop + nx - jj + left]; 
+ 
+    }
+    if(obstacles[loop]) {
+        tmp_cells0[loop] = tmpS[0]; 
+        tmp_cells1[loop] = tmpS[3]; 
+        tmp_cells2[loop] = tmpS[4]; 
+        tmp_cells3[loop] = tmpS[1]; 
+        tmp_cells4[loop] = tmpS[2]; 
+        tmp_cells5[loop] = tmpS[7]; 
+        tmp_cells6[loop] = tmpS[8]; 
+        tmp_cells7[loop] = tmpS[5]; 
+        tmp_cells8[loop] = tmpS[6]; 
+        local_tot_u[local_id] = 0;
+    }
+    else {  
+        local_density = tmpS[0] + tmpS[1] + tmpS[2] + tmpS[3] + tmpS[4] + tmpS[5] + tmpS[6] + tmpS[7] + tmpS[8];
+        u_x = (tmpS[1] + tmpS[5] + tmpS[8] - (tmpS[3] + tmpS[6] + tmpS[7])) / local_density;
+        u_y = (tmpS[2] + tmpS[5] + tmpS[6] - (tmpS[4] + tmpS[7] + tmpS[8])) / local_density;
+        tmpS[0] = 0.44444444f * local_density * omegaA * (1.0f - (u_x * u_x + u_y * u_y) * 1.5f) + (1.0f - omegaA) * tmpS[0];
+        tmpS[1] = 0.11111111f * local_density * omegaA * (1.0f + u_x * 3.0f + (u_x * u_x) * 4.5f - (u_x * u_x + u_y * u_y) * 1.5f)  + (1.0f - omegaA) * tmpS[1];
+        tmpS[2] = 0.11111111f * local_density * omegaA * (1.0f + u_y * 3.0f + (u_y * u_y) * 4.5f - (u_x * u_x + u_y * u_y) * 1.5f)  + (1.0f - omegaA) * tmpS[2];
+        tmpS[3] = 0.11111111f * local_density * omegaA * (1.0f - u_x * 3.0f + (u_x * u_x) * 4.5f - (u_x * u_x + u_y * u_y) * 1.5f)  + (1.0f - omegaA) * tmpS[3];
+        tmpS[4] = 0.11111111f * local_density * omegaA * (1.0f - u_y * 3.0f + (u_y * u_y) * 4.5f - (u_x * u_x + u_y * u_y) * 1.5f)  + (1.0f - omegaA) * tmpS[4];
+        tmpS[5] = 0.02777778f * local_density * omegaA * (1.0f + (u_x + u_y) * 3.0f + (u_x * u_x + u_y * u_y) * 3.0f + u_x * u_y * 9.0f)  + (1.0f - omegaA) * tmpS[5];
+        tmpS[6] = 0.02777778f * local_density * omegaA * (1.0f + (u_y - u_x) * 3.0f + (u_x * u_x + u_y * u_y) * 3.0f - u_x * u_y * 9.0f)  + (1.0f - omegaA) * tmpS[6];
+        tmpS[7] = 0.02777778f * local_density * omegaA * (1.0f - (u_x + u_y) * 3.0f + (u_x * u_x + u_y * u_y) * 3.0f + u_x * u_y * 9.0f)  + (1.0f - omegaA) * tmpS[7];
+        tmpS[8] = 0.02777778f * local_density * omegaA * (1.0f + (u_x - u_y) * 3.0f + (u_x * u_x + u_y * u_y) * 3.0f - u_x * u_y * 9.0f)  + (1.0f - omegaA) * tmpS[8];
+        //**************************************************************************************************************************************************************//
+ 
+        local_density = tmpS[0] + tmpS[1] + tmpS[2] + tmpS[3] + tmpS[4] + tmpS[5] + tmpS[6] + tmpS[7] + tmpS[8];
+        u_x = (tmpS[1] + tmpS[5] + tmpS[8] - (tmpS[3] + tmpS[6] + tmpS[7])) / local_density;
+        u_y = (tmpS[2] + tmpS[5] + tmpS[6] - (tmpS[4] + tmpS[7] + tmpS[8])) / local_density;
+        //u_x = (tmpS[1] - tmpS[3] + tmpS[5] - tmpS[6] - tmpS[7] + tmpS[8]) / local_density;
+        //u_y = (tmpS[2] - tmpS[4] + tmpS[5] + tmpS[6] - tmpS[7] - tmpS[8]) / local_density;
+        tmp_cells0[loop] = tmpS[0];
+        tmp_cells1[loop] = tmpS[1];
+        tmp_cells2[loop] = tmpS[2];
+        tmp_cells3[loop] = tmpS[3];
+        tmp_cells4[loop] = tmpS[4];
+        tmp_cells5[loop] = tmpS[5];
+        tmp_cells6[loop] = tmpS[6];
+        tmp_cells7[loop] = tmpS[7];
+        tmp_cells8[loop] = tmpS[8];
+        local_tot_u[local_id] = sqrt((u_x * u_x) + (u_y * u_y));
+    }
+    barrier(CLK_LOCAL_MEM_FENCE);
+    if (local_id == 0){
+        tot_u = 0.0f; 
+        for (ii = 0 ; ii < localSize; ii++){
+            tot_u += local_tot_u[ii];
+        }
+        partial_tot_u[(idx * SizelocalSize) + group_id] = tot_u;
+    }
+}
