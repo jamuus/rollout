@@ -9,8 +9,7 @@ using UnityEngine;
 
 public static class Server
 {
-    public enum MessageType
-    {
+    public enum MessageType {
         Test            = 0x00,
         RemoveSphero    = 0x01,
         SetEndianness   = 0x02,     // 1 -> little, 0 -> big
@@ -30,7 +29,7 @@ public static class Server
         }
 
         public Message(MessageType type) :
-            this()
+        this()
         {
             Type = type;
         }
@@ -96,8 +95,7 @@ public static class Server
 
         // Create a sepratate thread to listen for any incoming states
         // from server.
-        listener_ = new Thread(() =>
-        {
+        listener_ = new Thread(() => {
             Thread.CurrentThread.IsBackground = true;
 
             UdpClient localConnection = new UdpClient(7779);
@@ -124,7 +122,8 @@ public static class Server
     public static void SendEndianness()
     {
         byte[] bytes = new byte[] { (byte)MessageType.SetEndianness,
-            Convert.ToByte(BitConverter.IsLittleEndian) };
+                                    Convert.ToByte(BitConverter.IsLittleEndian)
+                                  };
         connection_.Send(bytes, bytes.Length, ip_);
     }
 
@@ -135,11 +134,10 @@ public static class Server
     //   + Velocity      - 8 bytes
     private static void ProcessReceivedBytes(byte[] bytes)
     {
-        Debug.Log("Received from server...");
+        // Debug.Log("Received from server...");
         MessageType type = (MessageType)bytes[0];
 
-        if (type != MessageType.UpdateState)
-        {
+        if (type != MessageType.UpdateState) {
             Debug.Log(string.Format("Unexpected message type received: {0:x2}", bytes[0]));
             return;
         }
@@ -151,8 +149,7 @@ public static class Server
         // At the moment, doesn't support removing of spheros.
         // Also no error checking.
         int index = 1;
-        while (index < bytes.Length)
-        {
+        while (index < bytes.Length) {
             string deviceName = Encoding.ASCII.GetString(bytes, index + 1, bytes[index]);
             index += deviceName.Length + 1;
             Vector2 velocity = new Vector2();
@@ -161,9 +158,17 @@ public static class Server
             velocity.y = BitConverter.ToSingle(bytes, index);
             index += 4;
 
+            Vector2 position = new Vector2();
+            position.x = BitConverter.ToSingle(bytes, index);
+            index += 4;
+            position.y = BitConverter.ToSingle(bytes, index);
+            index += 4;
+
+            float voltage = BitConverter.ToSingle(bytes, index);
+            index += 4;
+
             Sphero sphero;
-            if (!SpheroManager.Instances.TryGetValue(deviceName, out sphero))
-            {
+            if (!SpheroManager.Instances.TryGetValue(deviceName, out sphero)) {
                 SpheroManager.Instances.Add(deviceName, new Sphero());
                 sphero = SpheroManager.Instances[deviceName];
             }
@@ -171,10 +176,13 @@ public static class Server
             // For now, update everything.
             sphero.DeviceName = deviceName;
             sphero.Velocity = velocity;
+            sphero.Position = position;
+            sphero.BatteryVoltage = voltage;
 
-            string output = string.Format("DNAME: {0}, VEL: ({1},{2})", deviceName, velocity.x, velocity.y);
-            Debug.Log(output);
+            // string output = string.Format("DNAME: {0}, VEL: ({1},{2}), POS: ({3}, {4}), VOLT: {5}", deviceName, velocity.x, velocity.y,
+            // position.x, position.y, voltage);
+            // Debug.Log(output);
         }
-        Debug.Log("Done");
+        // Debug.Log("Done");
     }
 }

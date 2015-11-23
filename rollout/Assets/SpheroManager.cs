@@ -17,6 +17,8 @@ public class Sphero
 {
     public string DeviceName { get; set; }
     public Vector2 Velocity { get; set; }
+    public Vector2 Position { get; set; }
+    public float BatteryVoltage { get; set; }
    
     // RollSphero message format:
     //  + MessageType - 1 byte

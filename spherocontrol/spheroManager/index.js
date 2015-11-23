@@ -2,21 +2,20 @@
 
 var debug = true;
 
-module.exports = function() {
+module.exports = function(opts) {
+    opts = opts || {};
     var _onSpheroConnect = function _onSpheroConnect() {};
     var api = {
         count: 0,
         names: [],
         instances: [],
-
         onSpheroConnect: function onSpheroConnect(callback) {
             _onSpheroConnect = callback;
         }
     };
 
-    // todo: parameterise
-    var updatePerSecond = 10;
-    var dataPerSecond = 30;
+    var updatePerSecond = 1;
+    var dataPerSecond = opts.dataPerSecond || 20;
 
     var sphero = require('sphero');
     var fs = require('fs');
@@ -44,46 +43,26 @@ module.exports = function() {
                 });
                 if (unconnectedSpheros.length === 0) log('None found');
 
-                var _iteratorNormalCompletion = true;
-                var _didIteratorError = false;
-                var _iteratorError = undefined;
+                for (var i in unconnectedSpheros) {
+                    var newSpheroDev = unconnectedSpheros[i];
+                    var spheroInstance = sphero('/dev/' + newSpheroDev);
 
-                try {
-                    for (var _iterator = unconnectedSpheros[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                        var newSpheroDev = _step.value;
-
-                        var spheroInstance = sphero('/dev/' + newSpheroDev);
-
-                        var spheroConnectCallback = (function(instance, deviceName) {
-                            return function(err) {
-                                if (err) {
-                                    log('[ERROR] in spheroOpen', err);
-                                    log('        Trying again in 1 second');
-                                    setTimeout(updateSpheros, 1000);
-                                } else {
-                                    log('Succesfully connected', deviceName);
-                                    setupSpheroInstance(instance, deviceName);
-                                    connectedSpheros.instances.push(instance);
-                                    connectedSpheros.deviceNames.push(deviceName);
-                                }
-                            };
-                        })(spheroInstance, newSpheroDev);
-                        log('Connecting to', newSpheroDev);
-                        spheroInstance.connect(spheroConnectCallback);
-                    }
-                } catch (err) {
-                    _didIteratorError = true;
-                    _iteratorError = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion && _iterator['return']) {
-                            _iterator['return']();
-                        }
-                    } finally {
-                        if (_didIteratorError) {
-                            throw _iteratorError;
-                        }
-                    }
+                    var spheroConnectCallback = (function(instance, deviceName) {
+                        return function(err) {
+                            if (err) {
+                                log('[ERROR] in spheroOpen', err);
+                                log('        Trying again in 1 second');
+                                setTimeout(updateSpheros, 1000);
+                            } else {
+                                log('Succesfully connected', deviceName);
+                                setupSpheroInstance(instance, deviceName);
+                                connectedSpheros.instances.push(instance);
+                                connectedSpheros.deviceNames.push(deviceName);
+                            }
+                        };
+                    })(spheroInstance, newSpheroDev);
+                    log('Connecting to', newSpheroDev);
+                    spheroInstance.connect(spheroConnectCallback);
                 }
             });
         }
@@ -97,6 +76,7 @@ module.exports = function() {
         if (i !== -1) {
             api.instances.splice(i);
         }
+        clearInterval(sphero.powerStateInterval);
     }
 
     function setupSpheroInstance(sphero, deviceName) {
@@ -105,12 +85,24 @@ module.exports = function() {
             direction: 0,
             power: 0
         };
-        setInterval(function() {
-            sphero.roll(Math.round(spheroForce.power * 255), spheroForce.direction % 360);
-        }, 1000 / updatePerSecond);
+
+        function doRoll() {
+            var newpower = Math.round(spheroForce.power * 255);
+            var newangle = spheroForce.direction % 360;
+            if (newpower !== 0) {
+                log('rolling', newpower);
+                sphero.roll(newpower, newangle, function() {
+                    doRoll();
+                });
+            } else {
+                // log(newpower);
+                setTimeout(doRoll, 100);
+            }
+        }
+        doRoll();
         api.names.push(deviceName);
         api.count++;
-        api.instances.push({
+        var inst = {
             name: deviceName,
             newDataCallback: function newDataCallback(callback) {
                 _newDataCallback = callback;
@@ -120,18 +112,26 @@ module.exports = function() {
                 if (power < 0) power = 0;
                 spheroForce.direction = direction;
                 spheroForce.power = power;
-            }
-        });
-
+            },
+        };
+        api.instances.push(inst);
+        // sphero.setStabilization(1, function(err) {});
         sphero.streamVelocity(dataPerSecond);
         sphero.on('velocity', function(_data) {
-            // parse data
             var data = {
-                xVelocity: _data.xVelocity.value[0],
-                yVelocity: _data.yVelocity.value[0]
+                dx: _data.xVelocity.value[0],
+                dy: _data.yVelocity.value[0]
             };
-            _newDataCallback(data);
+            _newDataCallback(data, 'velocity');
         });
+        // sphero.streamOdometer(dataPerSecond);
+
+        // sphero.on("odometer", function(data) {
+        //     _newDataCallback({
+        //         x: data.xOdometer.value[0],
+        //         y: data.yOdometer.value[0],
+        //     });
+        // });
 
         sphero.on('error', function(err) {
             log('[ERROR] in sphero', deviceName, '-', err);
@@ -144,6 +144,19 @@ module.exports = function() {
             removeSphero(sphero, deviceName);
             updateSpheros();
         });
+        // inst.powerStateInterval = setInterval(function() {
+            //     sphero.getPowerState(function(err, data) {
+            //         if (err) {
+            //             log("[ERROR] in getPowerState:", err);
+            //             return;
+            //         }
+
+            //         _newDataCallback({
+            //             batteryVoltage: data.batteryVoltage
+            //         }, 'battery');
+            //     });
+            // }, 1000);
+
 
         _onSpheroConnect(api.instances[api.instances.length - 1]);
     }

@@ -23,7 +23,7 @@ var client;
 
 socket.on("message", function(data, remote) {
     if (!client)
-        setInterval(sendState, 1000 / 1);
+        setInterval(sendState, 1000 / 60);
     client = remote;
     var type = data[0];
     switch (type) {
@@ -44,9 +44,11 @@ socket.on("message", function(data, remote) {
         case MESSAGE_TYPE_ROLL_SPHERO:
             var direction = isLittleEndian ? data.readFloatLE(1) : data.readFloatBE(1);
             var force = isLittleEndian ? data.readFloatLE(5) : data.readFloatBE(5);
-            var name = data.toString("ascii", 9);
+            // todo fix
+            var name = data.slice(1).toString("ascii", 9);
 
-            console.log("Rolling sphero '" + name + "' " + direction + " with force " + force + ".");
+            // console.log("Rolling sphero '" + name + "' " + direction + " with force " + force + ".");
+            state[name].force(direction, force);
             break;
         default:
             console.log("Unknown message.");
@@ -56,39 +58,14 @@ socket.on("message", function(data, remote) {
 
 socket.bind(PORT, IP);
 
-// var instances = [{
-//     dname: "SPHERO-BOO",
-//     fname: "Boo",
-//     vel: {
-//         x: 1.5,
-//         y: 0.25
-//     }
-// }];
-
 
 function spheroState() {
-    var api = {
+    var api = {};
 
-    };
-
-    var instances = [];
     var manager = require('./spheroManager')();
+    var spheroLoc = require('./spheroLoc.js')(manager);
 
-    manager.onSpheroConnect(function(newSphero) {
-        instances.push(newSphero);
-        log(newSphero);
-        api[newSphero.name] = {
-            x: 0,
-            y: 0,
-            dx: 0,
-            dy: 0,
-        };
-        newSphero.newDataCallback(function(data) {
-            api[newSphero.name].dx = data.xVelocity;
-            api[newSphero.name].dy = data.yVelocity;
-        });
-    });
-    return api;
+    return spheroLoc;
 }
 
 var state = spheroState();
@@ -105,21 +82,35 @@ function sendState() {
             length,
             new Buffer(name, 'ascii')
         ]);
-        var buf = new Buffer(2 * 4);
+        var buf = new Buffer(5 * 4);
 
         if (isLittleEndian) {
             buf.writeFloatLE(sphero.dx, idx);
             buf.writeFloatLE(sphero.dy, idx + 4);
         } else {
-            buf.writeFloatBE(sphero.vel.x, idx);
-            buf.writeFloatBE(sphero.vel.y, idx + 4);
+            buf.writeFloatBE(sphero.dx, idx);
+            buf.writeFloatBE(sphero.dx, idx + 4);
+        }
+        idx += 8;
+        if (isLittleEndian) {
+            buf.writeFloatLE(sphero.x, idx);
+            buf.writeFloatLE(sphero.y, idx + 4);
+        } else {
+            buf.writeFloatBE(sphero.x, idx);
+            buf.writeFloatBE(sphero.x, idx + 4);
+        }
+        idx += 8;
+        if (isLittleEndian) {
+            buf.writeFloatLE(sphero.batteryVoltage, idx);
+        } else {
+            buf.writeFloatBE(sphero.batteryVoltage, idx);
         }
         message = Buffer.concat([message, header, buf]);
     }
     socket.send(message, 0, message.length, client.port + 1, client.address, function(err) {
         if (err)
             throw err;
-        console.log("Sent state to client " + client.address + ":" + (client.port + 1) + ".");
+        // console.log("Sent state to client " + client.address + ":" + (client.port + 1) + ".");
     })
 }
 
