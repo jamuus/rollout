@@ -70,7 +70,7 @@ static void CannyThreshold(int, void*)
  */
 int main( int, char** argv )
 {
-    VideoCapture camera(0);
+    VideoCapture camera("/Users/Iman/rollout/spherocontrol/cvsphero/test.mp4");
     if (!camera.isOpened())
         return -1;
 

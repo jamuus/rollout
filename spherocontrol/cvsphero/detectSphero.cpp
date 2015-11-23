@@ -63,8 +63,8 @@ int sendToServer(int *fd, sockaddr_in *servaddr, spheroLoc loc)
 
 int main(int, char**)
 {
-    int testing = 1;
-    VideoCapture camera(0);
+    int testing = 0;
+    VideoCapture camera("/Users/Iman/rollout/spherocontrol/cvsphero/test.mp4");
     if (!camera.isOpened())
         return -1;
     vector<Vec3f> detectedOrangeCircles,
@@ -92,16 +92,16 @@ int main(int, char**)
             camera >> frame;
 
             cvtColor(frame, hsvImg, CV_BGR2HSV);
-            inRange(hsvImg, cv::Scalar(0, 150, 100), cv::Scalar(20, 255, 255), orangeImage);
+   //         inRange(hsvImg, cv::Scalar(0, 150, 100), cv::Scalar(20, 255, 255), orangeImage);
             // needs adjusting
-            inRange(hsvImg, cv::Scalar(128, 100, 100), cv::Scalar(192, 255, 255), blueImage);
+//            inRange(hsvImg, cv::Scalar(128, 100, 100), cv::Scalar(192, 255, 255), blueImage);
 
             GaussianBlur(orangeImage, orangeImage, Size(11, 11), 5, 5);
             GaussianBlur(blueImage, blueImage, Size(11, 11), 5, 5);
 
             blueImage.copyTo(output);
 
-            HoughCircles( orangeImage,
+            HoughCircles( frame,
                           detectedOrangeCircles,        // where to output the circles
                           CV_HOUGH_GRADIENT,
                           1,
@@ -111,7 +111,7 @@ int main(int, char**)
                           0,
                           0);
 
-            HoughCircles( blueImage,
+            HoughCircles( frame,
                           detectedBlueCircles,        // where to output the circles
                           CV_HOUGH_GRADIENT,
                           1,
