@@ -46,11 +46,11 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
 
         //Create the thumbstick control and add it to the page
         ThumbstickControl thumbstick = new ThumbstickControl(this);
-        thumbstick.setBackgroundColor(getResources().getColor(R.color.material_deep_teal_500));
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.setMargins(60, 60, 60, 60);
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        params.width = 1200;
         thumbstick.setLayoutParams(params);
         ((RelativeLayout) findViewById(R.id.root)).addView(thumbstick);
     }
@@ -59,9 +59,6 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_controller, menu);
-        ViewGroup.LayoutParams params = (findViewById(R.id.thumbstick)).getLayoutParams();
-        params.width = ((ThumbstickControl)findViewById(R.id.thumbstick)).getHeight();
-        (findViewById(R.id.thumbstick)).setLayoutParams(params);
         return true;
     }
 
