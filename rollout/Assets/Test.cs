@@ -8,7 +8,7 @@ public class Test : MonoBehaviour {
 
 	// Use this for initialization
     void Awake () {
-        var message = new Server.Message(Server.MessageType.RollSphero);
+        /*var message = new Server.Message(Server.MessageType.RollSphero);
         message.AddContent(180.0f);
         message.AddContent(0.25f);
         message.AddContent("SPHERO-BOO");
@@ -16,11 +16,16 @@ public class Test : MonoBehaviour {
         Server.OpenConnection("127.0.0.1", 7777);
 
         Server.SendEndianness();
-        Server.Send(message);
+        Server.Send(message);*/
+
+		Server.Name = "Rollout Server";
+		Server.StartListening(7777);
 	}
 
     void OnApplicationQuit()
     {
-        Server.CloseConnection();
+        //Server.CloseConnection();
+
+		Server.StopListening();
     }
 }

@@ -3,6 +3,7 @@ package com.ammolite.rollout;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -14,6 +15,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -156,5 +158,55 @@ public final class Server {
                 return discoverServersSync();
             }
         });
+    }
+
+    // Controller state message format:
+    //  + Message Type          - 1 byte
+    //  + Device Name           - 1 + n bytes
+    //  + Health                - 4 bytes
+    //  + Shield                - 4 bytes
+    //  + Battery Voltage       - 4 bytes
+    //  + Weapon Count          - 1 byte
+    //  + Weapon IDs            - 1 * (Weapon Count) bytes
+    //  + PowerUp Count         - 1 byte
+    //  + PowerUp IDs           - 1 * (PowerUp Count) bytes
+    private static void decodeState(byte[] bytes) {
+        if (bytes.length <= 1)
+            return;
+
+        if (bytes[0] != ServerMessage.Type.UPDATE_STATE) {
+            Log.d(TAG, String.format("Unexpected message type received: %02x", bytes[0]));
+            return;
+        }
+
+        int index = 1;
+        while (index < bytes.length) {
+            try {
+                Sphero.setDeviceName(new String(Arrays.copyOfRange(
+                        bytes, index + 1, bytes[index]), "US-ASCII"
+                ));
+            } catch (UnsupportedEncodingException ex) {
+                Log.d(TAG, "Unsupported encoding type when parsing server state.", ex);
+                return;
+            }
+
+            index += Sphero.getDeviceName().length() + 1;
+            Sphero.setHealth(BitConverter.toFloat(bytes, index));
+            index += 4;
+            Sphero.setShield(BitConverter.toFloat(bytes, index));
+            index += 4;
+            Sphero.setBatteryVoltage(BitConverter.toFloat(bytes, index));
+            index += 4;
+            Sphero.setWeaponsSize(bytes[index]);
+            ++index;
+            for (int i = 0; i < Sphero.getWeaponsSize(); ++i)
+                Sphero.setWeapon(i, bytes[index + i]);
+            index += Sphero.getWeaponsSize();
+            Sphero.setPowerUpsSize(bytes[index]);
+            ++index;
+            for (int i = 0; i < Sphero.getPowerUpsSize(); ++i)
+                Sphero.setPowerUp(i, bytes[index + i]);
+            index += Sphero.getPowerUpsSize();
+        }
     }
 }

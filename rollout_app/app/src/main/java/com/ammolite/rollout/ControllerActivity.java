@@ -8,6 +8,7 @@ import android.hardware.SensorManager;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +20,10 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
     private Sensor gyroscope;
     private Vibrator vibrator;
     private TextView txtGyroscope;
+
+    private TextView txtSpheroName;
+    private TextView txtSpheroHealth;
+    private TextView txtSpheroVoltage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,14 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
                 vibrator.vibrate(1000);
             }
         });
+
+        txtSpheroName = (TextView)findViewById(R.id.txt_name);
+        txtSpheroHealth = (TextView)findViewById(R.id.txt_health);
+        txtSpheroVoltage = (TextView)findViewById(R.id.txt_voltage);
+
+        txtSpheroName.setText(Sphero.getDeviceName());
+        txtSpheroHealth.setText("" + Sphero.getHealth());
+        txtSpheroVoltage.setText("" + Sphero.getBatteryVoltage());
     }
 
     @Override

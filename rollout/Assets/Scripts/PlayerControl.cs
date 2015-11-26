@@ -18,8 +18,10 @@ public class PlayerControl : MonoBehaviour
 
     void Awake()
     {
-        Server.OpenConnection("127.0.0.1", 7777);
-        Server.SendEndianness();
+        //Server.OpenConnection("127.0.0.1", 7777);
+        //Server.SendEndianness();
+
+		//Server.StartListening(7777);
 
         player = ReInput.players.GetPlayer(0);
     }
@@ -54,7 +56,8 @@ public class PlayerControl : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        Server.CloseConnection();
+        //Server.CloseConnection();
+		//Server.StopListening();
     }
 
 }

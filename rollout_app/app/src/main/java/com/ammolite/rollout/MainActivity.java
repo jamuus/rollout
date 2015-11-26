@@ -1,5 +1,6 @@
 package com.ammolite.rollout;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,7 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
                 Log.d(TAG, "SERVER - Button clicked.");
                 new ServerConnectionTask(MainActivity.this).execute();
+                //MainActivity.this.startActivity(new Intent(MainActivity.this, ControllerActivity.class));
             }
         });
     }
@@ -27,7 +29,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        new ServerConnectionTask(this).execute();
+        //new ServerConnectionTask(this).execute();
     }
 
     @Override

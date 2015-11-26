@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+//using RobotKit;
 using UnityEngine;
 
 public static class SpheroManager
@@ -27,10 +28,11 @@ public class Sphero
     //  + DeviceName  - 1 + n bytes
     public void Roll(float direction, float force)
     {
+		/*
         Server.Message message = new Server.Message(Server.MessageType.RollSphero);
         message.AddContent(direction);
         message.AddContent(force);
         message.AddContent(DeviceName);
-        Server.Send(message);
+        Server.Send(message);*/
     }
 }

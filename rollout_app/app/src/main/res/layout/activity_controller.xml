@@ -1,24 +1,52 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+              android:orientation="horizontal"
               android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:gravity="center">
+              android:layout_height="fill_parent">
 
-    <Button
-        android:id="@+id/btn_vibrate"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/vibrate" />
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btn_shoot"
+        <TextView
+            android:id="@+id/txt_gyro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txt_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txt_health"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txt_voltage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/shoot" />
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/txt_gyro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/btn_vibrate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vibrate" />
+
+        <Button
+            android:id="@+id/btn_shoot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/shoot" />
+
+    </LinearLayout>
 
 </LinearLayout>
