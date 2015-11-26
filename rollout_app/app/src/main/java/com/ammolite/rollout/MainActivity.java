@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 public class MainActivity extends ActionBarActivity {
     private static final String TAG = "MAIN_ACTIVITY";
@@ -24,6 +25,8 @@ public class MainActivity extends ActionBarActivity {
                 //MainActivity.this.startActivity(new Intent(MainActivity.this, ControllerActivity.class));
             }
         });
+
+        startActivity(new Intent(this, ControllerActivity.class));
     }
 
     @Override

@@ -1,17 +1,22 @@
 package com.ammolite.rollout;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.PersistableBundle;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.util.LayoutDirection;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -51,6 +56,16 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
         txtSpheroName.setText(Sphero.getDeviceName());
         txtSpheroHealth.setText("" + Sphero.getHealth());
         txtSpheroVoltage.setText("" + Sphero.getBatteryVoltage());
+
+        //Create the thumbstick control and add it to the page
+        ThumbstickControl thumbstick = new ThumbstickControl(this);
+
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params.setMargins(60, 60, 60, 60);
+        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        params.width = 1200;
+        thumbstick.setLayoutParams(params);
+        ((RelativeLayout) findViewById(R.id.root)).addView(thumbstick);
     }
 
     @Override
