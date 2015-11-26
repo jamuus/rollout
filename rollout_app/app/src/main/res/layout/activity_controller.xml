@@ -42,4 +42,11 @@
         android:text="@string/shoot"
         android:visibility="gone" />
 
+    <TextView
+        android:id="@+id/thumbstick_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SHOOT"
+        android:textStyle="bold"/>
+
 </RelativeLayout>

@@ -60,12 +60,16 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
         //Create the thumbstick control and add it to the page
         ThumbstickControl thumbstick = new ThumbstickControl(this);
 
+        //Set the thumbsticks parameters
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.setMargins(60, 60, 60, 60);
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         thumbstick.setLayoutParams(params);
 
-        ((RelativeLayout) findViewById(R.id.root)).addView(thumbstick);
+        //Align the label below the thumbstick
+        RelativeLayout.LayoutParams thumbstickLabelParams = (RelativeLayout.LayoutParams)((TextView) findViewById(R.id.thumbstick_label)).getLayoutParams();
+
+                ((RelativeLayout) findViewById(R.id.root)).addView(thumbstick);
     }
 
     @Override
