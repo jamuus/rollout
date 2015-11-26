@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
@@ -52,6 +53,10 @@ public class ThumbstickControl extends View
         }
     }
 
+    private static float DEADZONE_MAGNITUDE = 50.0f;
+    private Thread senderThread;
+    private boolean keepRunning;
+
     Paint backgroundPaint, nubPaint;
     Nub nub;
     Point centre;
@@ -66,6 +71,11 @@ public class ThumbstickControl extends View
             {
                 postDelayed(this, 15);
                 invalidate();
+            }
+
+            if (nub.magnitude < DEADZONE_MAGNITUDE && senderThread.isAlive()) {
+                keepRunning = false;
+                Log.d("TESTINGTHREAD", "Stopped");
             }
         }
     };
@@ -83,6 +93,8 @@ public class ThumbstickControl extends View
 
         //Initialise the nub
         nub = new Nub();
+
+        senderThread = new Thread();
     }
 
     @Override
@@ -117,6 +129,27 @@ public class ThumbstickControl extends View
 
         //Determine if this is the last call for onTouch and therefore if the nub is being held
         nubHeld = event.getActionMasked() != MotionEvent.ACTION_UP;
+
+        // Manage server sending thread.
+        if (nub.magnitude > DEADZONE_MAGNITUDE) {
+            if (!senderThread.isAlive()) {
+                keepRunning = true;
+                // Setup server communication thread
+                senderThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("TESTINGTHREAD", "Started thread.");
+                        //TODO dump data to server.
+                        while(keepRunning);
+                        Log.d("TESTINGTHREAD", "While ended");
+                    }
+                });
+                senderThread.start();
+            }
+        } else if (senderThread.isAlive()) {
+            keepRunning = false;
+            Log.d("TESTINGTHREAD", "Stopped");
+        }
 
         //Depending on if the nub is being held, either just redraw or animate returning to centre
         if (nubHeld) invalidate();
