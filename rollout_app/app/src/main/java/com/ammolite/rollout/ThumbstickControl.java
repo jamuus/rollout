@@ -120,13 +120,13 @@ public class ThumbstickControl extends View
         super.onDraw(canvas);
 
         //Draw the background
-        canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight() / 2, 500, backgroundPaint);
+        canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight() / 2, (float)(canvas.getWidth()*0.45), backgroundPaint);
 
         //Update the nub
         nub.magnitude -= nub.magnitude/12;
 
         //Draw the nub
-        canvas.drawCircle(centre.x + nub.getPosition().x, centre.y + nub.getPosition().y, nubHeld? 120:150, nubPaint);
+        canvas.drawCircle(centre.x + nub.getPosition().x, centre.y + nub.getPosition().y,  (float)(canvas.getWidth()* (nubHeld?0.12:0.13)), nubPaint);
     }
 
     @Override
