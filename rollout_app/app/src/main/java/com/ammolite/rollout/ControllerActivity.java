@@ -63,8 +63,8 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.setMargins(60, 60, 60, 60);
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        params.width = params.height;
         thumbstick.setLayoutParams(params);
+
         ((RelativeLayout) findViewById(R.id.root)).addView(thumbstick);
     }
 

@@ -8,7 +8,9 @@ import android.opengl.GLSurfaceView;
 import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.RelativeLayout;
 
 /**
  * Created by Dominic on 19/11/2015.
@@ -92,6 +94,12 @@ public class ThumbstickControl extends View
 
         //Redefine the centre
         centre = new Point(w/2,h/2);
+
+        //Set the size of the control
+        ViewGroup.LayoutParams params = this.getLayoutParams();
+        params.width = this.getHeight();
+        params.height = this.getHeight();
+        this.setLayoutParams(params);
     }
 
     @Override
