@@ -2,8 +2,7 @@
     android:id="@+id/root"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:gravity="center">
+    android:layout_height="fill_parent">
 
     <TextView
         android:id="@+id/txt_gyro"
