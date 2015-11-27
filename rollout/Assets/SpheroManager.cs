@@ -34,5 +34,11 @@ public class Sphero
         message.AddContent(force);
         message.AddContent(DeviceName);
         Server.Send(message);*/
+
+		ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
+		message.AddContent(direction);
+		message.AddContent(force);
+		message.AddContent(DeviceName);
+		Server.Send(message);
     }
 }

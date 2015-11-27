@@ -14,14 +14,15 @@ public final class Sphero {
         health = 0.0f;
         shield = 0.0f;
         voltage = 0.0f;
-        weapons = null;
+        //weapons = null;
+        weapons = new byte[1]; // single default weapon id 0.
         activeWeapon = 0;
         powerUps = null;
     }
 
     private Sphero() { }
 
-    public static void Roll(float direction, float force) {
+    public static void roll(float direction, float force) {
         ServerMessage message = new ServerMessage(ServerMessage.Type.ROLL_SPHERO);
         message.addContent(direction);
         message.addContent(force);
@@ -29,7 +30,7 @@ public final class Sphero {
         Server.send(message);
     }
 
-    public static void Shoot(float direction) {
+    public static void shoot(float direction) {
         ServerMessage message = new ServerMessage(ServerMessage.Type.SPHERO_SHOOT);
         message.addContent(weapons[activeWeapon]);
         message.addContent(direction);
@@ -37,14 +38,14 @@ public final class Sphero {
         Server.send(message);
     }
 
-    public static void UsePowerUp(int index) {
+    public static void usePowerUp(int index) {
         ServerMessage message = new ServerMessage(ServerMessage.Type.SPHERO_POWERUP);
         message.addContent(powerUps[index]);
         message.addContent(deviceName);
         Server.send(message);
     }
 
-    public static void PauseGame() {
+    public static void pauseGame() {
         ServerMessage message = new ServerMessage(ServerMessage.Type.PAUSE_GAME);
         message.addContent(deviceName);
         Server.send(message);

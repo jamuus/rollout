@@ -17,7 +17,9 @@ public enum ServerMessageType
 	ServerDiscover  = 0x10,
 	SpheroShoot     = 0x20,
 	SpheroPowerUp   = 0x40,
-	PauseGame       = 0x80
+	PauseGame       = 0x80,
+	NodeInit		= 0x11,
+	AppInit			= 0x21
 }
 
 public class ServerMessage
@@ -68,7 +70,7 @@ public class ServerMessage
 	{
 		data.AddRange(BitConverter.GetBytes(content));
 	}
-	
+
 	public byte[] Compile()
 	{
 		byte[] bytes = new byte[data.Count + 1];
@@ -83,6 +85,7 @@ public static class Server
 	private static UdpClient    udpIncoming;
 	private static UdpClient    udpOutgoing;
 	private static Thread       listenThread;
+	private static IPEndPoint   nodeServerTarget;
 	
 	public static string Name { get; set; }
 	
@@ -155,7 +158,7 @@ public static class Server
 		ServerMessageType type = (ServerMessageType)bytes[0];
 		
 		//Console.WriteLine("{0} {1} (0x{2:x2}).", prefix, type.ToString(), bytes[0]);
-		Debug.LogFormat("{0} {1} (0x{2:x2}).", prefix, type.ToString (), bytes[0]);
+		Debug.LogFormat("{0} {1} (0x{2:x2}).", prefix, type.ToString(), bytes[0]);
 		
 		switch (type)
 		{
@@ -172,6 +175,12 @@ public static class Server
 		case ServerMessageType.UpdateState:
 			break;
 		case ServerMessageType.RollSphero:
+			// For now, forward the message to unity.
+			message.Type = ServerMessageType.RollSphero;
+			message.Target = nodeServerTarget;
+			for (int i = 1; i < bytes.Length; ++i)
+				message.AddContent(bytes[i]);
+			Send(message);
 			break;
 		case ServerMessageType.ServerDiscover:
 			message.Type = ServerMessageType.ServerDiscover;
@@ -184,6 +193,22 @@ public static class Server
 		case ServerMessageType.SpheroPowerUp:
 			break;
 		case ServerMessageType.PauseGame:
+			break;
+		case ServerMessageType.NodeInit:
+			// When node identifies itself, send the endianness.
+			nodeServerTarget = from;
+			message.Type = ServerMessageType.SetEndianness;
+			message.Target = nodeServerTarget;
+			message.AddContent(BitConverter.IsLittleEndian);
+			Send(message);
+			break;
+		case ServerMessageType.AppInit:
+			//TODO the phones need to be stored wrt their sphero, for now just send a junk name.
+			message.Type = ServerMessageType.AppInit;
+			message.Target = from;
+			message.AddContent(BitConverter.IsLittleEndian);
+			message.AddContent("Sphero-BOO");
+			Send(message);
 			break;
 		}
 	}

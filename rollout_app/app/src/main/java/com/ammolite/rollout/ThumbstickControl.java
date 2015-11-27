@@ -147,8 +147,15 @@ public class ThumbstickControl extends View
                     @Override
                     public void run() {
                         Log.d("TESTINGTHREAD", "Started thread.");
-                        //TODO dump data to server.
-                        while(keepRunning);
+                        while(keepRunning) {
+                            // Blocked out at the moment as not guaranteed to have a connection.
+                            //Sphero.shoot(nub.angle);
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException ex) {
+                                Log.d("THUMBSTICK_CONTROL", "Thread interrupted when attempting to sleep.", ex);
+                            }
+                        }
                         Log.d("TESTINGTHREAD", "While ended");
                     }
                 });
