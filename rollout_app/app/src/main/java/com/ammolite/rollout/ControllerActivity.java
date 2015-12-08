@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -115,5 +116,24 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void usePowerup(View v)
+    {
+        //Alternate between used and not used
+        if (v.getTag() == 1)
+        {
+            v.setTag(0);
+            ((FrameLayout)v.getParent()).setBackgroundColor(getResources().getColor(R.color.tranparentgrey));
+            ((TextView)v).setTextSize(36);
+            ((TextView)v).setText("?");
+        }
+        else
+        {
+            v.setTag(1);
+            ((FrameLayout)v.getParent()).setBackgroundColor(getResources().getColor(R.color.blue));
+            ((TextView)v).setTextSize(14);
+            ((TextView)v).setText("Missles");
+        }
     }
 }

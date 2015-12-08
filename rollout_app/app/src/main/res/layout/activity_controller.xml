@@ -87,15 +87,18 @@
         android:layout_alignLeft="@id/health_label"
         android:layout_width="140dp"
         android:layout_height="140dp"
-        android:background="@color/teal">
+        android:background="@color/teal"
+        android:onClick="usePowerup">
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="Missles"
+            android:tag="1"
             android:textColor="@color/white"
             android:textAllCaps="true"
-            android:background="?android:attr/selectableItemBackground"/>
+            android:background="?android:attr/selectableItemBackground"
+            android:onClick="usePowerup"/>
 
     </FrameLayout>
 
@@ -112,8 +115,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="Boost"
+            android:tag="1"
             android:textColor="@color/white"
-            android:background="?android:attr/selectableItemBackground"/>
+            android:background="?android:attr/selectableItemBackground"
+            android:onClick="usePowerup"/>
 
     </FrameLayout>
 
