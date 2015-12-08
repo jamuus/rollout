@@ -62,7 +62,7 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
 
         //Set the thumbsticks parameters
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        params.setMargins(60, 60, 60, 60);
+        params.setMargins(60, 150, 60, 60);
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         thumbstick.setLayoutParams(params);
 
