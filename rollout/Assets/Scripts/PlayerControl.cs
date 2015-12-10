@@ -31,14 +31,22 @@ public class PlayerControl : MonoBehaviour
 
     void Move()
     {
-        float moveHorizontal = Input.GetAxis(horizontalAxis);
-        float moveVertical = Input.GetAxis(verticalAxis);
         Rigidbody rb = GetComponent<Rigidbody>();
+        float radius = 11f;
+        bool outOfBounds = radius < rb.position.magnitude;
+        float moveHorizontal = Input.GetAxis(horizontalAxis);
+        float moveVertical = Input.GetAxis(verticalAxis);     
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
-        
-        rb.AddForce(speed * movement);
-
+        if (outOfBounds)
+        {
+            print ("" + rb.velocity.magnitude);
+            rb.AddForce(speed * (radius - rb.position.magnitude) * rb.position.normalized);
+        }
+        else
+        {
+            rb.AddForce(speed * movement);
+        }
     }
 
     void UsePowerUp(int powerUpID)
