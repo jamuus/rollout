@@ -203,7 +203,10 @@ int main( int, char** argv )
     bool calibrationMode = false;
 
     //open capture object at location zero (default location for webcam)
-    capture.open("/Users/Iman/Desktop/fruit/test4.mov");
+    capture.open("/Users/jamus/dev/rollout/spherocontrol/cvsphero/test4.mov");
+
+    if (!capture.isOpened())
+        return -1;
     // capture.open(0);
     //set height and width of capture frame
     capture.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);

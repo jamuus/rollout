@@ -66,7 +66,7 @@ int sendToServer(int *fd, sockaddr_in *servaddr, spheroLoc loc)
 int main(int, char**)
 {
 #ifndef DEBUG
-    VideoCapture camera("/Users/Iman/rollout/spherocontrol/cvsphero/test.mp4");
+    VideoCapture camera("./test.mov.mp4");
     if (!camera.isOpened())
         return -1;
     namedWindow("Hough", 1);
