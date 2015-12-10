@@ -37,10 +37,11 @@ public class PlayerControl : MonoBehaviour
 
     void FixedUpdate()
     {
-        Move ();
+        Move();
         if (Input.GetButtonDown("Fire1")) UsePowerUp(0);
         triggerStatusEffects();
 
+        /*
         Sphero sphero;
         if (SpheroManager.Instances.TryGetValue("tty.Sphero-YBR-AMP-SPP", out sphero)) {
             // move ingame sphero
@@ -65,6 +66,7 @@ public class PlayerControl : MonoBehaviour
 
             sphero.Roll(direction, force);
         }
+        */
     }
 
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
@@ -104,7 +106,6 @@ public class PlayerControl : MonoBehaviour
         } catch (Exception e) {
             print("No powerups left");
         }
-
     }
 
     public void AddPowerUp(PowerUp powerUp)
