@@ -24,14 +24,14 @@ public class PlayerControl : MonoBehaviour
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
         statusList = container.GetComponent<InitialiseStatus>().statuses;
-        Debug.Log("lmao1");
     }
 
 
     void Awake()
     {
-        Server.OpenConnection("127.0.0.1", 7777);
-        Server.SendEndianness();
+        Debug.Log("lmao1");
+        // Server.OpenConnection("127.0.0.1", 7777);
+        // Server.SendEndianness();
 
         // get controller input
         // player = ReInput.players.GetPlayer(0);
