@@ -193,6 +193,7 @@ public static class Server
 		case ServerMessageType.SpheroPowerUp:
 			break;
 		case ServerMessageType.PauseGame:
+			//TODO pause unity update (timestep=0) [send PauseGame to all controllers].
 			break;
 		case ServerMessageType.NodeInit:
 			// When node identifies itself, send the endianness.
@@ -203,12 +204,15 @@ public static class Server
 			Send(message);
 			break;
 		case ServerMessageType.AppInit:
-			//TODO the phones need to be stored wrt their sphero, for now just send a junk name.
+			//TODO apps' IPEndPoint need to be stored wrt their sphero, for now just send a junk name.
 			message.Type = ServerMessageType.AppInit;
 			message.Target = from;
 			message.AddContent(BitConverter.IsLittleEndian);
 			message.AddContent("Sphero-BOO");
 			Send(message);
+            // For testing
+            SpheroManager.Instances["SPHERO-BOO"].ControllerTarget = from;
+            SpheroManager.Instances["SPHERO-BOO"].SendStateToController();
 			break;
 		}
 	}

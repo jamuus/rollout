@@ -17,6 +17,7 @@ public class ServerMessage {
         public static final int SPHERO_SHOOT    = 0x20;
         public static final int SPHERO_POWERUP  = 0x40;
         public static final int PAUSE_GAME      = 0x80;
+        public static final int APP_INIT        = 0x21;
     }
 
     private static final String TAG = "SERVER_MESSAGE";

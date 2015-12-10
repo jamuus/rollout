@@ -209,4 +209,40 @@ public final class Server {
             index += Sphero.getPowerUpsSize();
         }
     }
+
+    public static void startListening() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                byte[] buffer = new byte[1024];
+                DatagramPacket response = new DatagramPacket(buffer, buffer.length);
+
+                // Send APP_INIT to server.
+                ServerMessage initMessage = new ServerMessage(ServerMessage.Type.APP_INIT);
+                sendSync(initMessage);
+
+                // Wait for response information.
+                try {
+                    connection_.receive(response);
+
+                    BitConverter.setIsLittleEndian(buffer[0] == 1);
+                    Sphero.setDeviceName(new String(Arrays.copyOfRange(
+                            buffer, 3, 2), "US-ASCII"
+                    ));
+                } catch (IOException ex) {
+                    Log.d(TAG, "Server failed waiting for response for APP_INIT.", ex);
+                }
+
+                // Receive state messages.
+                try {
+                    while (true) {
+                        connection_.receive(response);
+                        decodeState(buffer);
+                    }
+                } catch (IOException ex) {
+                    Log.d(TAG, "Failed when receiving state from server.", ex);
+                }
+            }
+        }).start();
+    }
 }

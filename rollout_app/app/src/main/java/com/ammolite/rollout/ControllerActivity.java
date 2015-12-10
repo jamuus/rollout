@@ -121,7 +121,7 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
     public void usePowerup(View v)
     {
         //Alternate between used and not used
-        if (v.getTag() == 1)
+        if (v.getTag().equals(1))
         {
             v.setTag(0);
             ((FrameLayout)v.getParent()).setBackgroundColor(getResources().getColor(R.color.tranparentgrey));

@@ -20,6 +20,14 @@ public class Test : MonoBehaviour {
 
 		Server.Name = "Rollout Server";
 		Server.StartListening(7777);
+
+        Sphero boo = new Sphero();
+        boo.DeviceName = "SPHERO-BOO";
+        boo.Health = 96.4f;
+        boo.Shield = 44.5f;
+        boo.Weapons.Add(new SpheroWeapon(SpheroWeaponType.RailGun));
+        boo.BatteryVoltage = 7.2f;
+        SpheroManager.Instances[boo.DeviceName] = boo;
 	}
 
     void OnApplicationQuit()
