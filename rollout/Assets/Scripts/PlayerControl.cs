@@ -24,6 +24,7 @@ public class PlayerControl : MonoBehaviour
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
         statusList = container.GetComponent<InitialiseStatus>().statuses;
+        Debug.Log("lmao1");
     }
 
 
@@ -32,7 +33,8 @@ public class PlayerControl : MonoBehaviour
         Server.OpenConnection("127.0.0.1", 7777);
         Server.SendEndianness();
 
-        player = ReInput.players.GetPlayer(0);
+        // get controller input
+        // player = ReInput.players.GetPlayer(0);
     }
 
     void FixedUpdate()
