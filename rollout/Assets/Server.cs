@@ -87,9 +87,11 @@ public static class Server
     private static UdpClient connection_;
     private static IPEndPoint ip_;
     private static Thread listener_;
+    public static bool isInitialised;
 
     public static void OpenConnection(string ip, int port)
     {
+        isInitialised = true;
         connection_ = new UdpClient(7778);
         ip_ = new IPEndPoint(IPAddress.Parse(ip), port);
 

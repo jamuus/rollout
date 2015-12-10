@@ -30,8 +30,10 @@ public class PlayerControl : MonoBehaviour
     void Awake()
     {
         Debug.Log("lmao1");
-        // Server.OpenConnection("127.0.0.1", 7777);
-        // Server.SendEndianness();
+        if (!Server.isInitialised) {
+            Server.OpenConnection("127.0.0.1", 7777);
+            Server.SendEndianness();
+        }
 
         // get controller input
         // player = ReInput.players.GetPlayer(0);
