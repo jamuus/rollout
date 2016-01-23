@@ -8,7 +8,6 @@ import android.hardware.SensorManager;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,8 +24,8 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
     private Vibrator            vibrator;
     private SensorManager       sensorManager;
     private Sensor              accelerometer;
-    private long                lastUpdateTime;
     private ThumbstickControl   thumbstick;
+    private float               x, y, z;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,18 +43,19 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
         vibrator = (Vibrator)this.getSystemService(Context.VIBRATOR_SERVICE);
         sensorManager = (SensorManager)this.getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
-        lastUpdateTime = 0;
-
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
 
         updateFunc = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                // TODO Process input & shoot if required, etc.
                 if (thumbstick.getAbsoluteMagnitude() > ThumbstickControl.DEAD_ZONE_MAGNITUDE) {
                     Sphero.shoot(thumbstick.getAngle());
                 }
+                if (Sphero.getHasRecentDamage()) {
+                    Sphero.setHasRecentDamage(false);
+                    vibrator.vibrate(750);
+                }
+                //TODO Rolling with x, y, z.
                 return null;
             }
         };
@@ -110,19 +110,9 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
     public void onSensorChanged(SensorEvent event) {
         Sensor sensor = event.sensor;
         if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
-
-            long time = System.currentTimeMillis();
-            long dt = time - lastUpdateTime;
-            if (dt > Sphero.UPDATE_MS_PER_TICK) {
-                lastUpdateTime = time;
-
-                //Log.d("ACCEL-TEST", "x: " + x + ", y: " + y + ", z: " + z);
-
-                // TODO Process sensor input to generate roll direction & angle.
-            }
+            x = event.values[0];
+            y = event.values[1];
+            z = event.values[2];
         }
     }
 

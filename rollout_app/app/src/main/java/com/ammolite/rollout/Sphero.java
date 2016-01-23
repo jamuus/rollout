@@ -17,10 +17,14 @@ public final class Sphero {
     private static int          activeWeapon;
     private static Thread       updateThread;
     private static boolean      updateThreadIsRunning;
+    private static boolean      recentDamage;
 
     private Sphero() { }
 
     public static void parseState(byte[] bytes) {
+        float oldHealth = health;
+        float oldShiled = shield;
+
         int offset = 1;
         health = BitConverter.toFloat(bytes, offset);
         offset += 4;
@@ -40,6 +44,9 @@ public final class Sphero {
         offset += powerUps.length;
 
         activeWeapon = 0;
+
+        if ((oldHealth > health) || (oldShiled > shield))
+            recentDamage = true;
     }
 
     public static void roll(float direction, float force) {
@@ -69,6 +76,14 @@ public final class Sphero {
         ServerMessage message = new ServerMessage(ServerMessageType.PAUSE_GAME);
         message.addContent(name);
         Server.sendAsync(message);
+    }
+
+    public static boolean getHasRecentDamage() {
+        return recentDamage;
+    }
+
+    public static void setHasRecentDamage(boolean value) {
+        recentDamage = value;
     }
 
     // Process input and send actions to the server. Should only be used to handle
