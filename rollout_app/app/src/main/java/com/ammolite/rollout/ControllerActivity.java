@@ -54,7 +54,7 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
         txtSpheroHealth = (TextView)findViewById(R.id.txt_health);
         txtSpheroVoltage = (TextView)findViewById(R.id.txt_voltage);
 
-        txtSpheroName.setText(Sphero.getDeviceName());
+        txtSpheroName.setText(Sphero.getName());
         txtSpheroHealth.setText("" + Sphero.getHealth());
         txtSpheroVoltage.setText("" + Sphero.getBatteryVoltage());
 
@@ -124,7 +124,7 @@ public class ControllerActivity extends ActionBarActivity implements SensorEvent
         if (v.getTag().equals(1))
         {
             v.setTag(0);
-            ((FrameLayout)v.getParent()).setBackgroundColor(getResources().getColor(R.color.tranparentgrey));
+            ((FrameLayout)v.getParent()).setBackgroundColor(getResources().getColor(R.color.transparentgrey));
             ((TextView)v).setTextSize(36);
             ((TextView)v).setText("?");
         }

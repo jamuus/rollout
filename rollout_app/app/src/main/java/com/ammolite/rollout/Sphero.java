@@ -1,125 +1,134 @@
 package com.ammolite.rollout;
 
-public final class Sphero {
-    private static String deviceName;
-    private static float health;
-    private static float shield;
-    private static float voltage;
-    private static byte[] weapons;
-    private static int activeWeapon;
-    private static byte[] powerUps;
+import android.util.Log;
 
-    static {
-        deviceName = "NO STATE";
-        health = 0.0f;
-        shield = 0.0f;
-        voltage = 0.0f;
-        //weapons = null;
-        weapons = new byte[1]; // single default weapon id 0.
-        activeWeapon = 0;
-        powerUps = null;
-    }
+import java.util.concurrent.Callable;
+
+public final class Sphero {
+    private static final String TAG                 = "Sphero";
+    public  static final int    UPDATE_MS_PER_TICK  = 16;           // ~ 64 ticks/s
+
+    private static String       name;
+    private static float        voltage;
+    private static float        health;
+    private static float        shield;
+    private static byte[]       weapons;
+    private static byte[]       powerUps;
+    private static int          activeWeapon;
+    private static Thread       updateThread;
+    private static boolean      updateThreadIsRunning;
 
     private Sphero() { }
 
+    public static void parseState(byte[] bytes) {
+        int offset = 1;
+        health = BitConverter.toFloat(bytes, offset);
+        offset += 4;
+        shield = BitConverter.toFloat(bytes, offset);
+        offset += 4;
+        voltage = BitConverter.toFloat(bytes, offset);
+        offset += 4;
+
+        weapons = new byte[bytes[offset]];
+        ++offset;
+        System.arraycopy(bytes, offset, weapons, 0, weapons.length);
+        offset += weapons.length;
+
+        powerUps = new byte[bytes[offset]];
+        ++offset;
+        System.arraycopy(bytes, offset, powerUps, 0, powerUps.length);
+        offset += powerUps.length;
+
+        activeWeapon = 0;
+    }
+
     public static void roll(float direction, float force) {
-        ServerMessage message = new ServerMessage(ServerMessage.Type.ROLL_SPHERO);
+        ServerMessage message = new ServerMessage(ServerMessageType.ROLL_SPHERO);
         message.addContent(direction);
         message.addContent(force);
-        message.addContent(deviceName);
+        message.addContent(name);
         Server.send(message);
     }
 
     public static void shoot(float direction) {
-        ServerMessage message = new ServerMessage(ServerMessage.Type.SPHERO_SHOOT);
+        ServerMessage message = new ServerMessage(ServerMessageType.SPHERO_SHOOT);
         message.addContent(weapons[activeWeapon]);
         message.addContent(direction);
-        message.addContent(deviceName);
+        message.addContent(name);
         Server.send(message);
     }
 
     public static void usePowerUp(int index) {
-        ServerMessage message = new ServerMessage(ServerMessage.Type.SPHERO_POWERUP);
+        ServerMessage message = new ServerMessage(ServerMessageType.SPHERO_POWER_UP);
         message.addContent(powerUps[index]);
-        message.addContent(deviceName);
-        Server.send(message);
+        message.addContent(name);
+        Server.sendAsync(message);
     }
 
     public static void pauseGame() {
-        ServerMessage message = new ServerMessage(ServerMessage.Type.PAUSE_GAME);
-        message.addContent(deviceName);
-        Server.send(message);
+        ServerMessage message = new ServerMessage(ServerMessageType.PAUSE_GAME);
+        message.addContent(name);
+        Server.sendAsync(message);
     }
 
-    public static String getDeviceName() {
-        return deviceName;
+    // Process input and send actions to the server. Should only be used to handle
+    // events that are continuous e.g. rolling and shooting. One off actions such as
+    // power up usage can just be called normally without the toggles.
+    public static void startUpdateThread(final Callable<Void> func) {
+        updateThreadIsRunning = true;
+        updateThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (updateThreadIsRunning) {
+                    try {
+                        func.call();
+                        Thread.sleep(UPDATE_MS_PER_TICK);   // Switch to nested update loop?
+                    } catch (InterruptedException ex) {
+                        Log.d(TAG, "Update thread interrupted.", ex);
+                    } catch (Exception ex) {
+                        Log.d(TAG, "Update input function exception.", ex);
+                    }
+                }
+            }
+        });
+
+        updateThread.start();
     }
 
-    public static void setDeviceName(String name) {
-        deviceName = name;
-    }
-
-    public static float getHealth() {
-        return health;
-    }
-
-    public static void setHealth(float health) {
-        Sphero.health = health;
-    }
-
-    public static void setShield(float shield) {
-        Sphero.shield = shield;
-    }
-
-    public static float getShield() {
-        return shield;
-    }
-
-    public static float getBatteryVoltage() {
-        return voltage;
-    }
-
-    public static void setBatteryVoltage(float voltage) {
-        Sphero.voltage = voltage;
-    }
-
-    public static void setWeaponsSize(int size) {
-        weapons = new byte[size];
-    }
-
-    public static int getWeaponsSize() {
-        return weapons.length;
-    }
-
-    public static void setWeapon(int index, byte type) {
-        weapons[index] = type;
-    }
-
-    public static byte getWeapon(int index) {
-        return weapons[index];
-    }
-
-    public static void setActiveWeapon(int index) {
-        activeWeapon = index;
+    public static void stopUpdateThread() {
+        updateThreadIsRunning = false;
+        try {
+            updateThread.join();
+        } catch (InterruptedException ex) {
+            Log.d(TAG, "Update thread interrupted when joining.", ex);
+        }
     }
 
     public static int getActiveWeapon() {
         return activeWeapon;
     }
 
-    public static void setPowerUpsSize(int size) {
-        powerUps = new byte[size];
+    public static void setActiveWeapon(int index) {
+        activeWeapon = index;
     }
 
-    public static int getPowerUpsSize() {
-        return powerUps.length;
+    public static float getShield() {
+        return shield;
     }
 
-    public static void setPowerUp(int index, byte type) {
-        powerUps[index] = type;
+    public static float getHealth() {
+        return health;
     }
 
-    public static byte getPowerUp(int index) {
-        return powerUps[index];
+    public static float getBatteryVoltage() {
+        return voltage;
+    }
+
+    public static String getName() {
+        return name;
+    }
+
+    public static void setName(String value) {
+        name = value;
     }
 }

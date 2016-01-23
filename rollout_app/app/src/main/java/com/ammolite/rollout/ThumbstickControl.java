@@ -13,9 +13,6 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 
-/**
- * Created by Dominic on 19/11/2015.
- */
 public class ThumbstickControl extends View
 {
     private class Nub
@@ -55,9 +52,8 @@ public class ThumbstickControl extends View
         }
     }
 
-    private static float DEADZONE_MAGNITUDE = 50.0f;
-    private Thread senderThread;
-    private boolean keepRunning;
+    //private static float DEADZONE_MAGNITUDE = 50.0f;
+    public static final float DEAD_ZONE_MAGNITUDE = 50.0f;
 
     Paint backgroundPaint, nubPaint;
     Nub nub;
@@ -75,12 +71,20 @@ public class ThumbstickControl extends View
                 invalidate();
             }
 
-            if (nub.magnitude < DEADZONE_MAGNITUDE && senderThread.isAlive()) {
+            /*if (nub.magnitude < DEADZONE_MAGNITUDE && senderThread.isAlive()) {
                 keepRunning = false;
                 Log.d("TESTINGTHREAD", "Stopped");
-            }
+            }*/
         }
     };
+
+    public float getAbsoluteMagnitude() {
+        return Math.abs(nub.magnitude);
+    }
+
+    public float getAngle() {
+        return nub.angle;
+    }
 
     public ThumbstickControl(Context context)
     {
@@ -96,7 +100,7 @@ public class ThumbstickControl extends View
         //Initialise the nub
         nub = new Nub();
 
-        senderThread = new Thread();
+//        senderThread = new Thread();
     }
 
     @Override
@@ -139,7 +143,7 @@ public class ThumbstickControl extends View
         nubHeld = event.getActionMasked() != MotionEvent.ACTION_UP;
 
         // Manage server sending thread.
-        if (nub.magnitude > DEADZONE_MAGNITUDE) {
+        /*if (nub.magnitude > DEADZONE_MAGNITUDE) {
             if (!senderThread.isAlive()) {
                 keepRunning = true;
                 // Setup server communication thread
@@ -164,7 +168,7 @@ public class ThumbstickControl extends View
         } else if (senderThread.isAlive()) {
             keepRunning = false;
             Log.d("TESTINGTHREAD", "Stopped");
-        }
+        }*/
 
         //Depending on if the nub is being held, either just redraw or animate returning to centre
         if (nubHeld) invalidate();

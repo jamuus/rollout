@@ -12,8 +12,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,8 +20,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ControllerActivity"
-            android:label="@string/title_activity_controller"
+            android:name=".ServerListActivity"
+            android:label="@string/title_activity_server_list" >
+        </activity>
+        <activity
+            android:name=".SpectatorControllerActivity"
+            android:label="@string/title_activity_spectator_controller" >
+        </activity>
+        <activity
+            android:name=".SpheroControllerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_sphero_controller"
             android:screenOrientation="landscape" >
         </activity>
     </application>

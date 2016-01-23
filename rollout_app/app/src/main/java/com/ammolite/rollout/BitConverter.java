@@ -3,61 +3,57 @@ package com.ammolite.rollout;
 import java.util.Arrays;
 
 public final class BitConverter {
-    private static boolean isLittleEndian_;
-
-    static {
-        isLittleEndian_ = true;
-    }
-
     private BitConverter() { }
 
-    public static void setIsLittleEndian(boolean isLittleEndian) {
-        isLittleEndian_ = isLittleEndian;
-    }
+    private static boolean isLittleEndian = true;
 
     public static boolean getIsLittleEndian() {
-        return isLittleEndian_;
+        return isLittleEndian;
+    }
+
+    public static void setIsLittleEndian(boolean value) {
+        isLittleEndian = value;
     }
 
     public static byte[] getBytes(float value) {
-        return convertToFourBytes(Float.floatToIntBits(value));
+        return convert(Float.floatToIntBits(value), 4);
     }
 
     public static byte[] getBytes(int value) {
-        return convertToFourBytes(value);
+        return convert(value, 4);
     }
 
     public static float toFloat(byte[] bytes, int offset) {
-        return Float.intBitsToFloat(convertFromFourBytes(Arrays.copyOfRange(bytes, offset, offset + 4)));
+        return Float.intBitsToFloat(convertBack(bytes, offset, 4));
     }
 
     public static int toInt(byte[] bytes, int offset) {
-        return convertFromFourBytes(Arrays.copyOfRange(bytes, offset, offset + 4));
+        return convertBack(bytes, offset, 4);
     }
 
-    private static byte[] convertToFourBytes(int bits) {
-        byte[] data = new byte[4];
-
-        data[0] = (byte)(bits & 0xff);
-        data[1] = (byte)((bits >> 8) & 0xff);
-        data[2] = (byte)((bits >> 16) & 0xff);
-        data[3] = (byte)((bits >> 24) & 0xff);
-
-        if (!isLittleEndian_)
-            Utility.reverseArray(data);
-
-        return data;
+    public static boolean toBoolean(byte[] bytes, int position) {
+        return (bytes[position] == 1);
     }
 
-    private static int convertFromFourBytes(byte[] bytes) {
-        if (!isLittleEndian_)
-            Utility.reverseArray(bytes);
+    private static byte[] convert(int bits, int size) {
+        byte[] bytes = new byte[size];
+        for (int i = 0; i < size; ++i)
+            bytes[i] = (byte)((bits >> (i * 8)) & 0xff);
+        return isLittleEndian ? bytes : Utility.reverse(bytes);
+    }
 
-        int bits = (int)(bytes[0]);
-        bits |= (bytes[1] << 8);
-        bits |= (bytes[2] << 16);
-        bits |= (bytes[3] << 24);
-
+    private static int convertBack(byte[] bytes, int offset, int size) {
+        int bits = 0;
+        if (!isLittleEndian) {
+            bytes = Arrays.copyOfRange(bytes, offset, offset + size);
+            Utility.reverse(bytes);
+            for (int i = 0; i < size; ++i)
+                bits |= (((int)bytes[i]) << (i * 8)); // TODO Big endian has not been tested.
+        } else {
+            for (int i = 0; i < size; ++i) {
+                bits |= ((int)bytes[offset + i] & 0xff) << (i * 8);
+            }
+        }
         return bits;
     }
 }

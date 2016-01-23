@@ -3,75 +3,81 @@ package com.ammolite.rollout;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ServerMessage {
-    public static final class Type {
-        public static final int TEST            = 0x00;
-        public static final int REMOVE_SPHERO   = 0x01;
-        public static final int SET_ENDIANNESS  = 0x02;
-        public static final int UPDATE_STATE    = 0x04;
-        public static final int ROLL_SPHERO     = 0x08;
-        public static final int SERVER_DISCOVER = 0x10;
-        public static final int SPHERO_SHOOT    = 0x20;
-        public static final int SPHERO_POWERUP  = 0x40;
-        public static final int PAUSE_GAME      = 0x80;
-        public static final int APP_INIT        = 0x21;
-    }
+    private static final String TAG = "ServerMessage";
 
-    private static final String TAG = "SERVER_MESSAGE";
+    private static InetAddress defaultTarget = null;
 
-    private int         type_;
-    private List<Byte>  data_;
+    private int         type;
+    private InetAddress target;
+    private List<Byte>  data;
 
     public ServerMessage() {
-        this.data_ = new ArrayList<>();
+        this(ServerMessageType.TEST);
     }
 
     public ServerMessage(int type) {
-        this.type_ = type;
-        this.data_ = new ArrayList<>();
-    }
-
-    public void setType(int type) {
-        this.type_ = type;
+        data = new ArrayList<Byte>();
+        this.type = type;
+        target = defaultTarget;
     }
 
     public int getType() {
-        return type_;
+        return type;
+    }
+
+    public InetAddress getTarget() {
+        return target;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public void setTarget(InetAddress target) {
+        this.target = target;
     }
 
     public void addContent(String content) {
-        data_.add((byte)content.length());
         try {
-            Utility.addRange(data_, content.getBytes("US-ASCII"));
+            data.add((byte)content.length());
+            data = Utility.addUnboxedArray(data, content.getBytes("US-ASCII"));
         } catch (UnsupportedEncodingException ex) {
-            Log.d(TAG, "Exception occurred trying to get bytes from string.", ex);
+            Log.d(TAG, "Unsupported encoding adding content.", ex);
         }
     }
 
     public void addContent(byte content) {
-        data_.add(content);
+        data.add(content);
+    }
+
+    public void addContent(byte[] content) {
+        data = Utility.addUnboxedArray(data, content);
     }
 
     public void addContent(boolean content) {
-        data_.add((byte)(content ? 1 : 0));
-    }
-
-    public void addContent(float content) {
-        Utility.addRange(data_, BitConverter.getBytes(content));
+        data.add((byte)(content ? 1 : 0));
     }
 
     public void addContent(int content) {
-        Utility.addRange(data_, BitConverter.getBytes(content));
+        data = Utility.addUnboxedArray(data, BitConverter.getBytes(content));
     }
 
-    public byte[] Compile() {
-        byte[] bytes = new byte[data_.size() + 1];
-        bytes[0] = (byte)(type_ & 0xff);
-        for (int i = 0; i < data_.size(); ++i)
-            bytes[i + 1] = data_.get(i);
+    public void addContent(float content) {
+        data = Utility.addUnboxedArray(data, BitConverter.getBytes(content));
+    }
+
+    public byte[] compile() {
+        byte[] bytes = Utility.listToUnboxedArray(data, 1, 0);
+        bytes[0] = (byte)type;
         return bytes;
+    }
+
+    public static void setDefaultTarget(InetAddress target) {
+        defaultTarget = target;
     }
 }
