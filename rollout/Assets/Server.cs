@@ -204,7 +204,6 @@ public static class Server
         case ServerMessageType.NodeInit:
             // When node identifies itself, send the endianness.
             nodeServerTarget = receivedFrom;
-            --nodeServerTarget.Port;
             message.Type = ServerMessageType.SetEndianness;
             message.Target = nodeServerTarget;
             message.AddContent(BitConverter.IsLittleEndian);
