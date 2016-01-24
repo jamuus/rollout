@@ -43,5 +43,6 @@ public class MainActivity extends ActionBarActivity {
 
     public void btnDiscoverOnClick(View v) {
         startActivity(new Intent(this, ServerListActivity.class));
+        //startActivity(new Intent(this, SpheroControllerActivity.class));
     }
 }

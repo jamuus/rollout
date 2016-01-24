@@ -25,12 +25,29 @@
         android:layout_marginTop="80dp"
         android:text="H E A L T H"/>
 
-    <RelativeLayout
+    <FrameLayout
+        android:id="@+id/health_start"
+        android:layout_below="@id/health_label"
+        android:layout_alignLeft="@id/health"
+        android:layout_width="3dp"
+        android:layout_height="30dp"
+        android:background="@color/green"/>
+
+    <FrameLayout
         android:id="@+id/health"
         android:layout_below="@id/health_label"
         android:layout_alignLeft="@id/health_label"
         android:layout_width="300dp"
         android:layout_height="30dp"
+        android:background="@color/green"/>
+
+    <FrameLayout
+        android:id="@+id/health_end"
+        android:layout_below="@id/health_label"
+        android:layout_alignLeft="@id/health"
+        android:layout_width="3dp"
+        android:layout_height="30dp"
+        android:layout_marginLeft="300dp"
         android:background="@color/green"/>
 
     <TextView
@@ -49,18 +66,16 @@
         android:layout_alignLeft="@id/health_label"
         android:layout_width="140dp"
         android:layout_height="140dp"
-        android:background="@color/teal"
-        android:onClick="usePowerup">
+        android:background="@color/transparentgrey">
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Missles"
+            android:text="Coming Soon..."
             android:tag="1"
             android:textColor="@color/white"
             android:textAllCaps="true"
-            android:background="?android:attr/selectableItemBackground"
-            android:onClick="usePowerup"/>
+            android:background="?android:attr/selectableItemBackground"/>
 
     </FrameLayout>
 
@@ -71,16 +86,15 @@
         android:layout_marginLeft="20dp"
         android:layout_width="140dp"
         android:layout_height="140dp"
-        android:background="@color/blue">
+        android:background="@color/transparentgrey">
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Boost"
+            android:text="Coming Soon..."
             android:tag="1"
             android:textColor="@color/white"
-            android:background="?android:attr/selectableItemBackground"
-            android:onClick="btnPowerUpOnClick"/>
+            android:background="?android:attr/selectableItemBackground"/>
 
     </FrameLayout>
 

@@ -11,6 +11,7 @@ public final class Sphero {
     private static String       name;
     private static float        voltage;
     private static float        health;
+    private static float        maxHealth;
     private static float        shield;
     private static byte[]       weapons;
     private static byte[]       powerUps;
@@ -27,6 +28,7 @@ public final class Sphero {
 
         int offset = 1;
         health = BitConverter.toFloat(bytes, offset);
+        if (maxHealth == 0) maxHealth = health;
         offset += 4;
         shield = BitConverter.toFloat(bytes, offset);
         offset += 4;
@@ -133,6 +135,10 @@ public final class Sphero {
 
     public static float getHealth() {
         return health;
+    }
+
+    public static float getMaxHealth() {
+        return maxHealth;
     }
 
     public static float getBatteryVoltage() {

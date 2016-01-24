@@ -27,7 +27,7 @@ public class ThumbstickControl extends View
             magnitude = 0;
         }
 
-        void setPosition(float x, float y)
+        void setPosition(float x, float y, float controlRadius)
         {
             //Get relative positions
             float xRel = x - centre.x;
@@ -36,6 +36,12 @@ public class ThumbstickControl extends View
             //Set angle and magnitude
             angle = (float)Math.atan(yRel / xRel);
             magnitude = (float)Math.sqrt(Math.pow(xRel,2) + Math.pow(yRel,2));
+
+            //Limit the magnitude
+            if (magnitude > controlRadius*0.5)
+            {
+                magnitude = (float)(controlRadius*0.5 + (magnitude-controlRadius*0.5)*0.3);
+            }
 
             //Correct for negative values
             angle += xRel < 0? Math.PI : 0;
@@ -137,7 +143,7 @@ public class ThumbstickControl extends View
     public boolean onTouchEvent(MotionEvent event)
     {
         //Get the position of the touch event
-        nub.setPosition(event.getX(), event.getY());
+        nub.setPosition(event.getX(), event.getY(), this.getHeight()/2);
 
         //Determine if this is the last call for onTouch and therefore if the nub is being held
         nubHeld = event.getActionMasked() != MotionEvent.ACTION_UP;

@@ -81,6 +81,13 @@
         android:layout_marginTop="20dp"
         android:text="P O W E R U P S"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/powerups_label"
+        android:layout_alignLeft="@id/powerups_label"
+        android:text="Coming Soon..."/>
+
     <FrameLayout
         android:id="@+id/powerup_1"
         android:layout_below="@id/powerups_label"
@@ -88,6 +95,7 @@
         android:layout_width="140dp"
         android:layout_height="140dp"
         android:background="@color/teal"
+        android:visibility="gone"
         android:onClick="usePowerup">
 
         <Button
@@ -109,7 +117,8 @@
         android:layout_marginLeft="20dp"
         android:layout_width="140dp"
         android:layout_height="140dp"
-        android:background="@color/blue">
+        android:background="@color/blue"
+        android:visibility="gone">
 
         <Button
             android:layout_width="match_parent"

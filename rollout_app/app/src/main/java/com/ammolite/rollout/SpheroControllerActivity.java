@@ -54,13 +54,18 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
             @Override
             public Void call() throws Exception {
                 float roll = rollVector.length() - ROLL_DEAD_ZONE;
-                if (roll > 0.0f) {
+                if (roll > 0.0f)
+                {
                     Sphero.roll(rollVector.angle(FORWARD_VECTOR), roll);
                 }
-                if (thumbstick.getAbsoluteMagnitude() > ThumbstickControl.DEAD_ZONE_MAGNITUDE) {
+                if (thumbstick.getAbsoluteMagnitude() > ThumbstickControl.DEAD_ZONE_MAGNITUDE)
+                {
                     Sphero.shoot(thumbstick.getAngle());
+                    vibrator.vibrate(300);
                 }
-                if (Sphero.getHasRecentDamage()) {
+                if (Sphero.getHasRecentDamage())
+                {
+                    updateHealthBar();
                     Sphero.setHasRecentDamage(false);
                     vibrator.vibrate(750);
                 }
@@ -69,6 +74,27 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
         };
 
         Sphero.startUpdateThread(updateFunc);
+    }
+
+    public void updateHealthBar()
+    {
+        //Get the health bar
+        FrameLayout healthBar = (FrameLayout)findViewById(R.id.health);
+
+        //Work out the spheros health as a ratio and scale it to the size of the original bar
+        float normalisedSpheroHealth = Sphero.getHealth()/Sphero.getMaxHealth();
+        float scaleFactor =  300 * this.getResources().getDisplayMetrics().densityDpi / 160f;
+
+        //Change the colour if health is low
+        if (normalisedSpheroHealth < 0.2)
+        {
+            healthBar.setBackgroundColor(getResources().getColor(R.color.red));
+            ((FrameLayout)findViewById(R.id.health_start)).setBackgroundColor(getResources().getColor(R.color.red));
+            ((FrameLayout)findViewById(R.id.health_end)).setBackgroundColor(getResources().getColor(R.color.red));
+        }
+
+        //Set the width to reflect the health
+        healthBar.getLayoutParams().width = (int)(normalisedSpheroHealth * scaleFactor);
     }
 
     @Override
