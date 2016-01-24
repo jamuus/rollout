@@ -20,12 +20,15 @@ import java.util.concurrent.Callable;
 
 
 public class SpheroControllerActivity extends ActionBarActivity implements SensorEventListener {
+    private static final Vector2f FORWARD_VECTOR = new Vector2f(1, 0);
+    private static final float    ROLL_DEAD_ZONE = 2.5f; // TODO Needs to be tuned.
+
     private Callable<Void>      updateFunc;
     private Vibrator            vibrator;
     private SensorManager       sensorManager;
     private Sensor              accelerometer;
     private ThumbstickControl   thumbstick;
-    private float               x, y, z;
+    private Vector2f            rollVector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +48,15 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
 
+        rollVector = new Vector2f();
+
         updateFunc = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
+                float roll = rollVector.length() - ROLL_DEAD_ZONE;
+                if (roll > 0.0f) {
+                    Sphero.roll(rollVector.angle(FORWARD_VECTOR), roll);
+                }
                 if (thumbstick.getAbsoluteMagnitude() > ThumbstickControl.DEAD_ZONE_MAGNITUDE) {
                     Sphero.shoot(thumbstick.getAngle());
                 }
@@ -55,7 +64,6 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
                     Sphero.setHasRecentDamage(false);
                     vibrator.vibrate(750);
                 }
-                //TODO Rolling with x, y, z.
                 return null;
             }
         };
@@ -110,9 +118,8 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
     public void onSensorChanged(SensorEvent event) {
         Sensor sensor = event.sensor;
         if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            x = event.values[0];
-            y = event.values[1];
-            z = event.values[2];
+            rollVector.x(event.values[0]);
+            rollVector.y(event.values[1]);
         }
     }
 
