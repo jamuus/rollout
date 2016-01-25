@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <iostream>
 #include "Sphero.h"
+#include <netinet/in.h>
+
 using namespace cv;
 
 /// Global variables
@@ -214,10 +216,10 @@ int setupServerConnection(sockaddr_in *servaddr, int *fd)
     // set port
     servaddr->sin_port = htons(1337);
 
-    if (bind(*fd, (struct sockaddr *)servaddr, sizeof(*servaddr)) < 0) {
-        perror("bind failed");
-        return 0;
-    }
+    // if (bind(*fd, (struct sockaddr *)servaddr, sizeof(*servaddr)) < 0) {
+    //     perror("bind failed");
+    //     return 0;
+    // }
 
     printf("bind complete. Port number = %d\n", ntohs(servaddr->sin_port));
 }
@@ -241,7 +243,7 @@ int sendToServer(int *fd, sockaddr_in *servaddr, spheroLoc loc)
     }
 }
 
-#def DEBUG
+#define DEBUG
 
 int main( int, char** argv )
 {
@@ -279,7 +281,7 @@ int main( int, char** argv )
         }
 
 #ifdef DEBUG
-        // sphero1.x = ((sphero1.x + 1) % 20) - 10;
+        sphero1.x = ((sphero1.x + 1) % 20) - 10;
         sendToServer(&socketDescriptor, &serverAddress, sphero1);
         if (waitKey(1000) == 27)  break;
 #else
@@ -306,6 +308,7 @@ int main( int, char** argv )
         imshow(window_name, frame);
 
         if (waitKey(25) == 27)  break;
+#endif
     }
     capture.release();
     return 0;
