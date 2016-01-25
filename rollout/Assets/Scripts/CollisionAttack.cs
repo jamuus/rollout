@@ -1,42 +1,73 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class CollisionAttack : MonoBehaviour
 {
-    public int collisionAttackValue = 10; //Base attack value
-    private UniversalHealth health; // Access to UniversalHealth class
+    //Base attack value
+    public int collisionAttackValue = 10; 
+
+    //Accessing other parts of the players
+    private UniversalHealth health;
     private ParticleSystem particles;
-    private Vector3 otherPlayerVel; // velocity of other player. Used for damage
-    private GameObject otherPlayer; // another Player's sphere
-    //private float speed;
+
+    //Player Velocities
+    private Vector3 otherPlayerVel;
+    private Vector3 thisPlayerVel;
+
+    //The other player
+    private GameObject otherPlayer;
+
     void Start()
     {
-        health = GetComponent<UniversalHealth> ();
-        particles = GetComponent<ParticleSystem> ();
-        if (gameObject.name == "player1") {
-            otherPlayer = GameObject.FindWithTag ("Player2");
-            otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
-        } else if (gameObject.name == "player2") {
-            otherPlayer = GameObject.FindWithTag ("Player1");
-            otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
-        }
+        //Get the other parts of the player
+		health = GetComponent<UniversalHealth> ();
+		particles = GetComponent<ParticleSystem> ();
 
+        //Get the other player
+        otherPlayer = GameObject.Find(gameObject.name == "player1" ? "player2" : "player1");
     }
 
     void FixedUpdate()
     {
-        if (otherPlayer) {
-            otherPlayerVel = otherPlayer.GetComponent<PlayerControl> ().velocity;
+        //If the other player object has been set
+        if (otherPlayer)
+        {
+            //Update the players velocities
+            otherPlayerVel = otherPlayer.GetComponent<PlayerControl>().velocity;
+            thisPlayerVel = gameObject.GetComponent<PlayerControl>().velocity;
         }
     }
+
     void OnCollisionEnter(Collision col)
     {
-        if (otherPlayer && col.gameObject.name == otherPlayer.name) {
-            float attackMagnitude = otherPlayerVel.magnitude;
-            int damage = (int)(collisionAttackValue * attackMagnitude);
+        //If you collided with the other player
+        if (otherPlayer && col.gameObject.name == otherPlayer.name)
+        {
+            //Calculate and deal some damage to the player
+            int damage = calculateDamage(col) * collisionAttackValue;
             health.damagePlayer(damage);
-            print(otherPlayer.name + " deals " + damage + " damage");
-            particles.Play ();
+
+            //Play collision particle effect
+            particles.Play (); 
         }
+    }
+
+    int calculateDamage(Collision col)
+    {
+        Vector3 colImpulse = col.impulse.normalized;
+        
+        //Get relative position on collision is impulse
+        Vector3 tempThisPlayerVel = thisPlayerVel.normalized;
+
+        //DEBUG
+        //print ("this player's vel: " + thisPlayerVel.normalized +"  relative Velocity on collision = " + relativePlayerVel);
+
+        //Calculate the damage to be dealt to the other player
+        float collisionAttackValue = Vector3.Dot(otherPlayerVel.normalized, gameObject.transform.position - otherPlayer.transform.position);
+        float attackMagnitude = otherPlayerVel.magnitude;
+        float damage = (collisionAttackValue * attackMagnitude);
+
+        return (int)damage;
     }
 }

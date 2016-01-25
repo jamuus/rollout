@@ -44,7 +44,8 @@ module.exports = function() {
                 if (unconnectedSpheros.length === 0)
                     log('None found');
 
-                for (let newSpheroDev of unconnectedSpheros) {
+                for (let i in unconnectedSpheros) {
+                    let newSpheroDev = unconnectedSpheros[i];
                     let spheroInstance = sphero('/dev/' + newSpheroDev);
 
                     let spheroConnectCallback = ((instance, deviceName) => {
@@ -132,9 +133,6 @@ module.exports = function() {
 
     return api;
 };
-
-
-
 
 
 
