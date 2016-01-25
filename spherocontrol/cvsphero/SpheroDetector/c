@@ -1,0 +1,2 @@
+#!/bin/bash
+g++ $(pkg-config --cflags --libs opencv) $1
