@@ -66,7 +66,7 @@ module.exports = function(spheroManager) {
             api[sphName].x = data.x;
             api[sphName].y = data.y;
         }
-
+        debugLog(data.x, data.y);
     });
 
     server.bind(PORT, HOST);
