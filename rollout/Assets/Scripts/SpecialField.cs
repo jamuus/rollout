@@ -67,11 +67,11 @@ public class SpecialField : MonoBehaviour
 
     void renderColor(int option)
     {
-        Color color = new Color();
+		Color color = new Color();
         Renderer rend = GetComponent<Renderer>();
         rend.material.shader = Shader.Find("UI/Unlit/Transparent");
 
-        switch (behaviourOption) {
+		switch (option) {
         case 0:
             color = new Color(.8f, .1f, .1f, .1f); //red
             break;
