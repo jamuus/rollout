@@ -194,6 +194,55 @@ void trackFilteredObject(Mat threshold, Mat HSV, Mat &cameraFeed)
     }
 }
 
+
+int setupServerConnection(sockaddr_in *servaddr, int *fd)
+{
+    /* our address */
+    // int fd;  our socket
+    unsigned int alen;  /* length of address (for getsockname) */
+
+    // create         ipv4     udp                   socket
+    if ((*fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("cannot create socket");
+        return 0;
+    }
+    printf("created socket: %d\n", *fd);
+
+    memset((void *)servaddr, 0, sizeof(*servaddr));
+    servaddr->sin_family = AF_INET;
+    servaddr->sin_addr.s_addr = htonl(INADDR_ANY);
+    // set port
+    servaddr->sin_port = htons(1337);
+
+    if (bind(*fd, (struct sockaddr *)servaddr, sizeof(*servaddr)) < 0) {
+        perror("bind failed");
+        return 0;
+    }
+
+    printf("bind complete. Port number = %d\n", ntohs(servaddr->sin_port));
+}
+
+
+typedef struct {
+    int x;
+    int y;
+    int id;
+} spheroLoc;
+
+int sendToServer(int *fd, sockaddr_in *servaddr, spheroLoc loc)
+{
+    char message[100];
+    sprintf(message, "%d,%d,%d", loc.id, loc.x, loc.y);
+
+    // send a message to the server
+    if (sendto(*fd, message, strlen(message), 0, (struct sockaddr *)servaddr, sizeof(*servaddr)) < 0) {
+        perror("sendto failed");
+        return 0;
+    }
+}
+
+#def DEBUG
+
 int main( int, char** argv )
 {
     Mat frame;
@@ -203,7 +252,8 @@ int main( int, char** argv )
     bool calibrationMode = false;
 
     //open capture object at location zero (default location for webcam)
-    capture.open("/Users/jamus/dev/rollout/spherocontrol/cvsphero/test4.mov");
+    // capture.open(0);
+    capture.open("/Users/jamus/dev/rollout/spherocontrol/cvsphero/SpheroDetector/test.mov");
 
     if (!capture.isOpened())
         return -1;
@@ -211,7 +261,13 @@ int main( int, char** argv )
     //set height and width of capture frame
     capture.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
     capture.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
-//    namedWindow( window_name, WINDOW_AUTOSIZE );
+    // namedWindow( window_name, WINDOW_AUTOSIZE );
+
+    struct sockaddr_in serverAddress;
+    int socketDescriptor;
+    spheroLoc sphero1 = {0, 0, 0};
+
+    setupServerConnection(&serverAddress, &socketDescriptor);
 
     while (true) {
 
@@ -221,6 +277,12 @@ int main( int, char** argv )
             capture.set(CV_CAP_PROP_POS_AVI_RATIO , 0);
             continue;
         }
+
+#ifdef DEBUG
+        // sphero1.x = ((sphero1.x + 1) % 20) - 10;
+        sendToServer(&socketDescriptor, &serverAddress, sphero1);
+        if (waitKey(1000) == 27)  break;
+#else
         if (calibrationMode == true) {
             createTrackbars();
             cvtColor(frame, HSV, COLOR_BGR2HSV);
@@ -234,6 +296,7 @@ int main( int, char** argv )
             inRange(HSV, boo.getHSVmin(), boo.getHSVmax(), threshold);
             morphOps(threshold);
             trackFilteredObject(boo, threshold, HSV, frame);
+
             Sphero ybr("ybr");
             cvtColor(frame, HSV, COLOR_BGR2HSV);
             inRange(HSV, ybr.getHSVmin(), ybr.getHSVmax(), threshold);

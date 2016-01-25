@@ -33,7 +33,7 @@ int setupServerConnection(sockaddr_in *servaddr, int *fd)
     servaddr->sin_family = AF_INET;
     servaddr->sin_addr.s_addr = htonl(INADDR_ANY);
     // set port
-    servaddr->sin_port = htons(1337);
+    servaddr->sin_port = htons(13337);
 
     if (bind(*fd, (struct sockaddr *)servaddr, sizeof(*servaddr)) < 0) {
         perror("bind failed");
@@ -87,7 +87,6 @@ int main(int, char**)
     setupServerConnection(&serverAddress, &socketDescriptor);
 
     while (true) {
-
 #ifdef DEBUG
         // sphero1.x = ((sphero1.x + 1) % 20) - 10;
         sendToServer(&socketDescriptor, &serverAddress, sphero1);

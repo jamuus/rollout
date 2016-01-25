@@ -74,6 +74,8 @@ module.exports = function(spheroManager) {
     return api;
 }
 
+var kalmanLog = function() {}; //console.log;
+
 var Matrix = require('sylvester');
 var ones = Matrix.Matrix.Ones;
 var I = Matrix.Matrix.I(4);
@@ -95,7 +97,7 @@ function kalmanFilter() {
 
     api.updateX1 = function() {
         api.X1 = api.A.x(api.X0);
-        console.log('X1 =\n', api.X1);
+        kalmanLog('X1 =\n', api.X1);
     }
 
     api.updateP1 = function() {
@@ -104,7 +106,7 @@ function kalmanFilter() {
         var t2 = api.A.x(t1);
 
         api.P1 = t2;
-        console.log('P1 =\n', api.P1);
+        kalmanLog('P1 =\n', api.P1);
     }
 
     api.updateK = function() {
@@ -113,18 +115,18 @@ function kalmanFilter() {
         var t3 = I.transpose().x(t2);
         var t4 = api.P1.x(t3);
         api.K = t4;
-        console.log('K =\n', api.K);
+        kalmanLog('K =\n', api.K);
     }
 
     api.updateX0 = function(sensor) {
-        console.log('Sens=', sensor);
+        kalmanLog('Sens=', sensor);
         var t1 = api.X1;
         var t2 = I.x(t1);
         var t3 = sensor.subtract(t2);
         var t4 = api.K.x(t3);
         var t5 = t1.add(t4);
         api.X0 = t5;
-        console.log('X0 =\n', api.X0);
+        kalmanLog('X0 =\n', api.X0);
     }
 
     api.updateP0 = function() {
@@ -132,7 +134,7 @@ function kalmanFilter() {
         var t2 = I.subtract(t1);
         var t3 = t2.x(api.P1);
         api.P0 = t3;
-        console.log('P0 =\n', api.P0);
+        kalmanLog('P0 =\n', api.P0);
     }
 
     return api;

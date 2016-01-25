@@ -45,7 +45,7 @@ public class PlayerControl : MonoBehaviour
         if (Input.GetButtonDown("Fire1")) UsePowerUp(0);
         triggerStatusEffects();
 
-        /*
+
         Sphero sphero;
         if (SpheroManager.Instances.TryGetValue("tty.Sphero-YBR-AMP-SPP", out sphero)) {
             // move ingame sphero
@@ -58,19 +58,19 @@ public class PlayerControl : MonoBehaviour
 
             // Debug.Log(string.Format("{0}, {1}", moveHorizontal, moveVertical));
 
-            // get controller input and omve sphero
-            float X = player.GetAxis("Horizontalx");
-            float Y = player.GetAxis("Verticalx");
+            // // get controller input and omve sphero
+            // float X = player.GetAxis("Horizontalx");
+            // float Y = player.GetAxis("Verticalx");
 
-            float force = Mathf.Sqrt(Mathf.Pow(X, 2)
-                                     + Mathf.Pow(Y, 2));
-            float direction = Vector2.Angle(new Vector2(0, 1), new Vector2(X, Y));
-            if (X < 0) direction = -direction + 360.0f;
-            // direction = Mathf.Rad2Deg * direction;
+            // float force = Mathf.Sqrt(Mathf.Pow(X, 2)
+            //                          + Mathf.Pow(Y, 2));
+            // float direction = Vector2.Angle(new Vector2(0, 1), new Vector2(X, Y));
+            // if (X < 0) direction = -direction + 360.0f;
+            // // direction = Mathf.Rad2Deg * direction;
 
-            sphero.Roll(direction, force);
+            // sphero.Roll(direction, force);
         }
-        */
+
     }
 
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
