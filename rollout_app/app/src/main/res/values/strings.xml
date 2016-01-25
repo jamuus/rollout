@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Rollout</string>
+    <string name="action_settings">Settings</string>
+    <string name="connect_string">Connect</string>
+    <string name="title_activity_controller">ControllerActivity</string>
+    <string name="shoot">Shoot</string>
+    <string name="vibrate">Vibrate</string>
+    <string name="title_activity_server_list">ServerListActivity</string>
+    <string name="server_join_button">Join</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_sphero_controller">SpheroControllerActivity</string>
+    <string name="title_activity_spectator_controller">SpectatorControllerActivity</string>
+</resources>

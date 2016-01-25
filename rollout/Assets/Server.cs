@@ -7,184 +7,234 @@ using System.Threading;
 
 using UnityEngine;
 
+public enum ServerMessageType
+{
+    Test            = 0x00,
+    RemoveSphero    = 0x01,
+    SetEndianness   = 0x02,
+    UpdateState     = 0x04,
+    RollSphero      = 0x08,
+    ServerDiscover  = 0x10,
+    SpheroShoot     = 0x20,
+    SpheroPowerUp   = 0x40,
+    PauseGame       = 0x80,
+    NodeInit        = 0x11,
+    AppInit         = 0x21
+}
+
+public class ServerMessage
+{
+    public ServerMessageType    Type   { get; set; }
+    public IPEndPoint           Target { get; set; }
+
+    private List<byte> data;
+
+    public ServerMessage()
+    {
+        data = new List<byte>();
+        // Add placeholder for type. Faster when compiling.
+        data.Add(0);
+    }
+
+    public ServerMessage(ServerMessageType type) :
+        this()
+    {
+        Type = type;
+    }
+
+    public void AddContent(string content)
+    {
+        data.Add((byte)(content.Length & 0xff));
+        data.AddRange(Encoding.ASCII.GetBytes(content));
+    }
+
+    public void AddContent(byte content)
+    {
+        data.Add(content);
+    }
+
+    public void AddContent(byte[] content)
+    {
+        data.AddRange(content);
+    }
+
+    public void AddContent(bool content)
+    {
+        data.Add(Convert.ToByte(content));
+    }
+
+    public void AddContent(float content)
+    {
+        data.AddRange(BitConverter.GetBytes(content));
+    }
+
+    public void AddContent(double content)
+    {
+        data.AddRange(BitConverter.GetBytes(content));
+    }
+
+    public void AddContent(int content)
+    {
+        data.AddRange(BitConverter.GetBytes(content));
+    }
+
+    public byte[] Compile()
+    {
+        byte[] bytes = data.ToArray();
+        bytes[0] = (byte)Type;
+        return bytes;
+    }
+}
+
 public static class Server
 {
-    public enum MessageType {
-        Test            = 0x00,
-        RemoveSphero    = 0x01,
-        SetEndianness   = 0x02,     // 1 -> little, 0 -> big
-        UpdateState     = 0x04,
-        RollSphero      = 0x08
+    private static UdpClient    udpIncoming;
+    private static UdpClient    udpOutgoing;
+    private static Thread       listenThread;
+    private static IPEndPoint   nodeServerTarget;
+
+    public static string Name { get; set; }
+
+    static Server()
+    {
+        Name = "Default Server Name";
     }
 
-    public class Message
+    public static void StartListening(int port)
     {
-        public MessageType Type { get; set; }
+        udpIncoming = new UdpClient();
+        udpIncoming.Client.SetSocketOption(SocketOptionLevel.Socket,
+            SocketOptionName.ReuseAddress, true);
+        udpIncoming.Client.ReceiveBufferSize = 2048;
+        udpIncoming.Client.Bind(new IPEndPoint(IPAddress.Any, port));
 
-        private List<byte> data_;
+        udpOutgoing = new UdpClient();
+        udpOutgoing.Client.SetSocketOption(SocketOptionLevel.Socket,
+            SocketOptionName.ReuseAddress, true);
+        udpOutgoing.Client.Bind(new IPEndPoint(IPAddress.Any, port + 1));
 
-        public Message()
+        listenThread = new Thread(() =>
         {
-            data_ = new List<byte>();
-        }
-
-        public Message(MessageType type) :
-        this()
-        {
-            Type = type;
-        }
-
-        // Add content methods append bytes to the message content.
-        // For a string, the first byte is the length.
-        // Null terminators are not encoded.
-        public void AddContent(string content)
-        {
-            data_.Add((byte)content.Length);
-            data_.AddRange(Encoding.ASCII.GetBytes(content));
-        }
-
-        public void AddContent(Vector2 content)
-        {
-            data_.AddRange(BitConverter.GetBytes(content.x));
-            data_.AddRange(BitConverter.GetBytes(content.y));
-        }
-
-        public void AddContent(byte content)
-        {
-            data_.Add(content);
-        }
-
-        public void AddContent(bool content)
-        {
-            data_.Add(Convert.ToByte(content));
-        }
-
-        public void AddContent(float content)
-        {
-            data_.AddRange(BitConverter.GetBytes(content));
-        }
-
-        public void AddContent(double content)
-        {
-            data_.AddRange(BitConverter.GetBytes(content));
-        }
-
-        public void AddContent(int content)
-        {
-            data_.AddRange(BitConverter.GetBytes(content));
-        }
-
-        // Create byte array representing message.
-        public byte[] Compile()
-        {
-            byte[] bytes = new byte[data_.Count + 1];
-            bytes[0] = (byte)Type;
-            Buffer.BlockCopy(data_.ToArray(), 0, bytes, 1, data_.Count);
-            return bytes;
-        }
-    }
-
-    private static UdpClient connection_;
-    private static IPEndPoint ip_;
-    private static Thread listener_;
-    public static bool isInitialised;
-
-    public static void OpenConnection(string ip, int port)
-    {
-        isInitialised = true;
-        connection_ = new UdpClient(7778);
-        ip_ = new IPEndPoint(IPAddress.Parse(ip), port);
-
-        // Create a sepratate thread to listen for any incoming states
-        // from server.
-        listener_ = new Thread(() => {
             Thread.CurrentThread.IsBackground = true;
-
-            UdpClient localConnection = new UdpClient(7779);
-            IPEndPoint ipe = new IPEndPoint(IPAddress.Any, 0);
-
             while (true)
-                ProcessReceivedBytes(localConnection.Receive(ref ipe));
-            //Thread.CurrentThread.Abort();  //TODO this should be an infinite loop but it breaks unity. Need to fix.
+            {
+                IPEndPoint senderEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                byte[] data = udpIncoming.Receive(ref senderEndPoint);
+
+                new Thread(() =>
+                {
+                    Thread.CurrentThread.IsBackground = true;
+                    ProcessReceivedBytes(data, senderEndPoint);
+                }).Start();
+            }
         });
-        listener_.Start();
+        listenThread.Start();
+
+        Debug.LogFormat("[Server] Started \"{0}\" successfully, listening on port {1}.",
+            Name, port);
     }
 
-    public static void CloseConnection()
+    public static void StopListening()
     {
-        listener_.Abort();
+        listenThread.Abort();
+        Debug.LogFormat("[Server] Stopped successfully.");
     }
 
-    public static void Send(Message message)
+    public static void Send(ServerMessage message)
     {
         byte[] bytes = message.Compile();
-        connection_.Send(bytes, bytes.Length, ip_);
+        udpOutgoing.Send(bytes, bytes.Length, message.Target);
     }
 
-    public static void SendEndianness()
+    public static void Send(byte[] bytes, IPEndPoint target)
     {
-        byte[] bytes = new byte[] { (byte)MessageType.SetEndianness,
-                                    Convert.ToByte(BitConverter.IsLittleEndian)
-                                  };
-        connection_.Send(bytes, bytes.Length, ip_);
+        udpOutgoing.Send(bytes, bytes.Length, target);
     }
 
-    // SpheroManager state message format:
-    //  + MessageType   - 1 byte
-    //  + Multiple repeats of the following:
-    //   + DeviceName    - 1 + n bytes
-    //   + Velocity      - 8 bytes
-    private static void ProcessReceivedBytes(byte[] bytes)
+    private static void ProcessReceivedBytes(byte[] bytes, IPEndPoint receivedFrom)
     {
-        // Debug.Log("Received from server...");
-        MessageType type = (MessageType)bytes[0];
+        string prefix = string.Format("[Server] {0} - ", receivedFrom.ToString());
 
-        if (type != MessageType.UpdateState) {
-            Debug.Log(string.Format("Unexpected message type received: {0:x2}", bytes[0]));
+        if (!Enum.IsDefined(typeof(ServerMessageType), (int)bytes[0]))
+        {
+            Debug.LogFormat("{0} Unknown (0x{1:x2}).", prefix, bytes[0]);
             return;
         }
 
-        // If no data, stop.
-        if (bytes.Length == 1)
-            return;
+        ServerMessage message = new ServerMessage();
+        ServerMessageType type = (ServerMessageType)bytes[0];
 
-        // At the moment, doesn't support removing of spheros.
-        // Also no error checking.
-        int index = 1;
-        while (index < bytes.Length) {
-            string deviceName = Encoding.ASCII.GetString(bytes, index + 1, bytes[index]);
-            index += deviceName.Length + 1;
-            Vector2 velocity = new Vector2();
-            velocity.x = BitConverter.ToSingle(bytes, index);
-            index += 4;
-            velocity.y = BitConverter.ToSingle(bytes, index);
-            index += 4;
+        Debug.LogFormat("{0} {1} (0x{2:x2}).", prefix, type.ToString(), bytes[0]);
 
-            Vector2 position = new Vector2();
-            position.x = BitConverter.ToSingle(bytes, index);
-            index += 4;
-            position.y = BitConverter.ToSingle(bytes, index);
-            index += 4;
+        ++receivedFrom.Port; // TODO might have to find a better way to do this.
 
-            float voltage = BitConverter.ToSingle(bytes, index);
-            index += 4;
+        switch (type)
+        {
+        case ServerMessageType.Test:
+            break;
+        case ServerMessageType.RemoveSphero:
+            break;
+        case ServerMessageType.SetEndianness:
+            message.Type = ServerMessageType.SetEndianness;
+            message.Target = receivedFrom;
+            message.AddContent(BitConverter.IsLittleEndian);
+            Send(message);
+            break;
+        case ServerMessageType.UpdateState:
+            // Parse state, assumed to be received from Node.js server.
+            SpheroManager.ParseUpdatedState(bytes, 1);
+            break;
+        case ServerMessageType.RollSphero:
+            SpheroManager.Roll(bytes);
+            break;
+        case ServerMessageType.ServerDiscover:
+            message.Type = ServerMessageType.ServerDiscover;
+            message.Target = receivedFrom;
+            message.AddContent(Name);
+            Send(message);
+            break;
+        case ServerMessageType.SpheroShoot:
+            SpheroManager.Shoot(bytes);
+            break;
+        case ServerMessageType.SpheroPowerUp:
+            SpheroManager.UsePowerUp(bytes);
+            break;
+        case ServerMessageType.PauseGame:
+            break;
+        case ServerMessageType.NodeInit:
+            // When node identifies itself, send the endianness.
+            nodeServerTarget = receivedFrom;
+            message.Type = ServerMessageType.SetEndianness;
+            message.Target = nodeServerTarget;
+            message.AddContent(BitConverter.IsLittleEndian);
+            Send(message);
+            break;
+        case ServerMessageType.AppInit:
+            Sphero sphero = null;
 
-            Sphero sphero;
-            if (!SpheroManager.Instances.TryGetValue(deviceName, out sphero)) {
-                SpheroManager.Instances.Add(deviceName, new Sphero());
-                sphero = SpheroManager.Instances[deviceName];
+            message.Type = ServerMessageType.AppInit;
+            message.Target = receivedFrom;
+            message.AddContent(BitConverter.IsLittleEndian);
+
+            if (BitConverter.ToBoolean(bytes, 1) && ((sphero = SpheroManager.GetNextSphero()) != null))
+            {
+                message.AddContent(sphero.DeviceName);
+            }
+            else
+            {
+                message.AddContent(SpheroManager.SpectatorName);
+                SpectatorManager.Instances.Add(new Spectator(receivedFrom));
             }
 
-            // For now, update everything.
-            sphero.DeviceName = deviceName;
-            sphero.Velocity = velocity;
-            sphero.Position = position;
-            sphero.BatteryVoltage = voltage;
+            Send(message);
 
-            // string output = string.Format("DNAME: {0}, VEL: ({1},{2}), POS: ({3}, {4}), VOLT: {5}", deviceName, velocity.x, velocity.y,
-            // position.x, position.y, voltage);
-            // Debug.Log(output);
+            if (sphero != null)
+            {
+                sphero.ControllerTarget = receivedFrom;
+                sphero.HasController = true;
+                sphero.SendStateToController();
+            }
+            break;
         }
-        // Debug.Log("Done");
     }
 }

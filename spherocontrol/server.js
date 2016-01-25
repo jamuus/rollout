@@ -3,25 +3,33 @@
 var Net = require("dgram");
 var log = console.log;
 
-var IP = "127.0.0.1";
-var PORT = 7777;
+var IP = "172.23.88.196";
+var PORT = 7779;
 
-var MESSAGE_TYPE_TEST = 0x00;
-var MESSAGE_TYPE_REMOVE_SPHERO = 0x01;
-var MESSAGE_TYPE_SET_ENDIANNESS = 0x02;
-var MESSAGE_TYPE_UPDATE_STATE = 0x04;
-var MESSAGE_TYPE_ROLL_SPHERO = 0x08;
+var MESSAGE_TYPE_TEST               = 0x00;
+var MESSAGE_TYPE_REMOVE_SPHERO      = 0x01;
+var MESSAGE_TYPE_SET_ENDIANNESS     = 0x02;
+var MESSAGE_TYPE_UPDATE_STATE       = 0x04;
+var MESSAGE_TYPE_ROLL_SPHERO        = 0x08;
+var MESSAGE_TYPE_SERVER_DISCOVER    = 0x10;
+var MESSAGE_TYPE_SPHERO_SHOOT       = 0x20;
+var MESSAGE_TYPE_SPHERO_POWERUP     = 0x40;
+var MESSAGE_TYPE_PAUSE_GAME         = 0x80;
+var MESSAGE_TYPE_NODE_INIT          = 0x11;
+var MESSAGE_TYPE_APP_INIT           = 0x21;
 
 var socket = Net.createSocket("udp4");
 var isLittleEndian = true;
 
 socket.on("listening", function() {
-    console.log("Listening on " + IP + ":" + PORT + "...");
+    //console.log("Listening on " + IP + ":" + PORT + "...");
+    console.log("Listening on port " + PORT + "...");
 });
 
 var client;
 
 socket.on("message", function(data, remote) {
+    //console.log("Received message from " + remote.address + ":" + remote.port + ".");
     if (!client)
         setInterval(sendState, 1000 / 60);
     client = remote;
@@ -47,8 +55,32 @@ socket.on("message", function(data, remote) {
             // todo fix
             var name = data.slice(1).toString("ascii", 9);
 
-            // console.log("Rolling sphero '" + name + "' " + direction + " with force " + force + ".");
-            state[name].force(direction, force);
+            console.log("Rolling sphero '" + name + "' " + direction + " with force " + force + ".");
+            //state[name].force(direction, force);
+            break;
+        case MESSAGE_TYPE_SERVER_DISCOVER:
+            //console.log("Received discovery request method from " + remote.address + ":" + remote.port + ", sent response.");
+            //var msg = new Buffer(1);
+            //msg[0] = MESSAGE_TYPE_SERVER_DISCOVER;
+            //socket.send(msg, 0, msg.length, remote.port, remote.address, function(err) {
+            //    if (err)
+            //        throw err;
+            //});
+            break;
+        case MESSAGE_TYPE_SPHERO_SHOOT:
+            var weapon = data[1];
+            var direction = isLittleEndian ? data.readFloatLE(2) : data.readFloatBE(2);
+            var sphero = data.toString("ascii", 8);
+            console.log("Sphero '" + sphero + "' shoots weapon ID " + weapon + " in direction " + direction + ".");
+            break;
+        case MESSAGE_TYPE_SPHERO_POWERUP:
+            var powerup = data[1];
+            var sphero = data.toString("ascii", 3);
+            console.log("Sphero '" + sphero + "' uses powerup ID " + powerup + ".");
+            break;
+        case MESSAGE_TYPE_PAUSE_GAME:
+            var sphero = data.toString("ascii", 2);
+            console.log("Sphero '" + sphero + "' requested game pause.");
             break;
         default:
             console.log("Unknown message.");
@@ -56,8 +88,13 @@ socket.on("message", function(data, remote) {
     }
 });
 
-socket.bind(PORT, IP);
+socket.bind(PORT); // I removed ", IP" and it works, no idea why
 
+var identifier = new Buffer(1);
+identifier[0] = MESSAGE_TYPE_NODE_INIT;
+console.log("sending id");
+socket.send(identifier, 0, identifier.length, 7777, IP, function(err) { if (err) throw err; });
+console.log("sent id");
 
 function spheroState() {
     var api = {};
