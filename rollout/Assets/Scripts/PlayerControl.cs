@@ -48,7 +48,7 @@ public class PlayerControl : MonoBehaviour
 
 
         Sphero sphero;
-        if (SpheroManager.Instances.TryGetValue("tty.Sphero-YBR-AMP-SPP", out sphero)) {
+        if (SpheroManager.Instances.TryGetValue("tty.Sphero-BOO-AMP-SPP", out sphero)) {
             // move ingame sphero
             float moveHorizontal = sphero.Position.x;
             float moveVertical = sphero.Position.y;
@@ -70,6 +70,9 @@ public class PlayerControl : MonoBehaviour
             // // direction = Mathf.Rad2Deg * direction;
 
             // sphero.Roll(direction, force);
+
+            print("ayy");
+            sphero.Roll(4, 5);
         }
 
     }

@@ -3,21 +3,21 @@
 var Net = require("dgram");
 var ServerHandle = require("./ServerHandle.js");
 
-var PORT        = 7779;
-var UNITY_PORT  = 7777;
+var PORT = 7779;
+var UNITY_PORT = 7777;
 
 var MessageType = {
-    TEST                : 0x00,
-    REMOVE_SPHERO       : 0x01,
-    SET_ENDIANNESS      : 0x02,
-    UPDATE_STATE        : 0x04,
-    ROLL_SPHERO         : 0x08,
-    SERVER_DISCOVER     : 0x10,
-    SPHERO_SHOOT        : 0x20,
-    SPHERO_POWER_UP     : 0x40,
-    PAUSE_GAME          : 0x80,
-    NODE_INIT           : 0x11,
-    APP_INIT            : 0x21
+    TEST: 0x00,
+    REMOVE_SPHERO: 0x01,
+    SET_ENDIANNESS: 0x02,
+    UPDATE_STATE: 0x04,
+    ROLL_SPHERO: 0x08,
+    SERVER_DISCOVER: 0x10,
+    SPHERO_SHOOT: 0x20,
+    SPHERO_POWER_UP: 0x40,
+    PAUSE_GAME: 0x80,
+    NODE_INIT: 0x11,
+    APP_INIT: 0x21
 };
 
 var udpOutgoing = Net.createSocket("udp4");
@@ -89,7 +89,7 @@ function connect(server) {
     });
 
     udpIncoming.on("message", function(data, remote) {
-        switch(data[0]) {
+        switch (data[0]) {
             case MessageType.SET_ENDIANNESS:
                 isLittleEndian = data[1];
                 console.log("Set endianness to " + data[1]);
@@ -99,6 +99,7 @@ function connect(server) {
                 var force = data.readFloatLE(5);
                 var name = data.toString("ascii", 10);
                 console.log("Rolling sphero " + name + " in direction " + direction + " with force " + force + ".");
+                state[name].force(direction, force);
                 break;
             default:
                 console.log("Unknown message received.");
@@ -118,42 +119,12 @@ function connect(server) {
 }
 
 function spheroState() {
-    var manager = require("./spheroManager")();
+    var api = {};
 
-    var api = { };
-    var instances = [];
+    var manager = require('./spheroManager')();
+    var spheroLoc = require('./spheroLoc.js')(manager);
 
-    manager.onSpheroConnect(function(newSphero) {
-        instances.push(newSphero);
-        var spheroData = api[newSphero.name] = {
-            x: 0,
-            y: 0,
-            dx: 0,
-            dy : 0,
-            lastVelocityUpdate: -1,
-            batteryVoltage: 0,
-            force: newSphero.force
-        };
-
-        newSphero.newDataCallback(function(data, type) {
-            for (var dataName in data) {
-                api[newSphero.name][dataName] = data[dataName];
-            }
-            if (type === "velocity") {
-                if (spheroData.lastVelocityUpdate !== -1) {
-                    var now = new Date().getTime();
-                    var diff = now - spheroData.lastVelocityUpdate;
-
-                    spheroData.x += (diff / 1000) * spheroData.dx;
-                    spheroData.y += (diff / 1000) * spheroData.dy;
-
-                    spheroData.lastVelocityUpdate = now;
-                }
-            }
-        });
-    });
-
-    return api;
+    return spheroLoc;
 }
 
 function sendState() {

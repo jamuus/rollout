@@ -59,7 +59,7 @@ module.exports = function(spheroManager) {
 
         var idToDev = [
             'tty.Sphero-YBR-AMP-SPP',
-            'boo',
+            'tty.Sphero-BOO-AMP-SPP',
         ];
         var sphName = idToDev[data.id];
         if (api[sphName]) {
@@ -169,8 +169,8 @@ setInterval(function() {
     actualState.x += dx;
     actualState.y += dy;
 
-    console.log('Gen dx,dy', actualState.dx.toFixed(2), actualState.dy.toFixed(2));
-    console.log('Gen x,y  ', actualState.x.toFixed(2), actualState.y.toFixed(2));
+    kalmanLog('Gen dx,dy', actualState.dx.toFixed(2), actualState.dy.toFixed(2));
+    kalmanLog('Gen x,y  ', actualState.x.toFixed(2), actualState.y.toFixed(2));
 
     var sensorX = actualState.x + noise();
     var sensorY = actualState.y + noise();
@@ -178,8 +178,8 @@ setInterval(function() {
     var sensorDx = dx + noise() / 2;
     var sensorDy = dy + noise() / 2;
 
-    console.log('Sens dx, dy', sensorDx.toFixed(2), sensorDy.toFixed(2));
-    console.log('Sens x, y  ', sensorX.toFixed(2), sensorY.toFixed(2));
+    kalmanLog('Sens dx, dy', sensorDx.toFixed(2), sensorDy.toFixed(2));
+    kalmanLog('Sens x, y  ', sensorX.toFixed(2), sensorY.toFixed(2));
 
     filter.updateX1();
     filter.updateP1();
@@ -187,5 +187,5 @@ setInterval(function() {
     filter.updateX0($M([sensorX, sensorY, sensorDx, sensorDy]));
     filter.updateP0();
 
-    console.log();
+    kalmanLog();
 }, 2000);
