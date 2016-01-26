@@ -77,6 +77,8 @@ public static class SpheroManager
 
         // TODO Process with collisions etc, then forward on to node.
 
+        Instances[name].Roll(direction, force);
+
         Debug.LogFormat("Rolling Sphero {0} in direction {1} with force {2}.", name, direction, force);
     }
 
@@ -109,16 +111,16 @@ public static class SpheroManager
 
 public class Sphero
 {
-    public string DeviceName { get; set; }
-    public Vector2 Velocity { get; set; }
-    public Vector2 Position { get; set; }
-    public float BatteryVoltage { get; set; }
-    public IPEndPoint ControllerTarget { get; set; }
-    public float Health { get; set; }
-    public float Shield {get; set; }
-    public List<SpheroWeapon> Weapons { get; set; }
-    public List<SpheroPowerUp> PowerUps { get; set; }
-    public bool HasController { get; set; }
+    public string               DeviceName          { get; set; }
+    public Vector2              Velocity            { get; set; }
+    public Vector2              Position            { get; set; }
+    public float                BatteryVoltage      { get; set; }
+    public IPEndPoint           ControllerTarget    { get; set; }
+    public float                Health              { get; set; }
+    public float                Shield              { get; set; }
+    public List<SpheroWeapon>   Weapons             { get; set; }
+    public List<SpheroPowerUp>  PowerUps            { get; set; }
+    public bool                 HasController       { get; set; }
 
     public Sphero()
     {
@@ -138,10 +140,16 @@ public class Sphero
     public void Roll(float direction, float force)
     {
 		ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
+        message.Target = Server.NodeServerTarget;
 		message.AddContent(direction);
 		message.AddContent(force);
 		message.AddContent(DeviceName);
 		Server.Send(message);
+    }
+
+    public void Shoot(SpheroWeaponType type, float direction)
+    {
+        // TODO
     }
 
     public void SendStateToController()

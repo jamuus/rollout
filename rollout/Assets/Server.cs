@@ -91,7 +91,8 @@ public static class Server
     private static UdpClient    udpIncoming;
     private static UdpClient    udpOutgoing;
     private static Thread       listenThread;
-    private static IPEndPoint   nodeServerTarget;
+
+    public static IPEndPoint NodeServerTarget { get; private set; }
 
     public static string Name { get; set; }
 
@@ -203,9 +204,9 @@ public static class Server
             break;
         case ServerMessageType.NodeInit:
             // When node identifies itself, send the endianness.
-            nodeServerTarget = receivedFrom;
+            NodeServerTarget = receivedFrom;
             message.Type = ServerMessageType.SetEndianness;
-            message.Target = nodeServerTarget;
+            message.Target = NodeServerTarget;
             message.AddContent(BitConverter.IsLittleEndian);
             Send(message);
             break;

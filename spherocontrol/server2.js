@@ -49,7 +49,7 @@ function discover() {
         discoverSocket.setBroadcast(true);
         var buf = new Buffer(1);
         buf[0] = MessageType.SERVER_DISCOVER;
-        discoverSocket.send(buf, 0, buf.length, UNITY_PORT, "255.255.255.255", function() {
+        discoverSocket.send(buf, 0, buf.length, UNITY_PORT, "localhost", function() {
             discoverSocket.close();
         });
     });
@@ -93,6 +93,12 @@ function connect(server) {
             case MessageType.SET_ENDIANNESS:
                 isLittleEndian = data[1];
                 console.log("Set endianness to " + data[1]);
+                break;
+            case MessageType.ROLL_SPHERO:
+                var direction = data.readFloatLE(1);
+                var force = data.readFloatLE(5);
+                var name = data.toString("ascii", 10);
+                console.log("Rolling sphero " + name + " in direction " + direction + " with force " + force + ".");
                 break;
             default:
                 console.log("Unknown message received.");
