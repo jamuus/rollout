@@ -99,7 +99,9 @@ function connect(server) {
                 var force = data.readFloatLE(5);
                 var name = data.toString("ascii", 10);
                 console.log("Rolling sphero " + name + " in direction " + direction + " with force " + force + ".");
-                state[name].force(direction, force);
+                if (state[name]) {
+                    state[name].force(direction, force);
+                }
                 break;
             default:
                 console.log("Unknown message received.");
@@ -134,6 +136,7 @@ function sendState() {
 
     for (var name in state) {
         var sphero = state[name];
+        // console.log(sphero.x);
         var buf = new Buffer(1 + name.length + 5 * 4);
         buf[0] = name.length;
         buf.write(name, 1, name.length, "ascii");

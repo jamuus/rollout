@@ -63,10 +63,11 @@ module.exports = function(spheroManager) {
         ];
         var sphName = idToDev[data.id];
         if (api[sphName]) {
-            api[sphName].x = data.x;
-            api[sphName].y = data.y;
+            api[sphName].x = data.x / 100;
+            api[sphName].y = data.y / 100;
+            debugLog(sphName, data.x, data.y);
         }
-        debugLog(data.x, data.y);
+
     });
 
     server.bind(PORT, HOST);

@@ -32,29 +32,28 @@ public static class SpheroManager
 
     public static void ParseUpdatedState(byte[] bytes, int index)
     {
-        while (index < bytes.Length)
-        {
+        while (index < bytes.Length) {
             string deviceName = Encoding.ASCII.GetString(bytes, index + 1, bytes[index]);
             index += deviceName.Length + 1;
 
             Vector2 velocity = new Vector2();
             velocity.x = BitConverter.ToSingle(bytes, index);
+            Debug.Log(velocity.x);
             index += 4;
             velocity.y = BitConverter.ToSingle(bytes, index);
             index += 4;
 
             Vector2 position = new Vector2();
-            velocity.x = BitConverter.ToSingle(bytes, index);
+            position.x = BitConverter.ToSingle(bytes, index);
             index += 4;
-            velocity.y = BitConverter.ToSingle(bytes, index);
+            position.y = BitConverter.ToSingle(bytes, index);
             index += 4;
 
             float voltage = BitConverter.ToSingle(bytes, index);
             index += 4;
 
             Sphero sphero;
-            if (!Instances.TryGetValue(deviceName, out sphero))
-            {
+            if (!Instances.TryGetValue(deviceName, out sphero)) {
                 Instances.Add(deviceName, new Sphero());
                 sphero = Instances[deviceName];
             }
@@ -139,12 +138,12 @@ public class Sphero
     //  + DeviceName  - 1 + n bytes
     public void Roll(float direction, float force)
     {
-		ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
+        ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
         message.Target = Server.NodeServerTarget;
-		message.AddContent(direction);
-		message.AddContent(force);
-		message.AddContent(DeviceName);
-		Server.Send(message);
+        message.AddContent(direction);
+        message.AddContent(force);
+        message.AddContent(DeviceName);
+        Server.Send(message);
     }
 
     public void Shoot(SpheroWeaponType type, float direction)
@@ -174,8 +173,7 @@ public class Sphero
     }
 }
 
-public enum SpheroWeaponType : byte
-{
+public enum SpheroWeaponType : byte {
     Default = 0,
     RailGun = 1
 }
@@ -194,8 +192,7 @@ public class SpheroWeapon
     }
 }
 
-public enum SpheroPowerUpType : byte
-{
+public enum SpheroPowerUpType : byte {
     Something,
     SomethingElse
 }

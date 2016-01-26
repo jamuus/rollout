@@ -51,7 +51,8 @@ public class PlayerControl : MonoBehaviour
         if (SpheroManager.Instances.TryGetValue("tty.Sphero-BOO-AMP-SPP", out sphero)) {
             // move ingame sphero
             float moveHorizontal = sphero.Position.x;
-            float moveVertical = sphero.Position.y;
+            float moveVertical = -sphero.Position.y;
+            // print(moveHorizontal);
 
             Rigidbody rb = GetComponent<Rigidbody>();
             Vector3 position = new Vector3(moveHorizontal, 0.5f, moveVertical);
@@ -71,8 +72,8 @@ public class PlayerControl : MonoBehaviour
 
             // sphero.Roll(direction, force);
 
-            print("ayy");
-            sphero.Roll(4, 5);
+            // print("ayy");
+            // sphero.Roll(4, 5);
         }
 
     }
@@ -98,7 +99,7 @@ public class PlayerControl : MonoBehaviour
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
         if (outOfBounds) {
-            print ("" + rb.velocity.magnitude);
+            // print ("" + rb.velocity.magnitude);
             rb.AddForce(speed * (radius - rb.position.magnitude) * rb.position.normalized);
         } else {
             rb.AddForce(speed * movement);
