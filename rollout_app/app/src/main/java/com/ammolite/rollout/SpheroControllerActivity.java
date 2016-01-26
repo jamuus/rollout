@@ -54,11 +54,12 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
             @Override
             public Void call() throws Exception {
                 float roll = rollVector.length() - ROLL_DEAD_ZONE;
+                Sphero.tick();
                 if (roll > 0.0f)
                 {
                     Sphero.roll(rollVector.angle(FORWARD_VECTOR), roll);
                 }
-                if (thumbstick.getAbsoluteMagnitude() > ThumbstickControl.DEAD_ZONE_MAGNITUDE)
+                if (thumbstick.getAbsoluteMagnitude() > ThumbstickControl.DEAD_ZONE_MAGNITUDE && Sphero.weaponReady())
                 {
                     Sphero.shoot(thumbstick.getAngle());
                     vibrator.vibrate(300);
