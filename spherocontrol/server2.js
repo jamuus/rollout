@@ -98,7 +98,7 @@ function connect(server) {
                 var direction = data.readFloatLE(1);
                 var force = data.readFloatLE(5);
                 var name = data.toString("ascii", 10);
-                console.log("Rolling sphero " + name + " in direction " + direction + " with force " + force + ".");
+                console.log("Received roll for sphero", name, ", direction:", direction, ", force:", force, ".");
                 if (state[name]) {
                     state[name].force(direction, force);
                 }
