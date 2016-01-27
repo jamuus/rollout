@@ -88,7 +88,7 @@ module.exports = function(opts) {
 
         function doRoll() {
             var newpower = Math.round(spheroForce.power * 255);
-            var newangle = spheroForce.direction % 360;
+            var newangle = (spheroForce.direction / (2 * Math.PI) * 360) % 360;
             if (newpower !== 0) {
                 log('rolling', newpower);
                 sphero.roll(newpower, newangle, function() {
@@ -145,17 +145,17 @@ module.exports = function(opts) {
             updateSpheros();
         });
         // inst.powerStateInterval = setInterval(function() {
-            //     sphero.getPowerState(function(err, data) {
-            //         if (err) {
-            //             log("[ERROR] in getPowerState:", err);
-            //             return;
-            //         }
+        //     sphero.getPowerState(function(err, data) {
+        //         if (err) {
+        //             log("[ERROR] in getPowerState:", err);
+        //             return;
+        //         }
 
-            //         _newDataCallback({
-            //             batteryVoltage: data.batteryVoltage
-            //         }, 'battery');
-            //     });
-            // }, 1000);
+        //         _newDataCallback({
+        //             batteryVoltage: data.batteryVoltage
+        //         }, 'battery');
+        //     });
+        // }, 1000);
 
 
         _onSpheroConnect(api.instances[api.instances.length - 1]);
