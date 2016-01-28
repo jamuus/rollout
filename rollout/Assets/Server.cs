@@ -80,6 +80,7 @@ public class ServerMessage
     public byte[] Compile()
     {
         byte[] bytes = data.ToArray();
+
         bytes[0] = (byte)Type;
         return bytes;
     }
@@ -140,6 +141,8 @@ public static class Server
     public static void Send(ServerMessage message)
     {
         byte[] bytes = message.Compile();
+
+        Debug.LogFormat("{0}, {1}, {2}", bytes, bytes.Length, message.Target);
         udpOutgoing.Send(bytes, bytes.Length, message.Target);
     }
 
@@ -153,7 +156,7 @@ public static class Server
         string prefix = string.Format("[Server] {0} - ", receivedFrom.ToString());
 
         if (!Enum.IsDefined(typeof(ServerMessageType), (int)bytes[0])) {
-            Debug.LogFormat("{0} Unknown (0x{1:x2}).", prefix, bytes[0]);
+            // Debug.LogFormat("{0} Unknown (0x{1:x2}).", prefix, bytes[0]);
             return;
         }
 
@@ -205,11 +208,13 @@ public static class Server
             Send(message);
             break;
         case ServerMessageType.AppInit:
+            Debug.LogFormat("new app");
             Sphero sphero = null;
 
             message.Type = ServerMessageType.AppInit;
             message.Target = receivedFrom;
             message.AddContent(BitConverter.IsLittleEndian);
+            Debug.LogFormat("LE");
 
             if (BitConverter.ToBoolean(bytes, 1) && ((sphero = SpheroManager.GetNextSphero()) != null)) {
                 message.AddContent(sphero.DeviceName);
@@ -217,8 +222,9 @@ public static class Server
                 message.AddContent(SpheroManager.SpectatorName);
                 SpectatorManager.Instances.Add(new Spectator(receivedFrom));
             }
-
+            Debug.LogFormat("Pre send");
             Send(message);
+            Debug.LogFormat("Post");
 
             if (sphero != null) {
                 sphero.ControllerTarget = receivedFrom;
