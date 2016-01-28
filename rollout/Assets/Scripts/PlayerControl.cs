@@ -20,11 +20,15 @@ public class PlayerControl : MonoBehaviour
     private Player player;
     public string powerUpButton;
 
+    public Sphero sphero;
+
+
     void Start()
     {
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
         statusList = container.GetComponent<InitialiseStatus>().statuses;
+
     }
 
 
@@ -47,9 +51,10 @@ public class PlayerControl : MonoBehaviour
         triggerStatusEffects();
 
 
-        Sphero sphero;
-        if (SpheroManager.Instances.TryGetValue("tty.Sphero-BOO-AMP-SPP", out sphero)) {
-            // move ingame sphero
+        // Sphero sphero;
+        // if (SpheroManager.Instances.TryGetValue("tty.Sphero-BOO-AMP-SPP", out sphero)) {
+        // move ingame sphero
+        if (sphero != null) {
             float moveHorizontal = sphero.Position.x;
             float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
@@ -57,24 +62,8 @@ public class PlayerControl : MonoBehaviour
             Rigidbody rb = GetComponent<Rigidbody>();
             Vector3 position = new Vector3(moveHorizontal, 0.5f, moveVertical);
             rb.position = position;
-
-            // Debug.Log(string.Format("{0}, {1}", moveHorizontal, moveVertical));
-
-            // // get controller input and omve sphero
-            // float X = player.GetAxis("Horizontalx");
-            // float Y = player.GetAxis("Verticalx");
-
-            // float force = Mathf.Sqrt(Mathf.Pow(X, 2)
-            //                          + Mathf.Pow(Y, 2));
-            // float direction = Vector2.Angle(new Vector2(0, 1), new Vector2(X, Y));
-            // if (X < 0) direction = -direction + 360.0f;
-            // // direction = Mathf.Rad2Deg * direction;
-
-            // sphero.Roll(direction, force);
-
-            // print("ayy");
-            // sphero.Roll(4, 5);
         }
+        // }
 
     }
 
