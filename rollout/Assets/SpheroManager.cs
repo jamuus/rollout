@@ -90,7 +90,8 @@ public static class SpheroManager
         offset += 4;
         string name = Encoding.ASCII.GetString(data, offset + 1, data[offset]);
 
-        // TODO
+        //Shoot from the relevant sphero
+        Instances[name].shoot(direction);
 
         Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
     }
