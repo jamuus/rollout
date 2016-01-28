@@ -43,6 +43,7 @@ module.exports = function(opts) {
                 });
                 if (unconnectedSpheros.length === 0) log('None found');
 
+                var allreadyUpdating = false;
                 for (var i in unconnectedSpheros) {
                     var newSpheroDev = unconnectedSpheros[i];
                     var spheroInstance = sphero('/dev/' + newSpheroDev);
@@ -52,7 +53,10 @@ module.exports = function(opts) {
                             if (err) {
                                 log('[ERROR] in spheroOpen', err);
                                 log('        Trying again in 1 second');
-                                setTimeout(updateSpheros, 1000);
+                                if (!allreadyUpdating) {
+                                    allreadyUpdating = true;
+                                    setTimeout(updateSpheros, 1000);
+                                }
                             } else {
                                 log('Succesfully connected', deviceName);
                                 setupSpheroInstance(instance, deviceName);
@@ -87,10 +91,10 @@ module.exports = function(opts) {
         };
 
         function doRoll() {
-            var newpower = Math.round(spheroForce.power * 255);
-            var newangle = (spheroForce.direction / (2 * Math.PI) * 360) % 360;
+            var newpower = Math.round(spheroForce.power * 500);
+            var newangle = ((spheroForce.direction / (2 * Math.PI) + Math.PI) * 360) % 360;
             if (newpower !== 0) {
-                log('rolling', newpower);
+                log('rolling', newpower, newangle);
                 sphero.roll(newpower, newangle, function() {
                     doRoll();
                 });

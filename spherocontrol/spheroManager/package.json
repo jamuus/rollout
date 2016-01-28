@@ -9,6 +9,6 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "sphero": "jamuus/sphero.js"
+        "sphero": "jamuus/sphero.js#dev"
     }
 }

@@ -34,7 +34,7 @@ module.exports = function(spheroManager) {
         });
     });
 
-    var PORT = 1337;
+    var PORT = 13337;
     var HOST = '127.0.0.1';
 
     var dgram = require('dgram');
@@ -70,7 +70,7 @@ module.exports = function(spheroManager) {
 
     });
 
-    server.bind(PORT, HOST);
+    // server.bind(PORT);
 
     return api;
 }

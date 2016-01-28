@@ -3,7 +3,7 @@
 var Net = require("dgram");
 var ServerHandle = require("./ServerHandle.js");
 
-var PORT = 7779;
+var PORT = 7790;
 var UNITY_PORT = 7777;
 
 var MessageType = {
@@ -20,8 +20,22 @@ var MessageType = {
     APP_INIT: 0x21
 };
 
+process.on('SIGINT', function(lmao) {
+    console.log('closing connections');
+    udpOutgoing.close();
+    udpIncoming.close();
+});
+
 var udpOutgoing = Net.createSocket("udp4");
 var udpIncoming = Net.createSocket("udp4");
+
+udpIncoming.on('error', function(err) {
+    console.log('inc', err);
+});
+udpOutgoing.on('error', function(err) {
+    console.log('out', err);
+});
+
 var isLittleEndian = true;
 var discoveredServers = [];
 var connectedServer = undefined;
@@ -57,6 +71,13 @@ function discover() {
     setTimeout(function() {
         incomingSocket.close();
         if (discoveredServers.length > 0) {
+
+            // cheeky just connect
+            var server = discoveredServers[0];
+            connect(server);
+            return;
+
+
             console.log("\nSelect server to join: ");
 
             process.stdin.resume();
@@ -70,7 +91,7 @@ function discover() {
                     console.log("Select server to join: ");
                 } else {
                     process.stdin.pause();
-                    var server = discoveredServers[parseInt(data, 10)];
+                    var server = discoveredServers[idx];
                     connect(server);
                 }
             });
@@ -109,6 +130,10 @@ function connect(server) {
         }
     });
 
+    udpOutgoing.on('listening', function() {
+        console.log('out listening');
+    });
+
     udpIncoming.bind(PORT + 1);
     udpOutgoing.bind(PORT, function() {
         var buf = new Buffer(1);
@@ -136,7 +161,7 @@ function sendState() {
 
     for (var name in state) {
         var sphero = state[name];
-        // console.log(sphero.x);
+        // console.log(sphero.x, sphero.y);
         var buf = new Buffer(1 + name.length + 5 * 4);
         buf[0] = name.length;
         buf.write(name, 1, name.length, "ascii");
