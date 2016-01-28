@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
@@ -91,7 +91,7 @@ public static class SpheroManager
         string name = Encoding.ASCII.GetString(data, offset + 1, data[offset]);
 
         //Shoot from the relevant sphero
-        Instances[name].shoot(direction);
+        Instances[name].Shoot(direction);
 
         Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
     }
@@ -149,7 +149,19 @@ public class Sphero
 
     public void Shoot(SpheroWeaponType type, float direction)
     {
-        // TODO
+        //Get the ProjectileControl object associated with the shooting player
+        String playerName = DeviceName.ToLower().Contains("boo")? "player1" : "player2";
+        ProjectileControl playerProjectile =  GameObject.Find(playerName).GetComponent<ProjectileControl>());
+
+        //Put the direction into the correct range
+        direction += Math.PI;
+
+        //Covert the direction into a vector
+        Vector3 directionVector = new Vector3(Math.Cos(direction), Math.Sin(direction),0);
+
+        //Tell the sphero to shoot
+        playerProjectile.Shoot(directionVector);
+        
     }
 
     public void SendStateToController()
