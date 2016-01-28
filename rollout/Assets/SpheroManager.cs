@@ -8,19 +8,27 @@ using UnityEngine;
 public static class SpheroManager
 {
     public static Dictionary<string, Sphero> Instances { get; private set; }
+    public static PlayerControl ybr;
+    public static PlayerControl boo;
 
     public static string SpectatorName { get { return "Spectator"; } }
 
     static SpheroManager()
     {
         Instances = new Dictionary<string, Sphero>();
+
+        ybr = GameObject.Find("ybr").GetComponent<PlayerControl>();
+        boo = GameObject.Find("boo").GetComponent<PlayerControl>();
+        Debug.LogFormat("{0}, {1}", ybr, boo);
     }
 
     public static Sphero GetNextSphero()
     {
+        Debug.LogFormat("GET start");
         foreach (KeyValuePair<string, Sphero> sphero in Instances)
             if (!sphero.Value.HasController)
                 return sphero.Value;
+        Debug.LogFormat("GET end");
         return null;
     }
 
@@ -38,7 +46,6 @@ public static class SpheroManager
 
             Vector2 velocity = new Vector2();
             velocity.x = BitConverter.ToSingle(bytes, index);
-            Debug.Log(velocity.x);
             index += 4;
             velocity.y = BitConverter.ToSingle(bytes, index);
             index += 4;
@@ -49,6 +56,7 @@ public static class SpheroManager
             position.y = BitConverter.ToSingle(bytes, index);
             index += 4;
 
+            // Debug.LogFormat("received data for {0}: ({1}, {2})", deviceName, position.x, position.y);
             float voltage = BitConverter.ToSingle(bytes, index);
             index += 4;
 
@@ -56,6 +64,14 @@ public static class SpheroManager
             if (!Instances.TryGetValue(deviceName, out sphero)) {
                 Instances.Add(deviceName, new Sphero());
                 sphero = Instances[deviceName];
+                if (deviceName.ToUpper().Contains("YBR")) {
+                    ybr.sphero = sphero;
+                    Debug.LogFormat("ybr - {0}", deviceName);
+                } else {
+                    boo.sphero = sphero;
+                    Debug.LogFormat("boo - {0}", deviceName);
+                }
+
             }
 
             sphero.DeviceName = deviceName;
@@ -138,11 +154,13 @@ public class Sphero
     //  + DeviceName  - 1 + n bytes
     public void Roll(float direction, float force)
     {
+
         ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
         message.Target = Server.NodeServerTarget;
         message.AddContent(direction);
         message.AddContent(force);
         message.AddContent(DeviceName);
+
         Server.Send(message);
     }
 
