@@ -17,9 +17,14 @@ public static class SpheroManager
     {
         Instances = new Dictionary<string, Sphero>();
 
-        ybr = GameObject.Find("ybr").GetComponent<PlayerControl>();
-        boo = GameObject.Find("boo").GetComponent<PlayerControl>();
         Debug.LogFormat("{0}, {1}", ybr, boo);
+    }
+
+    public static void init()
+    {
+
+        ybr = GameObject.Find("player2").GetComponent<PlayerControl>();
+        boo = GameObject.Find("player1").GetComponent<PlayerControl>();
     }
 
     public static Sphero GetNextSphero()
@@ -107,7 +112,7 @@ public static class SpheroManager
         string name = Encoding.ASCII.GetString(data, offset + 1, data[offset]);
 
         //Shoot from the relevant sphero
-        Instances[name].Shoot(direction);
+        Instances[name].Shoot(SpheroWeaponType.Default, direction);
 
         Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
     }
@@ -168,18 +173,18 @@ public class Sphero
     public void Shoot(SpheroWeaponType type, float direction)
     {
         //Get the ProjectileControl object associated with the shooting player
-        String playerName = DeviceName.ToLower().Contains("boo")? "player1" : "player2";
-        ProjectileControl playerProjectile =  GameObject.Find(playerName).GetComponent<ProjectileControl>());
+        String playerName = DeviceName.ToLower().Contains("boo") ? "player1" : "player2";
+        ProjectileControl playerProjectile =  GameObject.Find(playerName).GetComponent<ProjectileControl>();
 
         //Put the direction into the correct range
-        direction += Math.PI;
+        direction += (float)Math.PI;
 
         //Covert the direction into a vector
-        Vector3 directionVector = new Vector3(Math.Cos(direction), Math.Sin(direction),0);
+        Vector3 directionVector = new Vector3((float)Math.Cos(direction), (float)Math.Sin(direction), 0.0f);
 
         //Tell the sphero to shoot
         playerProjectile.Shoot(directionVector);
-        
+
     }
 
     public void SendStateToController()
