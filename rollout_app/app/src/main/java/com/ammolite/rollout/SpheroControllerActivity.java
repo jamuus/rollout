@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 
 public class SpheroControllerActivity extends ActionBarActivity implements SensorEventListener {
     private static final Vector2f FORWARD_VECTOR = new Vector2f(1, 0);
-    private static final float    ROLL_DEAD_ZONE = 2.5f; // TODO Needs to be tuned.
+    private static final float    ROLL_DEAD_ZONE = 0.05f; // TODO Needs to be tuned.
 
     private Callable<Void>      updateFunc;
     private Vibrator            vibrator;
@@ -53,16 +53,17 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
         updateFunc = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                float roll = rollVector.length() - ROLL_DEAD_ZONE;
+                float roll = rollVector.length()/accelerometer.getMaximumRange();
                 Sphero.tick();
-                if (roll > 0.0f)
+                if (roll > ROLL_DEAD_ZONE)
                 {
                     Sphero.roll(rollVector.angle(FORWARD_VECTOR), roll);
                 }
+                else Sphero.roll(rollVector.angle(FORWARD_VECTOR),0);
                 if (thumbstick.getAbsoluteMagnitude() > ThumbstickControl.DEAD_ZONE_MAGNITUDE && Sphero.weaponReady())
                 {
                     Sphero.shoot(thumbstick.getAngle());
-                    vibrator.vibrate(300);
+                    vibrator.vibrate(150);
                 }
                 if (Sphero.getHasRecentDamage())
                 {

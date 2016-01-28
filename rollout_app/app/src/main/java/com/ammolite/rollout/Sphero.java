@@ -54,6 +54,7 @@ public final class Sphero {
     }
 
     public static void roll(float direction, float force) {
+        //Send the message
         ServerMessage message = new ServerMessage(ServerMessageType.ROLL_SPHERO);
         message.addContent(direction);
         message.addContent(force);
@@ -61,8 +62,7 @@ public final class Sphero {
         Server.send(message);
     }
 
-    public static void shoot(float direction)
-    {
+    public static void shoot(float direction) {
         //Reset the ticks
         ticksSinceLastShot = 0;
 
