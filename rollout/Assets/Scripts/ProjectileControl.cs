@@ -42,14 +42,14 @@ public class ProjectileControl : MonoBehaviour
                 projectileRotation = Quaternion.LookRotation(velocity.normalized, Vector3.up);
             }
 
-			projectilePosition = transform.position + (velocity.normalized);
+            projectilePosition = transform.position + (velocity.normalized);
             var spawnedMissile = (HomingMissile)Instantiate(homingMissile, projectilePosition, projectileRotation);
             spawnedMissile.Initialise(velocity, otherPlayer);
         }
     }
 
     private void Shoot()
-    {      
+    {
         //Get the velocity of the player
         velocity = GetComponent<Rigidbody>().velocity;
 
@@ -60,7 +60,7 @@ public class ProjectileControl : MonoBehaviour
         Shoot(velocity);
     }
 
-    private void Shoot(Vector3 velocity)
+    public void Shoot(Vector3 velocity)
     {
         //Spawn the projectile outside of the player in the direction you are aiming
         projectilePosition = transform.position + velocity.normalized;
