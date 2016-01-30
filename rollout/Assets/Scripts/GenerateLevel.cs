@@ -19,10 +19,10 @@ public class GenerateLevel : MonoBehaviour {
         initialiseUpgrades();
         initialiseObstacles();
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
-	
+
 	}
 
     Vector3 randomPosition (float radius)
@@ -33,16 +33,16 @@ public class GenerateLevel : MonoBehaviour {
         {
             position = new Vector3((float)Random.Range(0f,1f), 1f, (float)Random.Range(-1f,1f));
         }
-        else 
+        else
         {
             position = new Vector3((float)Random.Range(-1f,1f), 1f, (float)Random.Range(-1f,1f));
         }
         position = levelRadius * position.normalized;
         position.y = 1f;
-        print(position + "   " + randomR);
+        //print(position + "   " + randomR);
         return position;
     }
-    
+
     void initialiseSpecialFields()
     {
         for (int i = 0; i < specialFieldN; i++)
