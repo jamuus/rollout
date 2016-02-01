@@ -69,7 +69,7 @@ public class SpecialField : MonoBehaviour
     {
 		Color color = new Color();
         Renderer rend = GetComponent<Renderer>();
-        rend.material.shader = Shader.Find("UI/Unlit/Transparent");
+        rend.material.shader = Shader.Find("Standard");
 
 		switch (option) {
         case 0:
@@ -87,7 +87,8 @@ public class SpecialField : MonoBehaviour
         }
 
         //Set the colour
-        rend.material.color = color;
+		rend.material.SetColor("_EmissionColor", Color.black);
+		rend.material.SetColor("_Color", color);
     }
 
     //Behaviour functions

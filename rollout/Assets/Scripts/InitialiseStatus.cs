@@ -33,7 +33,7 @@ public class InitialiseStatus: MonoBehaviour
 
         status.name = "Slow down";
         status.description = "Player movement speed decreased";
-        status.magnitude = 2;
+        status.magnitude = 2.0f;
         status.time = 15000;
         statuses[2] = status;
 

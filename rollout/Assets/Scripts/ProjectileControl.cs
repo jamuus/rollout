@@ -39,7 +39,7 @@ public class ProjectileControl : MonoBehaviour
             projectilePosition = transform.position + velocity.normalized;
             var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
 
-            spawnedProjectile.Initialise(velocity);
+			spawnedProjectile.Initialise(velocity, gameObject);
         }
 
 

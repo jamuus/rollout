@@ -7,7 +7,8 @@ using System.Collections.Generic;
 
 public class PlayerControl : MonoBehaviour
 {
-    public float speed;
+	public float baseSpeed;
+    private float speed;
     public Vector3 velocity;
     private List<PowerUp> powerUps = new List<PowerUp>();
     private int[] statuses = new int[5]; //storing status time remaining
@@ -22,6 +23,7 @@ public class PlayerControl : MonoBehaviour
 
     void Start()
     {
+		speed = baseSpeed;
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
         statusList = container.GetComponent<InitialiseStatus>().statuses;
@@ -94,7 +96,7 @@ public class PlayerControl : MonoBehaviour
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
         if (outOfBounds) {
-            print ("" + rb.velocity.magnitude);
+            //print ("" + rb.velocity.magnitude);
             rb.AddForce(speed * (radius - rb.position.magnitude) * rb.position.normalized);
         } else {
             rb.AddForce(speed * movement);
@@ -140,10 +142,10 @@ public class PlayerControl : MonoBehaviour
             print ("End of speed regeneration");
         }
         if (statuses[3] > 0) {
-            if (statuses[3] == statusList[3].time) speed *= statusList[3].magnitude;
+			if (statuses[3] == statusList[3].time) speed = baseSpeed * statusList[3].magnitude;
             statuses[3] -= 20;
             if (statuses[3] <= 0) {
-                speed /= 2;
+                speed = baseSpeed;
                 print ("End of speed boost");
             }
         }
