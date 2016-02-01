@@ -24,21 +24,13 @@ module.exports = function(opts) {
     };
 
     var connectedSpheros = {
-            instances: [],
-            deviceNames: [],
-            friendlyNames: []
-        },
-        desiredSpheros = 1;
+        instances: [],
+        deviceNames: [],
+        friendlyNames: []
+    };
     var spheroDeviceRegex = /tty\.Sphero.*/;
 
     function updateSpheros() {
-
-
-
-        /*
-            search for spheros in /dev
-            connect to first sphero that isnt connected
-        */
         fs.readdir('/dev/', function(err, files) {
             if (err) return log('[ERROR] in readdir:', err);
 
@@ -50,7 +42,9 @@ module.exports = function(opts) {
             if (newSph.length > 0) {
                 var sphDevName = newSph[0]
                 log("[SPHERO] Connecting to sphero", sphDevName);
-                var sph = sphero('/dev/' + sphDevName);
+                var sph = sphero('/dev/' + sphDevName, {
+                    emitPacketErrors: true
+                });
                 sph.connect((err) => {
                     if (err) {
                         log("[SPHERO] Error connecting:", err);
@@ -60,7 +54,10 @@ module.exports = function(opts) {
                         connectedSpheros.instances.push(sph);
                         connectedSpheros.deviceNames.push(sphDevName);
                     }
+                    setTimeout(updateSpheros, 2000);
                 });
+            } else {
+                setTimeout(updateSpheros, 2000);
             }
         });
     }
@@ -136,7 +133,7 @@ module.exports = function(opts) {
         _onSpheroConnect(api.instances[api.instances.length - 1]);
     }
 
-    setInterval(updateSpheros, 2000);
+    updateSpheros();
 
     return api;
 };
