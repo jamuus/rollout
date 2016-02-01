@@ -65,6 +65,7 @@ module.exports = function(opts) {
                             }
                         };
                     })(spheroInstance, newSpheroDev);
+
                     log('Connecting to', newSpheroDev);
                     spheroInstance.connect(spheroConnectCallback);
                 }
