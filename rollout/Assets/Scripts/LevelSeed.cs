@@ -32,7 +32,7 @@ public class LevelSeed: MonoBehaviour
 		obstacles.Add (element);
 
 		element.x = 6f;
-		element.y = 2f;
+		element.y = 0f;
 		obstacles.Add (element);
 
 		//powerUps

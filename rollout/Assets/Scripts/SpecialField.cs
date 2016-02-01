@@ -12,7 +12,7 @@ using System.Collections;
 
 public class SpecialField : MonoBehaviour
 {
-    public int behaviourOption = 0; //1 damage health
+    public int behaviourOption = 0; // damage health
     public int magnitude = 1; //behaviour's magnitude
     public bool isVolatile = false; // is field destroyed when triggered
     public int powerUpID;
@@ -64,6 +64,11 @@ public class SpecialField : MonoBehaviour
             }
         }
     }
+
+	public void setPowerUpID(int id)
+	{
+		this.powerUpID = id;
+	}
 
     void renderColor(int option)
     {

@@ -75,12 +75,15 @@ public class GenerateLevel : MonoBehaviour {
     void initialiseUpgrades()
     {
 
-        for (int i = 0; i < upgradeN; i++)
-        {
-            Vector3 pos = randomPosition(levelRadius);
-            Instantiate(upgrade, pos, Quaternion.identity);
-            if (symmetricBattleArena) Instantiate(upgrade,new Vector3(-pos.x, 1f, -pos.z), Quaternion.identity);
-        }
+		for (int i = 0; i < upgradeN; i++) {
+			Vector3 pos = randomPosition (levelRadius);
+			GameObject powerUp = (GameObject)Instantiate (upgrade, pos, Quaternion.identity);
+			powerUp.GetComponent<SpecialField> ().setPowerUpID ((int)Random.Range (0f, 5f));
+			if (symmetricBattleArena) {
+				powerUp = (GameObject)Instantiate (upgrade, new Vector3 (-pos.x, 1f, -pos.z), Quaternion.identity);
+				powerUp.GetComponent<SpecialField>().setPowerUpID((int)Random.Range(0f,5f));
+			}
+		}
     }
 
     void initialiseObstacles()
@@ -104,18 +107,22 @@ public class GenerateLevel : MonoBehaviour {
 			if (symmetricBattleArena) Instantiate(obstacle,new Vector3(-pos.x, 1f, -pos.z), Quaternion.identity);
 		}
 
-		for (int i = 0; i < seed.powerUps.Count(); i++)
-		{
+		for (int i = 0; i < seed.powerUps.Count (); i++) {
 			Vector3 pos = new Vector3 (seed.powerUps [i].x, 1f, seed.powerUps [i].y);
-			Instantiate(upgrade, pos, Quaternion.identity);
-			if (symmetricBattleArena) Instantiate(upgrade,new Vector3(-pos.x, 1f, -pos.z), Quaternion.identity);
+			GameObject powerUp = (GameObject)Instantiate (upgrade, pos, Quaternion.identity);
+			powerUp.GetComponent<SpecialField> ().setPowerUpID ((int)Random.Range (0f, 5f));
+
+			if (symmetricBattleArena) {
+				powerUp = (GameObject)Instantiate (upgrade, new Vector3 (-pos.x, 1f, -pos.z), Quaternion.identity);
+				powerUp.GetComponent<SpecialField>().setPowerUpID((int)Random.Range(0f,5f));
+			}
 		}
 
 		for (int i = 0; i < seed.specialFields.Count(); i++)
 		{
 			Vector3 pos = new Vector3 (seed.specialFields [i].x, 1f, seed.specialFields [i].y);
-			Instantiate(specialFieldH, pos, Quaternion.identity);
-			if (symmetricBattleArena) Instantiate(specialFieldH,new Vector3(-pos.x, 1f, -pos.z), Quaternion.identity);
+			Instantiate(specialFieldD, pos, Quaternion.identity);
+			if (symmetricBattleArena) Instantiate(specialFieldD,new Vector3(-pos.x, 1f, -pos.z), Quaternion.identity);
 		}
 	}
 }

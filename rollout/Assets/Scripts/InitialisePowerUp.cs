@@ -29,13 +29,13 @@ public class InitialisePowerUp:MonoBehaviour
         powerUp.instant = false;
         powerUps[1] = powerUp;
 
-        powerUp.name = "Stun enemy";
+        powerUp.name = "Stun Enemy";
         powerUp.description = "Freezes enemy";
         powerUp.value = 3;
         powerUp.instant = false;
         powerUps[2] = powerUp;
 
-        powerUp.name = "Slow Down enemy";
+        powerUp.name = "Slow Down Enemy";
         powerUp.description = "Slows down enemy player";
         powerUp.value = 2;
         powerUp.instant = false;

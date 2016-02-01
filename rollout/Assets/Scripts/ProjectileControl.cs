@@ -55,9 +55,9 @@ public class ProjectileControl : MonoBehaviour
                 projectileRotation = Quaternion.LookRotation(velocity.normalized, Vector3.up);
             }
 
-			projectilePosition = transform.position + (velocity.normalized);
-            var spawnedMissile = (HomingMissile)Instantiate(homingMissile, projectilePosition, projectileRotation);
-            spawnedMissile.Initialise(velocity, otherPlayer);
+			//projectilePosition = transform.position + (velocity.normalized);
+            //var spawnedMissile = (HomingMissile)Instantiate(homingMissile, projectilePosition, projectileRotation);
+            //spawnedMissile.Initialise(velocity, otherPlayer);
         }
     }
 
