@@ -75,29 +75,29 @@ function discover() {
             // cheeky just connect
             var server = discoveredServers[0];
             connect(server);
-            return;
+            // return;
 
 
-            console.log("\nSelect server to join: ");
+            // console.log("\nSelect server to join: ");
 
-            process.stdin.resume();
-            process.stdin.setEncoding("utf8");
-            process.stdin.on("data", function(data) {
-                var idx = parseInt(data, 10);
-                if (idx >= discoveredServers.length) {
-                    console.log("Invalid server. Options are: ");
-                    for (var i = 0; i < discoveredServers.length; ++i)
-                        console.log(i + ": " + discoveredServers[i].toString());
-                    console.log("Select server to join: ");
-                } else {
-                    process.stdin.pause();
-                    var server = discoveredServers[idx];
-                    connect(server);
-                }
-            });
+            // process.stdin.resume();
+            // process.stdin.setEncoding("utf8");
+            // process.stdin.on("data", function(data) {
+            //     var idx = parseInt(data, 10);
+            //     if (idx >= discoveredServers.length) {
+            //         console.log("Invalid server. Options are: ");
+            //         for (var i = 0; i < discoveredServers.length; ++i)
+            //             console.log(i + ": " + discoveredServers[i].toString());
+            //         console.log("Select server to join: ");
+            //     } else {
+            //         process.stdin.pause();
+            //         var server = discoveredServers[idx];
+            //         connect(server);
+            //     }
+            // });
         } else {
-            console.log("None found.");
-            process.exit();
+            console.log("No servers found.");
+            // process.exit();
         }
     }, 2000);
 }
@@ -140,7 +140,7 @@ function connect(server) {
         buf[0] = MessageType.NODE_INIT;
         udpOutgoing.send(buf, 0, buf.length, UNITY_PORT, server.ip);
         connectedServer = server;
-        state = spheroState();
+
         setInterval(sendState, 1000 / 60);
     });
 }
@@ -189,4 +189,5 @@ function sendState() {
     });
 }
 
+state = spheroState();
 discover();
