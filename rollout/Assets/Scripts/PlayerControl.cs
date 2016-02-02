@@ -7,10 +7,11 @@ using System.Collections.Generic;
 
 public class PlayerControl : MonoBehaviour
 {
+	public float baseSpeed;
     public float speed;
     public Vector3 velocity;
-    private List<PowerUp> powerUps = new List<PowerUp>();
-    private int[] statuses = new int[5]; //storing status time remaining
+    public List<PowerUp> powerUps = new List<PowerUp>();
+    public int[] statuses = new int[5]; //storing status time remaining
     private Status[] statusList = new Status[5];
     private GameObject container;
     public string horizontalAxis;
@@ -22,6 +23,7 @@ public class PlayerControl : MonoBehaviour
 
     void Start()
     {
+		speed = baseSpeed;
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
         statusList = container.GetComponent<InitialiseStatus>().statuses;
@@ -84,18 +86,21 @@ public class PlayerControl : MonoBehaviour
         //Server.StopListening();
     }
 
+
     void Move()
     {
+
         Rigidbody rb = GetComponent<Rigidbody>();
         float radius = 11f;
-        bool outOfBounds = radius < rb.position.magnitude;
+		bool outOfBounds = radius < rb.position.magnitude; // check if left arena
+
         float moveHorizontal = Input.GetAxis(horizontalAxis);
         float moveVertical = Input.GetAxis(verticalAxis);
 
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
         if (outOfBounds) {
-            print ("" + rb.velocity.magnitude);
+			// accelerate in opposite direction
             rb.AddForce(speed * (radius - rb.position.magnitude) * rb.position.normalized);
         } else {
             rb.AddForce(speed * movement);
@@ -107,9 +112,9 @@ public class PlayerControl : MonoBehaviour
     {
         PowerUp usedPowerUp;
         try {
-            usedPowerUp = powerUps[powerUps.Count - 1];
+            usedPowerUp = powerUps[0];
             powerUpEffect(usedPowerUp);
-            powerUps.RemoveAt(powerUps.Count - 1);
+            powerUps.RemoveAt(0);
             print("PowerUp " + usedPowerUp.name + " used by player");
         } catch (Exception e) {
             print("No powerups left");
@@ -119,35 +124,83 @@ public class PlayerControl : MonoBehaviour
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
-        print("PowerUp " + powerUp.name + " added to player");
+		print("PowerUp " + powerUp.name + " added to " + gameObject.name);
     }
 
-    private void powerUpEffect(PowerUp powerUp)
+    public void powerUpEffect(PowerUp powerUp)
     {
+		GameObject otherPlayer = GameObject.Find(gameObject.name == "player1" ? "player2" : "player1");
 
+		if (powerUp.name == "Regeneration") {
+			statuses [0] = statusList[0].time;
+		}
+		if (powerUp.name == "Damage Enemy") {
+			otherPlayer.GetComponent<PlayerControl>().statuses [1] = statusList[1].time;
+		}
+		if (powerUp.name == "Slow Down Enemy") {
+			otherPlayer.GetComponent<PlayerControl>().statuses [2] = statusList[2].time;
+			statuses [3] = 0;
+		}
         if (powerUp.name == "Boost") {
-            statuses[3] = statusList[3].time;
+            statuses [3] = statusList[3].time;
+			statuses [2] = 0; // When boost used it removes negative speed effects
+			statuses [4] = 0; // Removing stunn status
         }
-        if (powerUp.name == "Regeneration") {
-            statuses[0] = statusList[0].time;
-        }
+		if (powerUp.name == "Stun Enemy") {
+			otherPlayer.GetComponent<PlayerControl>().statuses [4] = statusList[4].time;
+		}
     }
 
     private void triggerStatusEffects()
     {
+		//regeneration
         if (statuses[0] > 0) {
             this.GetComponent<UniversalHealth>().healPlayer((int)statusList[0].magnitude);
-            statuses[0] -= 20;
-            print ("End of speed regeneration");
+			decrementStatusDuration(0);
+			if (statuses[0] <= 0) print ("End of regeneration");
         }
+
+		//damage over time
+		if (statuses[1] > 0) {
+			this.GetComponent<UniversalHealth>().damagePlayer((int)statusList[0].magnitude);
+			decrementStatusDuration(1);
+			if (statuses[1] <= 0) print ("End of damage");
+		}
+
+		// reduce speed
+		if (statuses[2] > 0) {
+			if (statuses[2] == statusList[2].time) speed = baseSpeed / statusList[2].magnitude;
+			decrementStatusDuration(2);
+			if (statuses[2] <= 0) {
+				speed = baseSpeed;
+				print ("End of slow down");
+			}
+		}
+
+		// increase speed
         if (statuses[3] > 0) {
-            if (statuses[3] == statusList[3].time) speed *= statusList[3].magnitude;
-            statuses[3] -= 20;
+			if (statuses[3] == statusList[3].time) speed = baseSpeed * statusList[3].magnitude;
+			decrementStatusDuration(3);
             if (statuses[3] <= 0) {
-                speed /= 2;
+                speed = baseSpeed;
                 print ("End of speed boost");
             }
         }
+
+		// stun
+		if (statuses[4] > 0) {
+			//print ("stun duration remaining: " + statuses [4]);
+			speed = 0;
+			decrementStatusDuration(4);
+			if (statuses [4] <= 0) {
+				speed = baseSpeed;
+				print ("End of stun");
+			}
+		}
     }
+	private void decrementStatusDuration(int statusID)
+	{
+		statuses[statusID] -= 25;
+	}
 
 }

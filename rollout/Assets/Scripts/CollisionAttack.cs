@@ -49,7 +49,7 @@ public class CollisionAttack : MonoBehaviour
             health.damagePlayer(damage);
 
             //Play collision particle effect
-            particles.Play (); 
+            //particles.Play (); //this causes some errors
         }
     }
 

@@ -12,7 +12,7 @@ using System.Collections;
 
 public class SpecialField : MonoBehaviour
 {
-    public int behaviourOption = 0; //1 damage health
+    public int behaviourOption = 0; // damage health
     public int magnitude = 1; //behaviour's magnitude
     public bool isVolatile = false; // is field destroyed when triggered
     public int powerUpID;
@@ -65,11 +65,16 @@ public class SpecialField : MonoBehaviour
         }
     }
 
+	public void setPowerUpID(int id)
+	{
+		this.powerUpID = id;
+	}
+
     void renderColor(int option)
     {
 		Color color = new Color();
         Renderer rend = GetComponent<Renderer>();
-        rend.material.shader = Shader.Find("UI/Unlit/Transparent");
+        rend.material.shader = Shader.Find("Standard");
 
 		switch (option) {
         case 0:
@@ -87,7 +92,8 @@ public class SpecialField : MonoBehaviour
         }
 
         //Set the colour
-        rend.material.color = color;
+		rend.material.SetColor("_EmissionColor", Color.black);
+		rend.material.SetColor("_Color", color);
     }
 
     //Behaviour functions
