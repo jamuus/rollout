@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
+using System.Collections.Generic;
 
 public class GenerateLevel : MonoBehaviour {
 
@@ -8,12 +9,17 @@ public class GenerateLevel : MonoBehaviour {
     public int specialFieldN;
     public int upgradeN;
     public int obstacleN;
+    public int clustersN;
+    public int clusterSize;
     public GameObject obstacle;
+    public GameObject smallObstacle;
+    public GameObject largeObstacle;
     public GameObject specialFieldD;
     public GameObject specialFieldH;
     public GameObject upgrade;
 	public bool random;
     public bool symmetricBattleArena;
+    public bool clusterObstacles;
 	private LevelSeed seed;
 
 	// Use this for initialization
@@ -22,7 +28,8 @@ public class GenerateLevel : MonoBehaviour {
 		if (random) {
 			initialiseSpecialFields ();
 			initialiseUpgrades ();
-			initialiseObstacles ();
+            if (clusterObstacles) initialiseClusters();
+            else initialiseObstacles ();
 		} else {
 			print ("getting seed");
 			seed = GameObject.Find("Container").GetComponent<LevelSeed> ();
@@ -38,7 +45,6 @@ public class GenerateLevel : MonoBehaviour {
 
     Vector3 randomPosition (float radius)
     {
-        float randomR = (float)Random.Range(0f, radius);
         Vector3 position;
         if (symmetricBattleArena)
         {
@@ -48,9 +54,8 @@ public class GenerateLevel : MonoBehaviour {
         {
             position = new Vector3((float)Random.Range(-1f,1f), 1f, (float)Random.Range(-1f,1f));
         }
-        position = levelRadius * position.normalized;
+        position = radius * position.normalized;
         position.y = 1f;
-        print(position + "   " + randomR);
         return position;
     }
     
@@ -86,9 +91,108 @@ public class GenerateLevel : MonoBehaviour {
 		}
     }
 
+    void initialiseClusters()
+    {
+        //For all clusters
+        for (int i = 0; i < clustersN; i++)
+        {
+            //Generate a root position
+            Vector3 clusterCentre = randomPosition(levelRadius*0.8f);
+
+            //Generate the cluster
+            initialiseCluster(clusterCentre);
+
+            //If the centre of the cluster is far from the boundary and symmetry is on
+            if (clusterCentre.x > 0.2 && symmetricBattleArena)
+            {
+                //Generate a second cluster on the other side
+                initialiseCluster(new Vector3(-clusterCentre.x, 1, -clusterCentre.z));
+
+                //Count the extra cluster
+                i++;
+            }
+        }
+    }
+
+    bool inBounds(Vector3 point)
+    {
+        if (point.x < -levelRadius*0.7 || point.x > levelRadius*0.7) return false;
+        if (point.z < -levelRadius*0.7 || point.z > levelRadius*0.7) return false;
+        return true;
+    }
+
+    Vector3 findFreeSide(List<GameObject> blocks)
+    {
+        //Find where to place the next block
+        bool freeSideFound = false;
+        int attempts = 0;
+        while (!freeSideFound && attempts < blocks.Count * 1.4)
+        {
+            //Get a random block in the list
+            GameObject nextNeighbour = blocks.ElementAt(Random.Range(0, blocks.Count - 1));
+
+            //Look around it to try and find a free side
+            for (int j = 0; j < 4; j++)
+            {
+                //Generate a direction
+                Vector3 neighbourDirection = (j == 0) ? new Vector3(1,0,0).normalized : (j == 1) ? new Vector3(0, 0, 1).normalized : (j == 2) ? new Vector3(-1, 0, 0).normalized : new Vector3(0, 0, -1).normalized;
+
+                //Check if that side is free
+                bool sideFree = true;
+                foreach (GameObject block in blocks)
+                {
+                    if (block != nextNeighbour && ((block.transform.position - nextNeighbour.transform.position).normalized - neighbourDirection).magnitude < 0.2)
+                        sideFree = false;
+                }
+
+                //Check if the block placed on this side would be in bounds
+                neighbourDirection.Scale(nextNeighbour.transform.localScale * 1.0f);
+                if (!inBounds(nextNeighbour.transform.position + neighbourDirection)) sideFree = false;
+
+                //If the side is free
+                if (sideFree)
+                {
+                    //Return the point on the free edge of the next neighbour
+                    return nextNeighbour.transform.position + neighbourDirection;
+                }
+            }
+
+            attempts++;
+        }
+
+        return Vector3.zero;
+    }
+
+    void initialiseCluster(Vector3 centre)
+    {
+        //Set the position
+        Vector3 blockPosition = centre;
+
+        //Define the list of already placed blocks
+        List<GameObject> placedBlocks = new List<GameObject>();
+
+        //Generate each cluster block
+        for (int i = 1; i <= clusterSize; i++)
+        {
+            //Set the block size
+            float ratio = (float)i / clusterSize;
+            GameObject block = ratio < 0.33 ? largeObstacle : ratio < 0.66? obstacle : smallObstacle;
+
+            //Instantiate the block
+            block.transform.position = blockPosition;
+            placedBlocks.Add(block);
+            Instantiate(block, blockPosition, Quaternion.identity);
+
+            //Update the position
+            Vector3 modifier = findFreeSide(placedBlocks);
+            if (modifier.magnitude > 0) blockPosition = modifier;
+
+            else return;
+        }
+    }
+
     void initialiseObstacles()
     {
-
         for (int i = 0; i < obstacleN; i++)
         {
             Vector3 pos = randomPosition(levelRadius);
