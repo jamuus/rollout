@@ -44,12 +44,12 @@ public class GUIController : MonoBehaviour
 	{
 		if (player && player.name == "player1") {
 			lineRenderer.SetPosition(0, this.transform.position);
-			lineRenderer.SetPosition(1, this.transform.position - new Vector3((10 * getPlayerHealth()), 0,0));
+			lineRenderer.SetPosition(1, this.transform.position - new Vector3((12 * getPlayerHealth()), 0,0));
 
 		}
 		else if (player && player.name == "player2") {
 			lineRenderer.SetPosition(0, this.transform.position);
-			lineRenderer.SetPosition(1, this.transform.position + new Vector3((10 * getPlayerHealth()), 0,0));
+			lineRenderer.SetPosition(1, this.transform.position + new Vector3((12 * getPlayerHealth()), 0,0));
 		}
 		else {
 			Destroy(gameObject);
@@ -67,25 +67,36 @@ public class GUIController : MonoBehaviour
     }
 
 	//renders the active statuses
+	//two strings are rendered, one indicating inactive, one active statuses
 	void renderStatuses()
 	{
 
 		int[] playerStatuses = playerStatus.statuses;
 		int numberOfStatuses = playerStatuses.Length;
-		string statusString = "";
+		string activeStatusString = "";
+		string inactiveStatusString = "";
+
 		for (int i = 0; i < numberOfStatuses; i++)
 		{
 			if (playerStatuses [i] > 0) {
-				statusString = (statusString + " " + decodeStatusSymbol(i));
+				activeStatusString = (activeStatusString + " " + decodeStatusSymbol (i));
+				inactiveStatusString = (inactiveStatusString + "    ");
+			} else {
+				inactiveStatusString = (inactiveStatusString + " " + decodeStatusSymbol (i));
+				activeStatusString = (activeStatusString + "    ");
 			}
+			activeStatusString += " "; //decorative
+			inactiveStatusString += " "; //decorative
 		}
-		GameObject.Find (player.name + "statuses").GetComponent<TextMesh> ().text = statusString;
+		GameObject.Find (player.name + "activeStatuses").GetComponent<TextMesh> ().text = activeStatusString;
+		GameObject.Find (player.name + "inactiveStatuses").GetComponent<TextMesh> ().text = inactiveStatusString;
+
 	}
 
 	string decodeStatusSymbol(int n)
 	{
 		string statusName = statuses [n].name;
-		string symbol = new string(statusName.Take (n).ToArray());
+		string symbol = new string(statusName.Take (3).ToArray());
 		return symbol;
 	}
 }
