@@ -17,7 +17,7 @@ public class SpecialField : MonoBehaviour
     public bool isVolatile = false; // is field destroyed when triggered
     public int powerUpID;
     private PowerUp powerUp;
-
+	private bool active = true;
 
     // Use this for initialization
     void Start ()
@@ -34,7 +34,7 @@ public class SpecialField : MonoBehaviour
     void OnTriggerEnter(Collider col)
     {
         //If the field affects the player
-        if (col.gameObject.tag == "Player") {
+		if (col.gameObject.tag == "Player" && this.active == true) {
             //Get the player object
             GameObject player = col.gameObject;
 
@@ -57,8 +57,9 @@ public class SpecialField : MonoBehaviour
                 print("Wrong field ID");
                 break;
             }
-
-            if (isVolatile) {
+			StartCoroutine(fieldTimeout(10));
+            
+			if (isVolatile) {
 
                 Destroy(gameObject);
             }
@@ -74,27 +75,44 @@ public class SpecialField : MonoBehaviour
     {
 		Color color = new Color();
         Renderer rend = GetComponent<Renderer>();
-        rend.material.shader = Shader.Find("Standard");
+        //rend.material.shader = Shader.Find("Standard");
 
 		switch (option) {
         case 0:
-            color = new Color(.8f, .1f, .1f, .1f); //red
+            color = new Color(.8f, .1f, .1f, 1f); //red
             break;
         case 1:
-            color = new Color(.1f, .8f, .1f, .1f); // green
+            color = new Color(.1f, .8f, .1f, 1f); // green
             break;
         case 2:
-            color = new Color(.8f, .1f, .1f, .4f); // aggressive red
+            color = new Color(.8f, .3f, .1f, 1f); // aggressive red
             break;
         case 3:
-            color = new Color(.4f, .4f, .0f, .5f);
+            color = new Color(.4f, .4f, .0f, 1f); // yellow
             break;
         }
 
         //Set the colour
-		rend.material.SetColor("_EmissionColor", Color.black);
+		rend.material.SetColor("_EmissionColor", new Color(0f,0f,0f,0f));
 		rend.material.SetColor("_Color", color);
     }
+
+	void renderColor(float r, float g, float b, float a)
+	{
+		Color color = new Color (r, g, b, a);
+		Renderer rend = GetComponent<Renderer>();
+		//rend.material.SetColor("_EmissionColor", Color.black);
+				rend.material.SetColor("_EmissionColor", new Color(0.5f,0.5f,0.5f,0.2f));
+		rend.material.SetColor("_Color", color);
+	}
+
+	void renderColor(float alpha)
+	{
+		Renderer rend = GetComponent<Renderer> ();
+		Color color = rend.material.color;
+		color.a = alpha;
+		rend.material.SetColor("_Color", color);
+	}
 
     //Behaviour functions
     void damagePlayer(GameObject player)
@@ -119,5 +137,15 @@ public class SpecialField : MonoBehaviour
         player.GetComponent<PlayerControl>().AddPowerUp(powerUp);
     }
 
+	IEnumerator fieldTimeout(float seconds)
+	{
+		active = false;
+		print(Time.time);
+		renderColor (0.2f); //alpha
+		yield return new WaitForSeconds (seconds);
+		renderColor (behaviourOption); //alpha
+		print(Time.time);
+		active = true;
+	}
 }
 

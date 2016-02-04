@@ -16,8 +16,6 @@ public class PlayerControl : MonoBehaviour
     private GameObject container;
     public string horizontalAxis;
     public string verticalAxis;
-
-
     private Player player;
     public string powerUpButton;
 
@@ -28,7 +26,6 @@ public class PlayerControl : MonoBehaviour
         container = GameObject.Find("Container");
         statusList = container.GetComponent<InitialiseStatus>().statuses;
     }
-
 
     void Awake()
     {
@@ -70,6 +67,9 @@ public class PlayerControl : MonoBehaviour
             // float direction = Vector2.Angle(new Vector2(0, 1), new Vector2(X, Y));
             // if (X < 0) direction = -direction + 360.0f;
             // // direction = Mathf.Rad2Deg * direction;
+            // get controller input and omve sphero
+            float X = player.GetAxis("Horizontalx");
+            float Y = player.GetAxis("Verticalx");
 
             // sphero.Roll(direction, force);
         }

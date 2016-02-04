@@ -49,5 +49,10 @@ public class InitialiseStatus: MonoBehaviour
         status.time = (int)status.magnitude * 1000;
         statuses[4] = status;
     }
+
+	public Status[] getStatuses()
+	{
+		return statuses;
+	}
 }
 
