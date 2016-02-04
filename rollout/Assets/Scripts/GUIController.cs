@@ -59,11 +59,8 @@ public class GUIController : MonoBehaviour
 
     float getPlayerHealth()
     {
-        //Get the absolute health
-
         //Work out the proportion
 		return (float)playerHealth.currentHealth/(float)playerHealth.getMaxHealth();
-
     }
 
 	//renders the active statuses

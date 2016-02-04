@@ -49,8 +49,8 @@ public class SpecialField : MonoBehaviour
                 destroyPlayer(player);
                 break;
             case 3:
-                GameObject go = GameObject.Find("Container");
-                powerUp = go.GetComponent<InitialisePowerUp>().powerUps[powerUpID];
+                GameObject container = GameObject.Find("Container");
+                powerUp = container.GetComponent<InitialisePowerUp>().powerUps[powerUpID];
                 givePowerUp(player);
                 break;
             default:
@@ -145,7 +145,12 @@ public class SpecialField : MonoBehaviour
 		yield return new WaitForSeconds (seconds);
 		renderColor (behaviourOption); //alpha
 		print(Time.time);
+		setRandomPowerup ();
 		active = true;
+	}
+
+	void setRandomPowerup (){
+		powerUpID = (int)Random.Range (0, 5);
 	}
 }
 
