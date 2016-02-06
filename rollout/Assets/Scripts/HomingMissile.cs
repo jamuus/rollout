@@ -7,7 +7,7 @@ public class HomingMissile : MonoBehaviour
     public float speed;
     public float turnSpeed;
 
-    public int projectileDamage;
+    public int damage;
     private Rigidbody homingMissile;
     private UniversalHealth health;
     private GameObject otherPlayer;
@@ -21,6 +21,23 @@ public class HomingMissile : MonoBehaviour
         Destroy(gameObject, 8f);
     }
 
+    //In case you want to set your own speed and damage
+    public void Initialise(Vector3 givenVelocity, float givenSpeed, float givenTurnSpeed, int givenDamage, GameObject givenOtherPlayer)
+    {
+        velocity = givenVelocity;
+        speed = givenSpeed;
+        turnSpeed = givenTurnSpeed;
+        damage = givenDamage;
+        otherPlayer = givenOtherPlayer;
+
+        //Immediately make the projectile move in the desired direction
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.velocity = velocity.normalized * speed;
+
+        //Destroys the projectile afer 2 seconds
+        Destroy(gameObject, 2.0f);
+    }
+
     void OnCollisionEnter(Collision col)
     {
         GameObject collidedObject = col.gameObject;
@@ -29,7 +46,7 @@ public class HomingMissile : MonoBehaviour
         {
             //Damage whatever collided with the projectile
             health = collidedObject.GetComponent<UniversalHealth>();
-            health.damagePlayer(projectileDamage);
+            health.damagePlayer(damage);
         }
         Destroy(gameObject);
     }

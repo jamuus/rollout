@@ -15,7 +15,7 @@ public class HomingLauncher : MonoBehaviour
     {
         otherPlayer = givenOtherPlayer;
 
-        //VELOCITY TO BE CHANGED ONCE WE HAVE AIMING INFO
+        
         //if the other player is alive, set the direction of the missile towards it, otherwise set it in direction of movement
         if (otherPlayer != null)
         {

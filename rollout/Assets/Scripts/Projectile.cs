@@ -22,7 +22,7 @@ public class Projectile : MonoBehaviour
         Destroy(gameObject, 2.0f);
     }
 
-    //In case you want to set your own speend and damage
+    //In case you want to set your own speed and damage
     public void Initialise(Vector3 givenVelocity, float givenSpeed, int givenDamage)
     {
         velocity = givenVelocity;
