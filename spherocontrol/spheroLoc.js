@@ -1,6 +1,6 @@
 var debugLog = console.log;
 
-module.exports = function(spheroManager) {
+module.exports = function(spheroManager, dataOut) {
     var api = {};
 
     spheroManager.onSpheroConnect(function(newSphero) {
@@ -23,8 +23,16 @@ module.exports = function(spheroManager) {
                     var now = new Date().getTime();
                     var diff = now - spheroData.lastVelocityUpdate;
 
-                    spheroData.x += (diff / 1000) * spheroData.dx / 50;
-                    spheroData.y += (diff / 1000) * spheroData.dy / 50;
+                    // spheroData.x += (diff / 1000) * spheroData.dx / 50;
+                    // spheroData.y += (diff / 1000) * spheroData.dy / 50;
+
+                    newSpheroData(spheroData, diff);
+                    dataOut({
+                        spheroData: {
+                            data: data,
+                            name: newSphero.name
+                        }
+                    });
 
                     spheroData.lastVelocityUpdate = now;
                 } else {
@@ -34,7 +42,7 @@ module.exports = function(spheroManager) {
         });
     });
 
-    var PORT = 13337;
+    var PORT = 1337;
     var HOST = '127.0.0.1';
 
     var dgram = require('dgram');
@@ -42,8 +50,10 @@ module.exports = function(spheroManager) {
 
     server.on('listening', function() {
         var address = server.address();
-        debugLog('UDP Server listening on ' + address.address + ":" + address.port);
+        debugLog('Listening for image processing data on', address.address + ":" + address.port);
     });
+
+    var bef = new Date().getTime();
 
     server.on('message', function(message, remote) {
         var data = {};
@@ -63,19 +73,73 @@ module.exports = function(spheroManager) {
         ];
         var sphName = idToDev[data.id];
         if (api[sphName]) {
-            api[sphName].x = data.x / 100;
-            api[sphName].y = data.y / 100;
-            debugLog(sphName, data.x, data.y);
-        }
+            var aft = new Date().getTime();
+            var diff = aft - bef;
+            newIpData(sphName, api[sphName], data, diff);
 
+            // debugLog(sphName, data.x, data.y);
+            bef = aft;
+        }
     });
 
-    // server.bind(PORT);
+    function newSpheroData(data, dt) {
+        // data.dx, data.dy
+        // debugLog(data, dt);
+    }
+
+
+    var posLog = [
+        [],
+        []
+    ];
+
+    function newIpData(name, sphero, data, dt) {
+        // data.x,  data.y, data.id
+        var angle;
+        posLog[data.id].push(data);
+        if (posLog[data.id].length > 10) {
+            posLog[data.id].splice(0, 1);
+            var dx = posLog[data.id][9].x - posLog[data.id][0].x;
+            var dy = posLog[data.id][9].y - posLog[data.id][0].y;
+            var ipmag = Math.sqrt(dx * dx + dy * dy);
+            var sphmag = Math.sqrt(sphero.dx * sphero.dx + sphero.dy * sphero.dy);
+
+            angle = (dx * sphero.dx + dy * sphero.dy) / (ipmag * sphmag);
+            // if (data.id == 0 && !isNaN(angle))
+            //     debugLog(angle * 360 / (2 * Math.PI), dx, sphero.dx);
+
+        }
+        dataOut({
+            ipData: {
+                name: name,
+                pos: data,
+                angle: angle
+            }
+        });
+    }
+
+    server.bind(PORT);
 
     return api;
 }
 
-var kalmanLog = function() {}; //console.log;
+/*
+    get a dx from ip
+        create movement vector from last data and this
+        if sphero has travelled along a line, use this vector
+        low pass of differences
+    get a dx from sphero data
+        straight up diff vector
+        low pass of diff vectors
+
+    dot product
+        update known orientation - low pass/exp decay
+
+*/
+
+
+
+var kalmanLog = function() {}; // console.log;
 
 var Matrix = require('sylvester');
 var ones = Matrix.Matrix.Ones;

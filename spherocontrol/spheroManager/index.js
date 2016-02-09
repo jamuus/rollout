@@ -130,6 +130,13 @@ module.exports = function(opts) {
             removeSphero(sphero, deviceName);
         });
 
+        sphero.setRgbLed({
+            red: 255,
+            green: 255,
+            blue: 255
+        });
+        inst.force(0, 0.02);
+
         _onSpheroConnect(api.instances[api.instances.length - 1]);
     }
 
