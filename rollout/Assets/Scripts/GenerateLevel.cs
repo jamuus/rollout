@@ -21,6 +21,7 @@ public class GenerateLevel : MonoBehaviour {
     public bool symmetricBattleArena;
     public bool clusterObstacles;
 	private LevelSeed seed;
+    private List<GameObject> placedObstacles = new List<GameObject>();
 
 	// Use this for initialization
 	void Start () {
@@ -42,6 +43,28 @@ public class GenerateLevel : MonoBehaviour {
 	void Update () {
 	
 	}
+    
+    void addObject(GameObject block, Vector3 position)
+    {
+        //Check that the position is free
+        Collider[] blockColliders = Physics.OverlapSphere(position, ((Collider)block.GetComponent<Collider>()).bounds.extents.magnitude*1.2f);
+        foreach (Collider collider in blockColliders)
+        {
+            if (collider.name.Contains("Obstacle"))
+            {
+                print("COLLISION: " + collider.name);
+                return;
+            }
+        }
+
+
+        print("Placed " + block.name + " at " + block.GetComponent<Renderer>().bounds.ToString());
+
+        //Add the block
+        block.transform.position = position;
+        Instantiate(block, position, Quaternion.identity);
+        placedObstacles.Add(block);
+    }
 
     Vector3 randomPosition (float radius)
     {
@@ -179,9 +202,8 @@ public class GenerateLevel : MonoBehaviour {
             GameObject block = ratio < 0.33 ? largeObstacle : ratio < 0.66? obstacle : smallObstacle;
 
             //Instantiate the block
-            block.transform.position = blockPosition;
             placedBlocks.Add(block);
-            Instantiate(block, blockPosition, Quaternion.identity);
+            addObject(block, blockPosition);
 
             //Update the position
             Vector3 modifier = findFreeSide(placedBlocks);
@@ -195,9 +217,13 @@ public class GenerateLevel : MonoBehaviour {
     {
         for (int i = 0; i < obstacleN; i++)
         {
+            //Calculate the new position
             Vector3 pos = randomPosition(levelRadius);
-            Instantiate(obstacle, pos, Quaternion.identity);
-            if (symmetricBattleArena) Instantiate(obstacle,new Vector3(-pos.x, 1f, -pos.z), Quaternion.identity);
+
+            addObject(obstacle, pos);
+
+            //If we want a symmetrical arena
+            if (symmetricBattleArena) addObject(obstacle, new Vector3(-pos.x, 1f, -pos.z));
         }
     }
 
