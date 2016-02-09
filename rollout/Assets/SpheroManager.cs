@@ -36,6 +36,13 @@ public static class SpheroManager
         Instances[name].Leave();
     }
 
+    public static void SendStateToControllers()
+    {
+        foreach (KeyValuePair<string, Sphero> sphero in Instances)
+            if (sphero.Value.HasController)
+                sphero.Value.SendStateToController();
+    }
+
     public static void ParseUpdatedState(byte[] bytes, int index)
     {
         while (index < bytes.Length)

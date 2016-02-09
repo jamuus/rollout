@@ -32,6 +32,11 @@ public class Test : MonoBehaviour
         SpheroManager.Instances[boo.DeviceName] = boo;
     }
 
+    void LateUpdate()
+    {
+        SpheroManager.SendStateToControllers();
+    }
+
     void OnApplicationQuit()
     {
         //Server.CloseConnection();
