@@ -26,6 +26,7 @@ node_modules/
 
 
 *.mp4
+*.mov
 
 rollout_app/.gradle
 rollout_app/local.properties
