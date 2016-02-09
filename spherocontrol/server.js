@@ -46,7 +46,7 @@ function discover() {
     var incomingSocket = Net.createSocket("udp4");
 
     incomingSocket.on("listening", function() {
-        console.log("Searching for servers...");
+        console.log("Searching for unity...");
     });
 
     incomingSocket.on("message", function(data, remote) {
@@ -74,7 +74,7 @@ function discover() {
 
             // cheeky just connect
             var server = discoveredServers[0];
-            connect(server);
+            connectToUnity(server);
             // return;
 
 
@@ -96,13 +96,13 @@ function discover() {
             //     }
             // });
         } else {
-            console.log("No servers found.");
+            console.log("No unity instance found.");
             // process.exit();
         }
     }, 2000);
 }
 
-function connect(server) {
+function connectToUnity(server) {
     console.log("\nConnecting to " + server.toString());
 
     udpIncoming.on("listening", function() {
@@ -145,11 +145,35 @@ function connect(server) {
     });
 }
 
-function spheroState() {
+function startVisServer() {
+    var app = require('express')();
+    var http = require('http').Server(app);
+    var io = require('socket.io')(http);
+    var path = require('path');
+
+    app.get('/', function(req, res) {
+        res.sendFile(path.join(__dirname, 'index.htm'));
+    });
+
+    io.on('connection', function(socket) {
+        console.log('socket.io connection');
+        socket.emit('lmao', 'lmao1');
+    });
+
+    http.listen(3000, function() {
+        console.log('http listening on *:3000');
+    });
+
+    return function(data) {
+        io.emit('data', data);
+    }
+}
+
+function spheroState(dataOut) {
     var api = {};
 
     var manager = require('./spheroManager')();
-    var spheroLoc = require('./spheroLoc.js')(manager);
+    var spheroLoc = require('./spheroLoc.js')(manager, dataOut);
 
     return spheroLoc;
 }
@@ -189,5 +213,6 @@ function sendState() {
     });
 }
 
-state = spheroState();
+var dataOut = startVisServer();
+state = spheroState(dataOut);
 discover();
