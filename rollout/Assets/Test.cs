@@ -30,8 +30,6 @@ public class Test : MonoBehaviour
         boo.Weapons.Add(new SpheroWeapon(SpheroWeaponType.RailGun));
         boo.BatteryVoltage = 7.2f;
         SpheroManager.Instances[boo.DeviceName] = boo;
-
-
     }
 
     void OnApplicationQuit()

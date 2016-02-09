@@ -46,7 +46,7 @@ public class PlayerControl : MonoBehaviour
         if (Input.GetButtonDown("Fire1")) UsePowerUp(0);
         triggerStatusEffects();
 
-
+/*
         Sphero sphero;
         if (SpheroManager.Instances.TryGetValue("tty.Sphero-BOO-AMP-SPP", out sphero)) {
             // move ingame sphero
@@ -74,7 +74,7 @@ public class PlayerControl : MonoBehaviour
             print("ayy");
             sphero.Roll(4, 5);
         }
-
+*/
     }
 
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
@@ -98,7 +98,7 @@ public class PlayerControl : MonoBehaviour
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
         if (outOfBounds) {
-            print ("" + rb.velocity.magnitude);
+            //print ("" + rb.velocity.magnitude);
             rb.AddForce(speed * (radius - rb.position.magnitude) * rb.position.normalized);
         } else {
             rb.AddForce(speed * movement);
@@ -113,7 +113,7 @@ public class PlayerControl : MonoBehaviour
             usedPowerUp = powerUps[powerUps.Count - 1];
             powerUpEffect(usedPowerUp);
             powerUps.RemoveAt(powerUps.Count - 1);
-            print("PowerUp " + usedPowerUp.name + " used by player");
+            //print("PowerUp " + usedPowerUp.name + " used by player");
         } catch (Exception e) {
             print("No powerups left");
         }
@@ -122,7 +122,7 @@ public class PlayerControl : MonoBehaviour
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
-        print("PowerUp " + powerUp.name + " added to player");
+        //print("PowerUp " + powerUp.name + " added to player");
     }
 
     private void powerUpEffect(PowerUp powerUp)

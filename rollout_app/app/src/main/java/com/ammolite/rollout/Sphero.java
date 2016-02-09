@@ -2,6 +2,7 @@ package com.ammolite.rollout;
 
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 public final class Sphero {
@@ -28,13 +29,14 @@ public final class Sphero {
         float oldHealth = health;
         float oldShiled = shield;
 
-        int offset = 1;
+        int offset = 0;
         health = BitConverter.toFloat(bytes, offset);
         if (maxHealth == 0) maxHealth = health;
         offset += 4;
         shield = BitConverter.toFloat(bytes, offset);
         offset += 4;
         voltage = BitConverter.toFloat(bytes, offset);
+
         offset += 4;
 
         weapons = new byte[bytes[offset]];
@@ -51,6 +53,8 @@ public final class Sphero {
 
         if ((oldHealth > health) || (oldShiled > shield))
             recentDamage = true;
+
+        Log.d("TEST", "Health: " + health + ", Shield: " + shield + ", Voltage: " + voltage);
     }
 
     public static void roll(float direction, float force) {
@@ -59,7 +63,7 @@ public final class Sphero {
         message.addContent(direction);
         message.addContent(force);
         message.addContent(name);
-        Server.send(message);
+        Server.sendTCP(message);
     }
 
     public static void shoot(float direction) {
@@ -71,20 +75,28 @@ public final class Sphero {
         message.addContent(weapons[activeWeapon]);
         message.addContent(direction);
         message.addContent(name);
-        Server.send(message);
+        Server.sendTCP(message);
     }
 
     public static void usePowerUp(int index) {
         ServerMessage message = new ServerMessage(ServerMessageType.SPHERO_POWER_UP);
         message.addContent(powerUps[index]);
         message.addContent(name);
-        Server.sendAsync(message);
+        Server.sendTCPAsync(message);
     }
 
     public static void pauseGame() {
         ServerMessage message = new ServerMessage(ServerMessageType.PAUSE_GAME);
         message.addContent(name);
-        Server.sendAsync(message);
+        Server.sendTCPAsync(message);
+    }
+
+    public static void leaveGame() {
+/*        ServerMessage message = new ServerMessage(ServerMessageType.REMOVE_SPHERO);
+        message.addContent(name);
+        Server.sendTCP(message);*/
+
+        Server.leaveServerAsync();
     }
 
     public static boolean getHasRecentDamage() {
