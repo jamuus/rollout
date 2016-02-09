@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class ProjectileControl : MonoBehaviour
 {
@@ -70,6 +71,18 @@ public class ProjectileControl : MonoBehaviour
     public void FixedUpdate()
     {
         //ADD CODE FOR SWITCHING WEAPONS AND ADDING AMMUNITION ON PICKUP
+    }
+
+    public void AddAmmo(string weaponString, int amount)
+    {
+        var weaponNum = (Weapons)Enum.Parse(typeof(Weapons), weaponString, true);
+        ammunition[(int)weaponNum] += amount;
+    }
+
+    public void ChangeActiveWeapon(string weaponString)
+    {
+        var weaponNum = (Weapons)Enum.Parse(typeof(Weapons), weaponString, true);
+        activeWeapon = (int)weaponNum;
     }
 }
 
