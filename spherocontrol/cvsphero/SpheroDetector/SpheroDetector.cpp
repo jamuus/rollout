@@ -257,7 +257,7 @@ int main( int, char** argv )
 
     //open capture object at location zero (default location for webcam)
     // capture.open(0);
-    capture.open("/Users/jamus/dev/rollout/spherocontrol/cvsphero/SpheroDetector/test.mov");
+    capture.open("/Users/jamus/dev/rollout/spherocontrol/cvsphero/SpheroDetector/test5.mov");
 
     if (!capture.isOpened())
         return -1;
