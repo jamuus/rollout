@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
@@ -8,19 +8,32 @@ using UnityEngine;
 public static class SpheroManager
 {
     public static Dictionary<string, Sphero> Instances { get; private set; }
+    public static PlayerControl ybr;
+    public static PlayerControl boo;
 
     public static string SpectatorName { get { return "Spectator"; } }
 
     static SpheroManager()
     {
         Instances = new Dictionary<string, Sphero>();
+
+        Debug.LogFormat("{0}, {1}", ybr, boo);
+    }
+
+    public static void init()
+    {
+
+        ybr = GameObject.Find("player2").GetComponent<PlayerControl>();
+        boo = GameObject.Find("player1").GetComponent<PlayerControl>();
     }
 
     public static Sphero GetNextSphero()
     {
+        Debug.LogFormat("GET start");
         foreach (KeyValuePair<string, Sphero> sphero in Instances)
             if (!sphero.Value.HasController)
                 return sphero.Value;
+        Debug.LogFormat("GET end");
         return null;
     }
 
@@ -32,8 +45,7 @@ public static class SpheroManager
 
     public static void ParseUpdatedState(byte[] bytes, int index)
     {
-        while (index < bytes.Length)
-        {
+        while (index < bytes.Length) {
             string deviceName = Encoding.ASCII.GetString(bytes, index + 1, bytes[index]);
             index += deviceName.Length + 1;
 
@@ -44,19 +56,27 @@ public static class SpheroManager
             index += 4;
 
             Vector2 position = new Vector2();
-            velocity.x = BitConverter.ToSingle(bytes, index);
+            position.x = BitConverter.ToSingle(bytes, index);
             index += 4;
-            velocity.y = BitConverter.ToSingle(bytes, index);
+            position.y = BitConverter.ToSingle(bytes, index);
             index += 4;
 
+            // Debug.LogFormat("received data for {0}: ({1}, {2})", deviceName, position.x, position.y);
             float voltage = BitConverter.ToSingle(bytes, index);
             index += 4;
 
             Sphero sphero;
-            if (!Instances.TryGetValue(deviceName, out sphero))
-            {
+            if (!Instances.TryGetValue(deviceName, out sphero)) {
                 Instances.Add(deviceName, new Sphero());
                 sphero = Instances[deviceName];
+                if (deviceName.ToUpper().Contains("YBR")) {
+                    ybr.sphero = sphero;
+                    Debug.LogFormat("ybr - {0}", deviceName);
+                } else {
+                    boo.sphero = sphero;
+                    Debug.LogFormat("boo - {0}", deviceName);
+                }
+
             }
 
             sphero.DeviceName = deviceName;
@@ -77,6 +97,8 @@ public static class SpheroManager
 
         // TODO Process with collisions etc, then forward on to node.
 
+        Instances[name].Roll(direction, force);
+
         Debug.LogFormat("Rolling Sphero {0} in direction {1} with force {2}.", name, direction, force);
     }
 
@@ -89,7 +111,8 @@ public static class SpheroManager
         offset += 4;
         string name = Encoding.ASCII.GetString(data, offset + 1, data[offset]);
 
-        // TODO
+        //Shoot from the relevant sphero
+        Instances[name].Shoot(SpheroWeaponType.Default, direction);
 
         Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
     }
@@ -109,16 +132,16 @@ public static class SpheroManager
 
 public class Sphero
 {
-    public string DeviceName { get; set; }
-    public Vector2 Velocity { get; set; }
-    public Vector2 Position { get; set; }
-    public float BatteryVoltage { get; set; }
-    public IPEndPoint ControllerTarget { get; set; }
-    public float Health { get; set; }
-    public float Shield {get; set; }
-    public List<SpheroWeapon> Weapons { get; set; }
-    public List<SpheroPowerUp> PowerUps { get; set; }
-    public bool HasController { get; set; }
+    public string               DeviceName          { get; set; }
+    public Vector2              Velocity            { get; set; }
+    public Vector2              Position            { get; set; }
+    public float                BatteryVoltage      { get; set; }
+    public IPEndPoint           ControllerTarget    { get; set; }
+    public float                Health              { get; set; }
+    public float                Shield              { get; set; }
+    public List<SpheroWeapon>   Weapons             { get; set; }
+    public List<SpheroPowerUp>  PowerUps            { get; set; }
+    public bool                 HasController       { get; set; }
 
     public Sphero()
     {
@@ -137,11 +160,31 @@ public class Sphero
     //  + DeviceName  - 1 + n bytes
     public void Roll(float direction, float force)
     {
-		ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
-		message.AddContent(direction);
-		message.AddContent(force);
-		message.AddContent(DeviceName);
-		Server.Send(message);
+
+        ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
+        message.Target = Server.NodeServerTarget;
+        message.AddContent(direction);
+        message.AddContent(force);
+        message.AddContent(DeviceName);
+
+        Server.Send(message);
+    }
+
+    public void Shoot(SpheroWeaponType type, float direction)
+    {
+        //Get the ProjectileControl object associated with the shooting player
+        String playerName = DeviceName.ToLower().Contains("boo") ? "player1" : "player2";
+        ProjectileControl playerProjectile =  GameObject.Find(playerName).GetComponent<ProjectileControl>();
+
+        //Put the direction into the correct range
+        direction += (float)Math.PI;
+
+        //Covert the direction into a vector
+        Vector3 directionVector = new Vector3((float)Math.Cos(direction), (float)Math.Sin(direction), 0.0f);
+
+        //Tell the sphero to shoot
+        playerProjectile.Shoot(directionVector);
+
     }
 
     public void SendStateToController()
@@ -166,8 +209,7 @@ public class Sphero
     }
 }
 
-public enum SpheroWeaponType : byte
-{
+public enum SpheroWeaponType : byte {
     Default = 0,
     RailGun = 1
 }
@@ -186,8 +228,7 @@ public class SpheroWeapon
     }
 }
 
-public enum SpheroPowerUpType : byte
-{
+public enum SpheroPowerUpType : byte {
     Something,
     SomethingElse
 }

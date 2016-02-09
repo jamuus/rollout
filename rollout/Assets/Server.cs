@@ -7,8 +7,7 @@ using System.Threading;
 
 using UnityEngine;
 
-public enum ServerMessageType
-{
+public enum ServerMessageType {
     Test            = 0x00,
     RemoveSphero    = 0x01,
     SetEndianness   = 0x02,
@@ -37,7 +36,7 @@ public class ServerMessage
     }
 
     public ServerMessage(ServerMessageType type) :
-        this()
+    this()
     {
         Type = type;
     }
@@ -81,6 +80,7 @@ public class ServerMessage
     public byte[] Compile()
     {
         byte[] bytes = data.ToArray();
+
         bytes[0] = (byte)Type;
         return bytes;
     }
@@ -91,7 +91,8 @@ public static class Server
     private static UdpClient    udpIncoming;
     private static UdpClient    udpOutgoing;
     private static Thread       listenThread;
-    private static IPEndPoint   nodeServerTarget;
+
+    public static IPEndPoint NodeServerTarget { get; private set; }
 
     public static string Name { get; set; }
 
@@ -104,25 +105,22 @@ public static class Server
     {
         udpIncoming = new UdpClient();
         udpIncoming.Client.SetSocketOption(SocketOptionLevel.Socket,
-            SocketOptionName.ReuseAddress, true);
+                                           SocketOptionName.ReuseAddress, true);
         udpIncoming.Client.ReceiveBufferSize = 2048;
         udpIncoming.Client.Bind(new IPEndPoint(IPAddress.Any, port));
 
         udpOutgoing = new UdpClient();
         udpOutgoing.Client.SetSocketOption(SocketOptionLevel.Socket,
-            SocketOptionName.ReuseAddress, true);
+                                           SocketOptionName.ReuseAddress, true);
         udpOutgoing.Client.Bind(new IPEndPoint(IPAddress.Any, port + 1));
 
-        listenThread = new Thread(() =>
-        {
+        listenThread = new Thread(() => {
             Thread.CurrentThread.IsBackground = true;
-            while (true)
-            {
+            while (true) {
                 IPEndPoint senderEndPoint = new IPEndPoint(IPAddress.Any, 0);
                 byte[] data = udpIncoming.Receive(ref senderEndPoint);
 
-                new Thread(() =>
-                {
+                new Thread(() => {
                     Thread.CurrentThread.IsBackground = true;
                     ProcessReceivedBytes(data, senderEndPoint);
                 }).Start();
@@ -131,7 +129,7 @@ public static class Server
         listenThread.Start();
 
         Debug.LogFormat("[Server] Started \"{0}\" successfully, listening on port {1}.",
-            Name, port);
+                        Name, port);
     }
 
     public static void StopListening()
@@ -143,6 +141,8 @@ public static class Server
     public static void Send(ServerMessage message)
     {
         byte[] bytes = message.Compile();
+
+        Debug.LogFormat("{0}, {1}, {2}", bytes, bytes.Length, message.Target);
         udpOutgoing.Send(bytes, bytes.Length, message.Target);
     }
 
@@ -155,21 +155,19 @@ public static class Server
     {
         string prefix = string.Format("[Server] {0} - ", receivedFrom.ToString());
 
-        if (!Enum.IsDefined(typeof(ServerMessageType), (int)bytes[0]))
-        {
-            Debug.LogFormat("{0} Unknown (0x{1:x2}).", prefix, bytes[0]);
+        if (!Enum.IsDefined(typeof(ServerMessageType), (int)bytes[0])) {
+            // Debug.LogFormat("{0} Unknown (0x{1:x2}).", prefix, bytes[0]);
             return;
         }
 
         ServerMessage message = new ServerMessage();
         ServerMessageType type = (ServerMessageType)bytes[0];
 
-        Debug.LogFormat("{0} {1} (0x{2:x2}).", prefix, type.ToString(), bytes[0]);
+        // Debug.LogFormat("{0} {1} (0x{2:x2}).", prefix, type.ToString(), bytes[0]);
 
         ++receivedFrom.Port; // TODO might have to find a better way to do this.
 
-        switch (type)
-        {
+        switch (type) {
         case ServerMessageType.Test:
             break;
         case ServerMessageType.RemoveSphero:
@@ -203,33 +201,32 @@ public static class Server
             break;
         case ServerMessageType.NodeInit:
             // When node identifies itself, send the endianness.
-            nodeServerTarget = receivedFrom;
+            NodeServerTarget = receivedFrom;
             message.Type = ServerMessageType.SetEndianness;
-            message.Target = nodeServerTarget;
+            message.Target = NodeServerTarget;
             message.AddContent(BitConverter.IsLittleEndian);
             Send(message);
             break;
         case ServerMessageType.AppInit:
+            Debug.LogFormat("new app");
             Sphero sphero = null;
 
             message.Type = ServerMessageType.AppInit;
             message.Target = receivedFrom;
             message.AddContent(BitConverter.IsLittleEndian);
+            Debug.LogFormat("LE");
 
-            if (BitConverter.ToBoolean(bytes, 1) && ((sphero = SpheroManager.GetNextSphero()) != null))
-            {
+            if (BitConverter.ToBoolean(bytes, 1) && ((sphero = SpheroManager.GetNextSphero()) != null)) {
                 message.AddContent(sphero.DeviceName);
-            }
-            else
-            {
+            } else {
                 message.AddContent(SpheroManager.SpectatorName);
                 SpectatorManager.Instances.Add(new Spectator(receivedFrom));
             }
-
+            Debug.LogFormat("Pre send");
             Send(message);
+            Debug.LogFormat("Post");
 
-            if (sphero != null)
-            {
+            if (sphero != null) {
                 sphero.ControllerTarget = receivedFrom;
                 sphero.HasController = true;
                 sphero.SendStateToController();

@@ -1,0 +1,117 @@
+<html>
+
+<head>
+</head>
+
+<body>
+    <center>
+        <canvas id="cvs1" width="600" height="400" style="border:1px solid #000000;">
+        </canvas>
+        <canvas id="cvs2" width="200" height="200" style="border:1px solid #000000;">
+        </canvas>
+        <input id='text1' type='text' r/>
+    </center>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+    var socket = io();
+    socket.on('data', function(msg) {
+        for (var dtype in msg) {
+            switch (dtype) {
+                case 'ipData':
+                    updateIpData(msg[dtype]);
+                    break;
+                case 'spheroData':
+                    updateSpheroData(msg[dtype]);
+                    break;
+                default:
+                    console.log('rip');
+            }
+        }
+    });
+    var canvas1 = document.getElementById('cvs1');
+    var ctx1 = canvas1.getContext('2d');
+    var canvas2 = document.getElementById('cvs2');
+    var ctx2 = canvas2.getContext('2d');
+
+    var spheroState = {
+        abs: {},
+        rel: {},
+        drift: {}
+    };
+
+    function updateIpData(data) {
+        if (!spheroState.abs[data.name])
+            spheroState.abs[data.name] = {};
+        if (!spheroState.drift[data.name])
+            spheroState.drift[data.name] = {};
+
+        spheroState.abs[data.name].x = data.pos.x;
+        spheroState.abs[data.name].y = data.pos.y;
+        spheroState.drift[data.name] = data.angle;
+    }
+
+    function updateSpheroData(data) {
+        if (!spheroState.rel[data.name])
+            spheroState.rel[data.name] = {};
+        spheroState.rel[data.name].x = data.data.dx;
+        spheroState.rel[data.name].y = data.data.dy;
+    }
+
+    function drawCircle(pos, r) {
+        ctx1.beginPath();
+        ctx1.arc(pos.x, pos.y, r, 0, 2 * Math.PI);
+        ctx1.stroke();
+    }
+
+    function drawAbs(dt) {
+        ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+        for (var sphAbs in spheroState.abs) {
+            var sph = spheroState.abs[sphAbs];
+            drawCircle(sph, 5);
+        }
+    }
+    var textbox1 = document.getElementById('text1');
+
+    function drawRel(dt) {
+        ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+        for (var name in spheroState.rel) {
+            var sphdata = spheroState.rel[name];
+            var angle = spheroState.drift[name];
+
+            drawLine(ctx2,
+                100,
+                100,
+                sphdata.x / 10 + 100,
+                sphdata.y / 10 + 100
+            );
+
+            drawLine(ctx2,
+                100,
+                100,
+                Math.cos(angle) * 250 + 100,
+                Math.sin(angle) * 250 + 100,
+                3
+            );
+            textbox1.value = angle / (2 * Math.PI) * 360;
+        }
+        // console.log(spheroState.rel)
+    }
+
+    function draw(dt) {
+        drawAbs(dt);
+        drawRel(dt);
+        requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+
+    function drawLine(ctx, x1, y1, x2, y2, thickness) {
+        ctx.lineWidth = thickness | 1;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    }
+    </script>
+</body>
+
+</html>

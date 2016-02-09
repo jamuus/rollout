@@ -45,6 +45,6 @@ public class Vector2f {
     }
 
     public float angle(Vector2f v) {
-        return (float)Math.acos(dot(v) / (length() * v.length()));
+        return (float)(Math.atan2(v.y, v.x) - Math.atan2(y, x));
     }
 }

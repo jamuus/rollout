@@ -27,21 +27,8 @@ public class ProjectileControl : MonoBehaviour
     {
         //If the fire button for this sphero gets pressed
         if ((Input.GetButtonDown("Fire1") && gameObject.name == ("player1")) || (Input.GetButtonDown("Fire2") && gameObject.name == ("player2"))) {
-            velocity = GetComponent<Rigidbody>().velocity;
-
-            //If the ball is not moving then just aim NE
-            if (velocity.magnitude == 0) {
-                velocity = new Vector3(1f, 0f, 0f);
-            }
-
-
-            //Spawn the projectile outside of the player in the direction you are aiming
-            projectilePosition = transform.position + velocity.normalized;
-            var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
-
-			spawnedProjectile.Initialise(velocity, gameObject);
+            Shoot();
         }
-
 
         if (Input.GetButtonDown("Fire3") && gameObject.name == ("player1")) {
             //if the other player is alive, set the direction of the missile towards it, otherwise set it in direction of movement
@@ -55,12 +42,31 @@ public class ProjectileControl : MonoBehaviour
                 projectileRotation = Quaternion.LookRotation(velocity.normalized, Vector3.up);
             }
 
-			//projectilePosition = transform.position + (velocity.normalized);
-            //var spawnedMissile = (HomingMissile)Instantiate(homingMissile, projectilePosition, projectileRotation);
-            //spawnedMissile.Initialise(velocity, otherPlayer);
+            projectilePosition = transform.position + (velocity.normalized);
+            var spawnedMissile = (HomingMissile)Instantiate(homingMissile, projectilePosition, projectileRotation);
+            spawnedMissile.Initialise(velocity, otherPlayer);
         }
     }
 
+    private void Shoot()
+    {
+        //Get the velocity of the player
+        velocity = GetComponent<Rigidbody>().velocity;
 
+        //If the player isn't moving just hard code it
+        if (velocity.magnitude == 0) velocity = new Vector3(1f, 0f, 0f);
+
+        //Call shoot
+        Shoot(velocity);
+    }
+
+    public void Shoot(Vector3 velocity)
+    {
+        //Spawn the projectile outside of the player in the direction you are aiming
+        projectilePosition = transform.position + velocity.normalized;
+        var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
+
+        spawnedProjectile.Initialise(velocity);
+    }
 }
 

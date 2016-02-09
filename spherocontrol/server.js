@@ -1,158 +1,218 @@
 "use strict";
 
 var Net = require("dgram");
-var log = console.log;
+var ServerHandle = require("./ServerHandle.js");
 
-var IP = "172.23.88.196";
-var PORT = 7779;
+var PORT = 7790;
+var UNITY_PORT = 7777;
 
-var MESSAGE_TYPE_TEST               = 0x00;
-var MESSAGE_TYPE_REMOVE_SPHERO      = 0x01;
-var MESSAGE_TYPE_SET_ENDIANNESS     = 0x02;
-var MESSAGE_TYPE_UPDATE_STATE       = 0x04;
-var MESSAGE_TYPE_ROLL_SPHERO        = 0x08;
-var MESSAGE_TYPE_SERVER_DISCOVER    = 0x10;
-var MESSAGE_TYPE_SPHERO_SHOOT       = 0x20;
-var MESSAGE_TYPE_SPHERO_POWERUP     = 0x40;
-var MESSAGE_TYPE_PAUSE_GAME         = 0x80;
-var MESSAGE_TYPE_NODE_INIT          = 0x11;
-var MESSAGE_TYPE_APP_INIT           = 0x21;
+var MessageType = {
+    TEST: 0x00,
+    REMOVE_SPHERO: 0x01,
+    SET_ENDIANNESS: 0x02,
+    UPDATE_STATE: 0x04,
+    ROLL_SPHERO: 0x08,
+    SERVER_DISCOVER: 0x10,
+    SPHERO_SHOOT: 0x20,
+    SPHERO_POWER_UP: 0x40,
+    PAUSE_GAME: 0x80,
+    NODE_INIT: 0x11,
+    APP_INIT: 0x21
+};
 
-var socket = Net.createSocket("udp4");
+process.on('SIGINT', function(lmao) {
+    console.log('closing connections');
+    udpOutgoing.close();
+    udpIncoming.close();
+});
+
+var udpOutgoing = Net.createSocket("udp4");
+var udpIncoming = Net.createSocket("udp4");
+
+udpIncoming.on('error', function(err) {
+    console.log('inc', err);
+});
+udpOutgoing.on('error', function(err) {
+    console.log('out', err);
+});
+
 var isLittleEndian = true;
+var discoveredServers = [];
+var connectedServer = undefined;
+var state = undefined;
 
-socket.on("listening", function() {
-    //console.log("Listening on " + IP + ":" + PORT + "...");
-    console.log("Listening on port " + PORT + "...");
-});
+function discover() {
+    var discoverSocket = Net.createSocket("udp4");
+    var incomingSocket = Net.createSocket("udp4");
 
-var client;
+    incomingSocket.on("listening", function() {
+        console.log("Searching for unity...");
+    });
 
-socket.on("message", function(data, remote) {
-    //console.log("Received message from " + remote.address + ":" + remote.port + ".");
-    if (!client)
+    incomingSocket.on("message", function(data, remote) {
+        if (data[0] == MessageType.SERVER_DISCOVER) {
+            var name = data.toString("ascii", 2);
+            var handle = new ServerHandle(name, remote.address);
+            discoveredServers.push(handle);
+            console.log((discoveredServers.length - 1) + ": " + handle.toString());
+        }
+    });
+
+    incomingSocket.bind(PORT + 1);
+    discoverSocket.bind(PORT, function() {
+        discoverSocket.setBroadcast(true);
+        var buf = new Buffer(1);
+        buf[0] = MessageType.SERVER_DISCOVER;
+        discoverSocket.send(buf, 0, buf.length, UNITY_PORT, "localhost", function() {
+            discoverSocket.close();
+        });
+    });
+
+    setTimeout(function() {
+        incomingSocket.close();
+        if (discoveredServers.length > 0) {
+
+            // cheeky just connect
+            var server = discoveredServers[0];
+            connectToUnity(server);
+            // return;
+
+
+            // console.log("\nSelect server to join: ");
+
+            // process.stdin.resume();
+            // process.stdin.setEncoding("utf8");
+            // process.stdin.on("data", function(data) {
+            //     var idx = parseInt(data, 10);
+            //     if (idx >= discoveredServers.length) {
+            //         console.log("Invalid server. Options are: ");
+            //         for (var i = 0; i < discoveredServers.length; ++i)
+            //             console.log(i + ": " + discoveredServers[i].toString());
+            //         console.log("Select server to join: ");
+            //     } else {
+            //         process.stdin.pause();
+            //         var server = discoveredServers[idx];
+            //         connect(server);
+            //     }
+            // });
+        } else {
+            console.log("No unity instance found.");
+            // process.exit();
+        }
+    }, 2000);
+}
+
+function connectToUnity(server) {
+    console.log("\nConnecting to " + server.toString());
+
+    udpIncoming.on("listening", function() {
+        console.log("Listening on port " + (PORT + 1));
+    });
+
+    udpIncoming.on("message", function(data, remote) {
+        switch (data[0]) {
+            case MessageType.SET_ENDIANNESS:
+                isLittleEndian = data[1];
+                console.log("Set endianness to " + data[1]);
+                break;
+            case MessageType.ROLL_SPHERO:
+                var direction = data.readFloatLE(1);
+                var force = data.readFloatLE(5);
+                var name = data.toString("ascii", 10);
+                console.log("Received roll for sphero", name, ", direction:", direction, ", force:", force, ".");
+                if (state[name]) {
+                    state[name].force(direction, force);
+                }
+                break;
+            default:
+                console.log("Unknown message received.");
+                break;
+        }
+    });
+
+    udpOutgoing.on('listening', function() {
+        console.log('out listening');
+    });
+
+    udpIncoming.bind(PORT + 1);
+    udpOutgoing.bind(PORT, function() {
+        var buf = new Buffer(1);
+        buf[0] = MessageType.NODE_INIT;
+        udpOutgoing.send(buf, 0, buf.length, UNITY_PORT, server.ip);
+        connectedServer = server;
+
         setInterval(sendState, 1000 / 60);
-    client = remote;
-    var type = data[0];
-    switch (type) {
-        case MESSAGE_TYPE_TEST:
-            console.log("Received test message.");
-            break;
-        case MESSAGE_TYPE_REMOVE_SPHERO:
-            var device = data.toString("ascii", 2);
-            console.log("Request to remove sphero '" + device + "'.");
-            break;
-        case MESSAGE_TYPE_SET_ENDIANNESS:
-            isLittleEndian = data[1];
-            if (isLittleEndian)
-                console.log("Set server to little endian.");
-            else
-                console.log("Set server to big endian.");
-            break;
-        case MESSAGE_TYPE_ROLL_SPHERO:
-            var direction = isLittleEndian ? data.readFloatLE(1) : data.readFloatBE(1);
-            var force = isLittleEndian ? data.readFloatLE(5) : data.readFloatBE(5);
-            // todo fix
-            var name = data.slice(1).toString("ascii", 9);
+    });
+}
 
-            console.log("Rolling sphero '" + name + "' " + direction + " with force " + force + ".");
-            //state[name].force(direction, force);
-            break;
-        case MESSAGE_TYPE_SERVER_DISCOVER:
-            //console.log("Received discovery request method from " + remote.address + ":" + remote.port + ", sent response.");
-            //var msg = new Buffer(1);
-            //msg[0] = MESSAGE_TYPE_SERVER_DISCOVER;
-            //socket.send(msg, 0, msg.length, remote.port, remote.address, function(err) {
-            //    if (err)
-            //        throw err;
-            //});
-            break;
-        case MESSAGE_TYPE_SPHERO_SHOOT:
-            var weapon = data[1];
-            var direction = isLittleEndian ? data.readFloatLE(2) : data.readFloatBE(2);
-            var sphero = data.toString("ascii", 8);
-            console.log("Sphero '" + sphero + "' shoots weapon ID " + weapon + " in direction " + direction + ".");
-            break;
-        case MESSAGE_TYPE_SPHERO_POWERUP:
-            var powerup = data[1];
-            var sphero = data.toString("ascii", 3);
-            console.log("Sphero '" + sphero + "' uses powerup ID " + powerup + ".");
-            break;
-        case MESSAGE_TYPE_PAUSE_GAME:
-            var sphero = data.toString("ascii", 2);
-            console.log("Sphero '" + sphero + "' requested game pause.");
-            break;
-        default:
-            console.log("Unknown message.");
-            break;
+function startVisServer() {
+    var app = require('express')();
+    var http = require('http').Server(app);
+    var io = require('socket.io')(http);
+    var path = require('path');
+
+    app.get('/', function(req, res) {
+        res.sendFile(path.join(__dirname, 'index.htm'));
+    });
+
+    io.on('connection', function(socket) {
+        console.log('socket.io connection');
+        socket.emit('lmao', 'lmao1');
+    });
+
+    http.listen(3000, function() {
+        console.log('http listening on *:3000');
+    });
+
+    return function(data) {
+        io.emit('data', data);
     }
-});
+}
 
-socket.bind(PORT); // I removed ", IP" and it works, no idea why
-
-var identifier = new Buffer(1);
-identifier[0] = MESSAGE_TYPE_NODE_INIT;
-console.log("sending id");
-socket.send(identifier, 0, identifier.length, 7777, IP, function(err) { if (err) throw err; });
-console.log("sent id");
-
-function spheroState() {
+function spheroState(dataOut) {
     var api = {};
 
     var manager = require('./spheroManager')();
-    var spheroLoc = require('./spheroLoc.js')(manager);
+    var spheroLoc = require('./spheroLoc.js')(manager, dataOut);
 
     return spheroLoc;
 }
 
-var state = spheroState();
-
 function sendState() {
+
     var message = new Buffer(1);
-    message[0] = MESSAGE_TYPE_UPDATE_STATE;
+    message[0] = MessageType.UPDATE_STATE;
+
     for (var name in state) {
         var sphero = state[name];
-        var idx = 0;
-        var length = new Buffer(1);
-        length[0] = name.length;
-        var header = Buffer.concat([
-            length,
-            new Buffer(name, 'ascii')
-        ]);
-        var buf = new Buffer(5 * 4);
+        // console.log(sphero.x, sphero.y);
+        var buf = new Buffer(1 + name.length + 5 * 4);
+        buf[0] = name.length;
+        buf.write(name, 1, name.length, "ascii");
 
+        var idx = 1 + name.length;
         if (isLittleEndian) {
             buf.writeFloatLE(sphero.dx, idx);
-            buf.writeFloatLE(sphero.dy, idx + 4);
-        } else {
-            buf.writeFloatBE(sphero.dx, idx);
-            buf.writeFloatBE(sphero.dx, idx + 4);
-        }
-        idx += 8;
-        if (isLittleEndian) {
+            idx += 4;
+            buf.writeFloatLE(sphero.dy, idx);
+            idx += 4;
             buf.writeFloatLE(sphero.x, idx);
-            buf.writeFloatLE(sphero.y, idx + 4);
-        } else {
-            buf.writeFloatBE(sphero.x, idx);
-            buf.writeFloatBE(sphero.x, idx + 4);
-        }
-        idx += 8;
-        if (isLittleEndian) {
+            idx += 4;
+            buf.writeFloatLE(sphero.y, idx);
+            idx += 4;
             buf.writeFloatLE(sphero.batteryVoltage, idx);
         } else {
-            buf.writeFloatBE(sphero.batteryVoltage, idx);
+            // TODO
         }
-        message = Buffer.concat([message, header, buf]);
+
+        message = Buffer.concat([message, buf]);
     }
-    socket.send(message, 0, message.length, client.port + 1, client.address, function(err) {
-        if (err)
-            throw err;
-        // console.log("Sent state to client " + client.address + ":" + (client.port + 1) + ".");
-    })
+
+    udpOutgoing.send(message, 0, message.length, UNITY_PORT, connectedServer.ip, function(err) {
+        if (err) throw err;
+    });
 }
 
-function addString(buf, idx, string) {
-    buf[idx] = string.length;
-    buf.write(string, 1 + idx, string.length, 'ascii');
-    return idx + string.length + 1;
-}
+var dataOut = startVisServer();
+state = spheroState(dataOut);
+discover();

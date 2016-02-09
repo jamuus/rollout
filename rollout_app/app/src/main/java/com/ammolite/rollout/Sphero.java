@@ -13,6 +13,8 @@ public final class Sphero {
     private static float        health;
     private static float        maxHealth;
     private static float        shield;
+    private static int          ticksBetweenShots = 100;
+    private static int          ticksSinceLastShot;
     private static byte[]       weapons;
     private static byte[]       powerUps;
     private static int          activeWeapon;
@@ -52,6 +54,7 @@ public final class Sphero {
     }
 
     public static void roll(float direction, float force) {
+        //Send the message
         ServerMessage message = new ServerMessage(ServerMessageType.ROLL_SPHERO);
         message.addContent(direction);
         message.addContent(force);
@@ -60,6 +63,10 @@ public final class Sphero {
     }
 
     public static void shoot(float direction) {
+        //Reset the ticks
+        ticksSinceLastShot = 0;
+
+        //Tell the server to shoot
         ServerMessage message = new ServerMessage(ServerMessageType.SPHERO_SHOOT);
         message.addContent(weapons[activeWeapon]);
         message.addContent(direction);
@@ -129,9 +136,13 @@ public final class Sphero {
         activeWeapon = index;
     }
 
+    public static boolean weaponReady() { return ticksSinceLastShot >= ticksBetweenShots; }
+
     public static float getShield() {
         return shield;
     }
+
+    public static void tick() { ticksSinceLastShot++; }
 
     public static float getHealth() {
         return health;

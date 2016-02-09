@@ -91,7 +91,7 @@ void drawObject(vector<Sphero> spheros, Mat &frame)
     }
 }
 
-void trackFilteredObject(Sphero theSphero, Mat threshold, Mat HSV, Mat &cameraFeed)
+void trackFilteredObject(Sphero &theSphero, Mat threshold, Mat HSV, Mat &cameraFeed)
 {
 
 
@@ -124,12 +124,12 @@ void trackFilteredObject(Sphero theSphero, Mat threshold, Mat HSV, Mat &cameraFe
 
                     Sphero boo;
 
-                    boo.setXPos(moment.m10 / area);
-                    boo.setYPos(moment.m01 / area);
-                    boo.setType(theSphero.getType());
-                    boo.setColour(theSphero.getColour());
+                    theSphero.setXPos(moment.m10 / area);
+                    theSphero.setYPos(moment.m01 / area);
+                    // boo.setType(theSphero.getType());
+                    // boo.setColour(theSphero.getColour());
 
-                    spheros.push_back(boo);
+                    spheros.push_back(theSphero);
 
                     objectFound = true;
 
@@ -231,10 +231,12 @@ typedef struct {
     int id;
 } spheroLoc;
 
-int sendToServer(int *fd, sockaddr_in *servaddr, spheroLoc loc)
+int sendToServer(int *fd, sockaddr_in *servaddr, Sphero sphero, int id)
 {
     char message[100];
-    sprintf(message, "%d,%d,%d", loc.id, loc.x, loc.y);
+    sprintf(message, "%d,%d,%d", id, sphero.getXPos(), sphero.getYPos());
+
+    printf("id: %d, x: %d, y: %d\n", id, sphero.getXPos(), sphero.getYPos());
 
     // send a message to the server
     if (sendto(*fd, message, strlen(message), 0, (struct sockaddr *)servaddr, sizeof(*servaddr)) < 0) {
@@ -255,7 +257,7 @@ int main( int, char** argv )
 
     //open capture object at location zero (default location for webcam)
     // capture.open(0);
-    capture.open("/Users/jamus/dev/rollout/spherocontrol/cvsphero/SpheroDetector/test.mov");
+    capture.open("/Users/jamus/dev/rollout/spherocontrol/cvsphero/SpheroDetector/test5.mov");
 
     if (!capture.isOpened())
         return -1;
@@ -280,11 +282,6 @@ int main( int, char** argv )
             continue;
         }
 
-#ifdef DEBUG
-        sphero1.x = ((sphero1.x + 1) % 20) - 10;
-        sendToServer(&socketDescriptor, &serverAddress, sphero1);
-        if (waitKey(1000) == 27)  break;
-#else
         if (calibrationMode == true) {
             createTrackbars();
             cvtColor(frame, HSV, COLOR_BGR2HSV);
@@ -304,11 +301,13 @@ int main( int, char** argv )
             inRange(HSV, ybr.getHSVmin(), ybr.getHSVmax(), threshold);
             morphOps(threshold);
             trackFilteredObject(ybr, threshold, HSV, frame);
+
+            sendToServer(&socketDescriptor, &serverAddress, ybr, 0);
+            sendToServer(&socketDescriptor, &serverAddress, boo, 1);
         }
         imshow(window_name, frame);
 
         if (waitKey(25) == 27)  break;
-#endif
     }
     capture.release();
     return 0;
