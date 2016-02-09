@@ -49,5 +49,5 @@ public class InitialisePowerUp:MonoBehaviour
 		powerUps.Add(powerUp);
 
     }
-
+	 
 }
