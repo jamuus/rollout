@@ -2,12 +2,15 @@ package com.ammolite.rollout;
 
 import android.util.Log;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.net.SocketException;
 import java.util.Enumeration;
 
@@ -24,7 +27,16 @@ public final class Server {
     private static boolean              serverListening;
     private static ServerListActivity   serverListActivity;
 
+    private static boolean              tcpServerListen;
+    private static Socket               tcpSocket;
+    private static DataOutputStream     toServerStream;
+    private static DataInputStream      fromServerStream;
+    private static Thread               tcpThread;
+    private static byte[]               tcpBuffer;
+
     public static void startListening() {
+        tcpBuffer = new byte[128];
+
         try {
             udpIncoming = new DatagramSocket(PORT_INCOMING);
             udpOutgoing = new DatagramSocket(PORT_OUTGOING);
@@ -52,14 +64,18 @@ public final class Server {
             }
         });
         listeningThread.start();
+
+        Log.d(TAG, "Server started successfully.");
     }
 
     public static void stopListening() {
         serverListening = false;
+        tcpServerListen = false;
         udpOutgoing.close();
         udpIncoming.close();
         try {
             listeningThread.join();
+            //tcpThread.join();
         } catch (InterruptedException ex) {
             Log.d(TAG, "Listening thread interrupted while joining.", ex);
         }
@@ -99,11 +115,76 @@ public final class Server {
         }
     }
 
+    public static void leaveServer() {
+        ServerMessage message = new ServerMessage(ServerMessageType.REMOVE_SPHERO);
+        message.addContent(Sphero.getName());
+        sendTCP(message);
+
+        tcpServerListen = false;
+        try {
+            tcpThread.join();
+        } catch (InterruptedException ex) {
+            Log.d(TAG, "Exception stopping TCP thread.");
+        }
+    }
+
+    public static void leaveServerAsync() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                leaveServer();
+            }
+        }).start();
+    }
+
     public static void connectTo(ServerHandle server, boolean asPlayer) {
         ServerMessage.setDefaultTarget(server.getTarget());
         ServerMessage message = new ServerMessage(ServerMessageType.APP_INIT);
         message.addContent(asPlayer);
-        send(message);
+
+        try {
+            tcpSocket = new Socket(server.getTarget(), UNITY_PORT);
+            toServerStream = new DataOutputStream(tcpSocket.getOutputStream());
+            fromServerStream = new DataInputStream(tcpSocket.getInputStream());
+
+            tcpServerListen = true;
+
+            tcpThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (tcpServerListen) {
+                        try {
+                            processReceivedBytesTCP(fromServerStream.read());
+                        } catch (IOException ex) {
+                            Log.d(TAG, "Exception receiving on TCP connection.", ex);
+                        }
+                    }
+
+                    Log.d("TEST", "PRE LEAVE");
+                    Sphero.leaveGame();
+
+                    /*try {
+                        tcpSocket.close();
+                    } catch (IOException ex) {
+                        Log.d(TAG, "Exception closing TCP socket.", ex);
+                    }*/
+                }
+            });
+            tcpThread.start();
+
+            sendTCP(message);
+        } catch (IOException ex) {
+            Log.d(TAG, "Exception opening TCP connection.", ex);
+        }
+    }
+
+    public static void sendTCP(ServerMessage message) {
+        byte[] data = message.compile();
+        try {
+            toServerStream.write(data, 0, data.length);
+        } catch (IOException ex) {
+            Log.d(TAG, "Exception sending TCP message.", ex);
+        }
     }
 
     public static void send(ServerMessage message) {
@@ -116,6 +197,15 @@ public final class Server {
         }
     }
 
+    public static void sendTCPAsync(final ServerMessage message) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                sendTCP(message);
+            }
+        }).start();
+    }
+
     public static void sendAsync(final ServerMessage message) {
         new Thread(new Runnable() {
             @Override
@@ -123,6 +213,43 @@ public final class Server {
                 send(message);
             }
         }).start();
+    }
+
+    private static void readStreamedBytes(int count, int offset) {
+        int remaining = count;
+        while (remaining > 0) {
+            try {
+                int read = fromServerStream.read(tcpBuffer, offset, remaining);
+                remaining -= read;
+                offset += read;
+            } catch (IOException ex) {
+                Log.d(TAG, "Failed reading to TCP buffer.", ex);
+            }
+        }
+    }
+
+    private static void readStreamedBytes(int count) {
+        readStreamedBytes(count, 0);
+    }
+
+    private static void processReceivedBytesTCP(int type) {
+        switch (type) {
+            case ServerMessageType.APP_INIT:
+                readStreamedBytes(2);
+                BitConverter.setIsLittleEndian(BitConverter.toBoolean(tcpBuffer, 0));
+                int nameLength = tcpBuffer[1];
+                readStreamedBytes(nameLength);
+                serverListActivity.joinServerAs(Utility.extractString(tcpBuffer, 0, nameLength));
+                break;
+            case ServerMessageType.UPDATE_STATE:
+                readStreamedBytes(13);
+                readStreamedBytes(tcpBuffer[12] + 1, 13);
+                readStreamedBytes(tcpBuffer[13 + tcpBuffer[12]], 14 + tcpBuffer[12]);
+                Sphero.parseState(tcpBuffer);
+                break;
+            default:
+                break;
+        }
     }
 
     private static void processReceivedBytes(byte[] bytes, InetAddress receivedFrom) {

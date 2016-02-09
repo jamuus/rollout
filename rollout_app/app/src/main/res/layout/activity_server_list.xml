@@ -11,8 +11,18 @@
     <ListView
         android:id="@+id/server_list"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:visible="false">
 
     </ListView>
+
+    <TextView
+        android:id="@+id/txt_searching_for_servers"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_centerHorizontal="true"
+        android:text="@string/searching_for_servers">
+
+    </TextView>
 
 </RelativeLayout>

@@ -104,8 +104,17 @@ public class TcpConnection
         {
             Thread.CurrentThread.IsBackground = true;
 
-            while (true)
-                ProcessStreamedData(stream.ReadByte());
+            try
+            {
+                while (true)
+                    ProcessStreamedData(stream.ReadByte());
+            }
+            catch (ThreadAbortException ex)
+            {
+                SpheroManager.RemoveSphero(buffer);
+                Server.TcpConnections.Remove(this);
+                //Thread.ResetAbort();
+            }
         });
         thread.Start();
     }
@@ -137,19 +146,68 @@ public class TcpConnection
         ServerMessageType messageType = (ServerMessageType)type;
         Debug.LogFormat("0x{0:x2}.", type);
 
+        ServerMessage message = new ServerMessage();
+
         switch (messageType)
         {
-            case ServerMessageType.AppInit:
+            case ServerMessageType.SpheroShoot:
+                ReadStreamedBytes(6);
+                ReadStreamedBytes(buffer[5], 6);
+                SpheroManager.Shoot(buffer);
+                break;
+            case ServerMessageType.RollSphero:
+                ReadStreamedBytes(9);
+                ReadStreamedBytes(buffer[8], 9);
+                SpheroManager.Roll(buffer);
+                break;
+            case ServerMessageType.SpheroPowerUp:
                 ReadStreamedBytes(2);
+                ReadStreamedBytes(buffer[1], 2);
+                SpheroManager.UsePowerUp(buffer);
+                break;
+            case ServerMessageType.AppInit:
+                ReadStreamedBytes(1);
+
+                Sphero sphero = null;
+
+                message.Type = ServerMessageType.AppInit;
+                message.AddContent(BitConverter.IsLittleEndian);
+
+                if (BitConverter.ToBoolean(buffer, 0) && ((sphero = SpheroManager.GetNextSphero()) != null))
+                {
+                    message.AddContent(sphero.DeviceName);
+                }
+                else
+                {
+                    message.AddContent(SpheroManager.SpectatorName);
+                    //SpectatorManager.Instances.Add(new Spectator(receivedFrom));
+                }
+
+                Send(message);
+
+                if (sphero != null)
+                {
+                    sphero.HasController = true;
+                    sphero.Connection = this;
+                    Debug.LogFormat("Health: {0}", sphero.Health);
+                    sphero.SendStateToController();
+                }
+                break;
+            case ServerMessageType.RemoveSphero:
+                ReadStreamedBytes(1);
+                ReadStreamedBytes(buffer[0], 1);
+                Close();
+                // SpheroManager.RemoveSphero(buffer);
+                // Server.TcpConnections.Remove(this);
                 break;
             default:
                 break;
         }
     }
 
-    private void ReadStreamedBytes(int count)
+    private void ReadStreamedBytes(int count, int offset = 0)
     {
-        int offset = 0, remaining = count;
+        int remaining = count;
         while (remaining > 0)
         {
             int read = stream.Read(buffer, offset, remaining);
@@ -168,8 +226,9 @@ public static class Server
     private static TcpListener          tcpListener;
     private static Thread               udpListenThread;
     private static Thread               tcpListenThread;
-    private static List<TcpConnection>  tcpConnections;
     private static System.Object        lockHandle;
+
+    public static List<TcpConnection>   TcpConnections;
 
     public static IPEndPoint NodeServerTarget { get; private set; }
 
@@ -179,7 +238,7 @@ public static class Server
     {
         Name = "Default Server Name";
         lockHandle = new System.Object();
-        tcpConnections = new List<TcpConnection>();
+        TcpConnections = new List<TcpConnection>();
     }
 
     public static void StartListening(int port)
@@ -225,7 +284,7 @@ public static class Server
 
                 lock (lockHandle)
                 {
-                    tcpConnections.Add(new TcpConnection(client));
+                    TcpConnections.Add(new TcpConnection(client));
                 }
             }
         });
@@ -239,7 +298,7 @@ public static class Server
 
     public static void StopListening()
     {
-        foreach (TcpConnection connection in tcpConnections)
+        foreach (TcpConnection connection in TcpConnections)
             connection.Close();
 
         tcpListenThread.Abort();
@@ -318,7 +377,7 @@ public static class Server
                 Send(message);
                 break;
             case ServerMessageType.AppInit:
-                Sphero sphero = null;
+                /*Sphero sphero = null;
 
                 message.Type = ServerMessageType.AppInit;
                 message.Target = receivedFrom;
@@ -341,7 +400,7 @@ public static class Server
                     sphero.ControllerTarget = receivedFrom;
                     sphero.HasController = true;
                     sphero.SendStateToController();
-                }
+                }*/
                 break;
         }
     }

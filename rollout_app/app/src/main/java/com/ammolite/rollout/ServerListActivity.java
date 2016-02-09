@@ -3,17 +3,26 @@ package com.ammolite.rollout;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.transition.Visibility;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
 public class ServerListActivity extends ActionBarActivity {
-    private static final String SPECTATOR_NAME = "Spectator";
+    private static final String SPECTATOR_NAME  = "Spectator";
+    private static final String TAG             = "ServerListActivity";
 
+    private TextView                    txtSearching;
     private ListView                    listView;
     private ServerHandleListAdapter     adapter;
+    private Thread                      serverDiscoverThread;
+    private Runnable                    serverDiscoverAction;
+    private boolean                     discoverServers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +33,23 @@ public class ServerListActivity extends ActionBarActivity {
         adapter = new ServerHandleListAdapter(this, new ArrayList<ServerHandle>());
         listView.setAdapter(adapter);
 
-        Server.discoverServersAsync(this);
+        txtSearching = (TextView)findViewById(R.id.txt_searching_for_servers);
+
+        serverDiscoverAction = new Runnable() {
+            @Override
+            public void run() {
+                while (discoverServers) {
+                    Server.discoverServers(ServerListActivity.this);
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException ex) {
+                        Log.d(TAG, "Exception sleeping discover thread.", ex);
+                    }
+                }
+            }
+        };
+
+        resume();
     }
 
     @Override
@@ -53,6 +78,8 @@ public class ServerListActivity extends ActionBarActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                txtSearching.setVisibility(View.GONE);
+                listView.setVisibility(View.VISIBLE);
                 adapter.add(server);
             }
         });
@@ -70,5 +97,46 @@ public class ServerListActivity extends ActionBarActivity {
                 }
             }
         });
+    }
+
+    private void stopOrPause() {
+        discoverServers = false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    serverDiscoverThread.join();
+                } catch (InterruptedException ex) {
+                    Log.d(TAG, "Exception stopping discovery thread.", ex);
+                }
+            }
+        }).start();
+
+        Server.stopListening();
+    }
+
+    private void resume() {
+        discoverServers = true;
+        Server.startListening();
+        serverDiscoverThread = new Thread(serverDiscoverAction);
+        serverDiscoverThread.start();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        stopOrPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        resume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopOrPause();
     }
 }

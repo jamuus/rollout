@@ -33,4 +33,15 @@ public class ServerHandle {
     public String toString() {
         return name + " - " + target.getHostAddress();
     }
+
+    @Override
+    public boolean equals(Object handle) {
+        boolean same = false;
+
+        if (handle != null && handle instanceof ServerHandle) {
+            same = (name.equals(((ServerHandle)handle).name) && target.equals(((ServerHandle)handle).target));
+        }
+
+        return same;
+    }
 }
