@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public struct Status
 {
@@ -13,7 +14,7 @@ public struct Status
 
 public class InitialiseStatus: MonoBehaviour
 {
-    public Status[] statuses = new Status[5];
+	public List<Status> statuses = new List<Status>();
 
     void Start()
     {
@@ -23,31 +24,36 @@ public class InitialiseStatus: MonoBehaviour
         status.description = "Continuously regenerates health of a player every second";
         status.magnitude = 1.0f;
         status.time = 15000;
-        statuses[0] = status;
+		statuses.Add(status);
 
         status.name = "DoT";
         status.description = "Continuously deal damage to player";
         status.magnitude = 1.0f;
         status.time = 500;
-        statuses[1] = status;
+		statuses.Add(status);
 
         status.name = "Slow down";
         status.description = "Player movement speed decreased";
         status.magnitude = 2.0f;
         status.time = 15000;
-        statuses[2] = status;
+		statuses.Add(status);
 
         status.name = "Speed up";
         status.description = "Player movement speed increased";
         status.magnitude = 2.0f;
         status.time = 15000;
-        statuses[3] = status;
+		statuses.Add(status);
 
         status.name = "Stun";
         status.description = "Player is unable to move";
         status.magnitude = 3.0f;
         status.time = (int)status.magnitude * 1000;
-        statuses[4] = status;
+		statuses.Add(status);
     }
+
+	public List<Status> getStatuses()
+	{
+		return statuses;
+	}
 }
 

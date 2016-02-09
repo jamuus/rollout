@@ -16,7 +16,12 @@ public class LevelSeed: MonoBehaviour
 	public List<Coordinates> specialFields = new List<Coordinates>();
 	public bool initFlag = false;
 
-	void Start(){
+	void Start ()
+	{
+	}
+
+	public void Generate ()
+	{
 		//obstacles
 		Coordinates element;
 		element.x = 0f;

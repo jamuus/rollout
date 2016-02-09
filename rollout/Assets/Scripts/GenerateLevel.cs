@@ -34,6 +34,7 @@ public class GenerateLevel : MonoBehaviour {
 		} else {
 			print ("getting seed");
 			seed = GameObject.Find("Container").GetComponent<LevelSeed> ();
+			seed.Generate ();
 			print ("got seed");
 			spawnSeed(seed);
 		}

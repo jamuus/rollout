@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Linq;
 using System;
+using System.Collections.Generic;
 
 public struct PowerUp
 {
@@ -12,7 +13,7 @@ public struct PowerUp
 
 public class InitialisePowerUp:MonoBehaviour
 {
-    public PowerUp[] powerUps = new PowerUp[5];
+	public List<PowerUp> powerUps = new List<PowerUp>();
     
     void Start()
     {
@@ -21,31 +22,31 @@ public class InitialisePowerUp:MonoBehaviour
         powerUp.description = "Doubles movement speed";
         powerUp.value = 2;
         powerUp.instant = false;
-        powerUps[0] = powerUp;
+		powerUps.Add(powerUp);
 
         powerUp.name = "Damage Enemy";
         powerUp.description = "Deals damage to enemy player";
         powerUp.value = 20;
         powerUp.instant = false;
-        powerUps[1] = powerUp;
+		powerUps.Add(powerUp);
 
         powerUp.name = "Stun Enemy";
         powerUp.description = "Freezes enemy";
         powerUp.value = 3;
         powerUp.instant = false;
-        powerUps[2] = powerUp;
+		powerUps.Add(powerUp);
 
         powerUp.name = "Slow Down Enemy";
         powerUp.description = "Slows down enemy player";
         powerUp.value = 2;
         powerUp.instant = false;
-        powerUps[3] = powerUp;
+		powerUps.Add(powerUp);
 
         powerUp.name = "Regeneration";
         powerUp.description = "Player regenerates health continuously";
         powerUp.value = 1;
         powerUp.instant = false;
-        powerUps[4] = powerUp;
+		powerUps.Add(powerUp);
 
     }
 

@@ -41,4 +41,9 @@ public class UniversalHealth : MonoBehaviour
         //Heal the player clamping the health to the maximum value
         currentHealth = Math.Min(currentHealth + healValue, maxHealth);
     }
+
+	public int getMaxHealth()
+	{
+		return maxHealth;
+	}
 }

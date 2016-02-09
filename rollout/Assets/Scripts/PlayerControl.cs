@@ -11,13 +11,11 @@ public class PlayerControl : MonoBehaviour
     public float speed;
     public Vector3 velocity;
     public List<PowerUp> powerUps = new List<PowerUp>();
-    public int[] statuses = new int[5]; //storing status time remaining
-    private Status[] statusList = new Status[5];
+	public List<int> statuses = new List<int>(); //storing status time remaining
+	private List<Status> statusList = new List<Status>();
     private GameObject container;
     public string horizontalAxis;
     public string verticalAxis;
-
-
     private Player player;
     public string powerUpButton;
 
@@ -28,7 +26,6 @@ public class PlayerControl : MonoBehaviour
         container = GameObject.Find("Container");
         statusList = container.GetComponent<InitialiseStatus>().statuses;
     }
-
 
     void Awake()
     {
@@ -70,6 +67,9 @@ public class PlayerControl : MonoBehaviour
             // float direction = Vector2.Angle(new Vector2(0, 1), new Vector2(X, Y));
             // if (X < 0) direction = -direction + 360.0f;
             // // direction = Mathf.Rad2Deg * direction;
+            // get controller input and omve sphero
+            float X = player.GetAxis("Horizontalx");
+            float Y = player.GetAxis("Verticalx");
 
             // sphero.Roll(direction, force);
         }
