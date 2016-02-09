@@ -11,8 +11,8 @@ public class PlayerControl : MonoBehaviour
     public float speed;
     public Vector3 velocity;
     public List<PowerUp> powerUps = new List<PowerUp>();
-    public int[] statuses = new int[5]; //storing status time remaining
-    private Status[] statusList = new Status[5];
+	public List<int> statuses = new List<int>(); //storing status time remaining
+	private List<Status> statusList = new List<Status>();
     private GameObject container;
     public string horizontalAxis;
     public string verticalAxis;

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Linq;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GUIController : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class GUIController : MonoBehaviour
     private LineRenderer lineRenderer;
 	private UniversalHealth playerHealth;
 	private PlayerControl playerStatus;
-	private Status[] statuses = new Status[5];
+	private List<Status> statuses = new List<Status>();
 
     // Use this for initialization
     void Start()
@@ -68,8 +69,8 @@ public class GUIController : MonoBehaviour
 	void renderStatuses()
 	{
 
-		int[] playerStatuses = playerStatus.statuses;
-		int numberOfStatuses = playerStatuses.Length;
+		List<int> playerStatuses = playerStatus.statuses;
+		int numberOfStatuses = playerStatuses.Count;
 		string activeStatusString = "";
 		string inactiveStatusString = "";
 
