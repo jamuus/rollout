@@ -71,6 +71,7 @@ public class GenerateLevel : MonoBehaviour
     Vector3 randomPosition (float radius)
     {
         Vector3 position;
+
         if (symmetricBattleArena) {
             position = new Vector3((float)Random.Range(0f, 1f), 1f, (float)Random.Range(-1f, 1f));
         } else {

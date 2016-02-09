@@ -35,6 +35,10 @@ public final class BitConverter {
         return (bytes[position] == 1);
     }
 
+    public static boolean toBoolean(char[] bytes, int position) {
+        return (bytes[position] == 1);
+    }
+
     private static byte[] convert(int bits, int size) {
         byte[] bytes = new byte[size];
         for (int i = 0; i < size; ++i)

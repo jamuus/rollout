@@ -49,9 +49,6 @@ public class PlayerControl : MonoBehaviour
         if (Input.GetButtonDown("Fire1")) UsePowerUp(0);
         triggerStatusEffects();
 
-
-        // Sphero sphero;
-        // if (SpheroManager.Instances.TryGetValue("tty.Sphero-BOO-AMP-SPP", out sphero)) {
         // move ingame sphero
         if (sphero != null) {
             float moveHorizontal = sphero.Position.x;
@@ -65,8 +62,6 @@ public class PlayerControl : MonoBehaviour
             // float X = player.GetAxis("Horizontalx");
             // float Y = player.GetAxis("Verticalx");
         }
-        // }
-
     }
 
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
@@ -116,7 +111,7 @@ public class PlayerControl : MonoBehaviour
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
-        print("PowerUp " + powerUp.name + " added to " + gameObject.name);
+        print("PowerUp " + powerUp.name + " added to player");
     }
 
     public void powerUpEffect(PowerUp powerUp)

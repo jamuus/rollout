@@ -3,6 +3,7 @@ package com.ammolite.rollout;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,7 +75,9 @@ public class ServerHandleListAdapter extends BaseAdapter {
     }
 
     public void add(ServerHandle server) {
-        data.add(server);
-        notifyDataSetChanged();
+        if (!data.contains(server)) {
+            data.add(server);
+            notifyDataSetChanged();
+        }
     }
 }
