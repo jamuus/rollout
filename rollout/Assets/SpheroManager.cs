@@ -20,7 +20,7 @@ public static class SpheroManager
         Debug.LogFormat("{0}, {1}", ybr, boo);
     }
 
-    public static void init()
+    public static void Initialise()
     {
 
         ybr = GameObject.Find("player2").GetComponent<PlayerControl>();
@@ -112,7 +112,7 @@ public static class SpheroManager
 
         Instances[name].Roll(direction, force);
 
-        Debug.LogFormat("Rolling Sphero {0} in direction {1} with force {2}.", name, direction, force);
+        //Debug.LogFormat("Rolling Sphero {0} in direction {1} with force {2}.", name, direction, force);
     }
 
     public static void Shoot(byte[] data)
@@ -145,17 +145,19 @@ public static class SpheroManager
 
 public class Sphero
 {
-    public string               DeviceName          { get; set; }
-    public Vector2              Velocity            { get; set; }
-    public Vector2              Position            { get; set; }
-    public float                BatteryVoltage      { get; set; }
-    //public IPEndPoint           ControllerTarget    { get; set; }
-    public float                Health              { get; set; }
-    public float                Shield              { get; set; }
-    public List<SpheroWeapon>   Weapons             { get; set; }
-    public List<SpheroPowerUp>  PowerUps            { get; set; }
-    public bool                 HasController       { get; set; }
-    public TcpConnection        Connection          { get; set; }
+    public string               DeviceName              { get; set; }
+    public Vector2              Velocity                { get; set; }
+    public Vector2              Position                { get; set; }
+    public float                BatteryVoltage          { get; set; }
+    //public IPEndPoint           ControllerTarget        { get; set; }
+    public float                Health                  { get; set; }
+    public float                Shield                  { get; set; }
+    public List<SpheroWeapon>   Weapons                 { get; set; }
+    public List<SpheroPowerUp>  PowerUps                { get; set; }
+    public bool                 HasController           { get; set; }
+    public TcpConnection        Connection              { get; set; }
+    public PlayerControl        UnityObject             { get; set; }
+    public ProjectileControl    UnityProjectileControl  { get; set; }
 
     public Sphero()
     {
@@ -188,17 +190,22 @@ public class Sphero
     public void Shoot(SpheroWeaponType type, float direction)
     {
         //Get the ProjectileControl object associated with the shooting player
-        String playerName = DeviceName.ToLower().Contains("boo") ? "player1" : "player2";
-        ProjectileControl playerProjectile =  GameObject.Find(playerName).GetComponent<ProjectileControl>();
+        //String playerName = DeviceName.ToLower().Contains("boo") ? "player1" : "player2";
+        //ProjectileControl playerProjectile = GameObject.Find(playerName).GetComponent<ProjectileControl>();
 
         //Put the direction into the correct range
         direction += (float)Math.PI;
 
         //Covert the direction into a vector
-        Vector3 directionVector = new Vector3((float)Math.Cos(direction), (float)Math.Sin(direction), 0.0f);
+        Vector3 directionVector = new Vector3((float)Math.Cos(direction), 0.0f, (float)Math.Sin(direction));
 
         //Tell the sphero to shoot
-        playerProjectile.Shoot(directionVector);
+        //playerProjectile.Shoot(directionVector);
+        //UnityProjectileControl.Shoot(directionVector);
+        Test.QueueOnMainThread(() =>
+        {
+            UnityProjectileControl.Shoot(directionVector);
+        });
 
     }
 
@@ -228,9 +235,9 @@ public class Sphero
         //message.Target = ControllerTarget;
         //Server.Send(message);
 
-        byte[] data = BitConverter.GetBytes(Health);
+        /*byte[] data = BitConverter.GetBytes(Health);
         for (int i = 0; i < data.Length; ++i)
-            Debug.LogFormat("Health: {0:x2}", data[i]);
+            Debug.LogFormat("Health: {0:x2}", data[i]);*/
 
         Connection.Send(message);
     }

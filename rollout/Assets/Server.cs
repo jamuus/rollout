@@ -108,11 +108,18 @@ public class TcpConnection
                     ProcessStreamedData(stream.ReadByte());
             } catch (ThreadAbortException ex) {
                 SpheroManager.RemoveSphero(buffer);
-                Server.TcpConnections.Remove(this);
+                //Server.TcpConnections.Remove(this);
                 //Thread.ResetAbort();
+
+                RemoveMe();
             }
         });
         thread.Start();
+    }
+
+    public void RemoveMe()
+    {
+        Server.TcpConnections.Remove(this);
     }
 
     public void Close()
@@ -139,7 +146,7 @@ public class TcpConnection
         }
 
         ServerMessageType messageType = (ServerMessageType)type;
-        Debug.LogFormat("0x{0:x2}.", type);
+        //Debug.LogFormat("0x{0:x2}.", type);
 
         ServerMessage message = new ServerMessage();
 

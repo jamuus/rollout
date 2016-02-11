@@ -48,6 +48,7 @@ public class ServerListActivity extends ActionBarActivity {
             }
         };
 
+        Server.startListening();
         resume();
     }
 
@@ -111,12 +112,12 @@ public class ServerListActivity extends ActionBarActivity {
             }
         }).start();
 
-        Server.stopListening();
+        //Server.stopListening();
     }
 
     private void resume() {
         discoverServers = true;
-        Server.startListening();
+        //Server.startListening();
         serverDiscoverThread = new Thread(serverDiscoverAction);
         serverDiscoverThread.start();
     }

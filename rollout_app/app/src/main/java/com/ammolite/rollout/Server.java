@@ -182,6 +182,7 @@ public final class Server {
         byte[] data = message.compile();
         try {
             toServerStream.write(data, 0, data.length);
+            Log.d(TAG, "Sent stuff.");
         } catch (IOException ex) {
             Log.d(TAG, "Exception sending TCP message.", ex);
         }
