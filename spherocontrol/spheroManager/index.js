@@ -135,7 +135,7 @@ module.exports = function(opts) {
             green: 255,
             blue: 255
         });
-        inst.force(0, 0.02);
+        inst.force(0, 0.05);
 
         _onSpheroConnect(api.instances[api.instances.length - 1]);
     }

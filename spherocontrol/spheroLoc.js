@@ -93,6 +93,8 @@ module.exports = function(spheroManager, dataOut) {
         []
     ];
 
+    var angleLog = [];
+
     function newIpData(name, sphero, data, dt) {
         // data.x,  data.y, data.id
         var angle;
@@ -105,15 +107,20 @@ module.exports = function(spheroManager, dataOut) {
             var sphmag = Math.sqrt(sphero.dx * sphero.dx + sphero.dy * sphero.dy);
 
             angle = (dx * sphero.dx + dy * sphero.dy) / (ipmag * sphmag);
+            angleLog.push(angle);
+            if (angleLog.length > 10) {
+                angleLog.splice(0, 1);
+            }
             // if (data.id == 0 && !isNaN(angle))
             //     debugLog(angle * 360 / (2 * Math.PI), dx, sphero.dx);
 
         }
+        var filteredAngle = angleLog.reduce((a, acc) => a + acc, 0) / 10;
         dataOut({
             ipData: {
                 name: name,
                 pos: data,
-                angle: angle
+                angle: filteredAngle
             }
         });
     }
