@@ -95,7 +95,7 @@ public class PlayerControl : MonoBehaviour
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
         if (outOfBounds) {
-            print ("" + rb.velocity.magnitude);
+           // print ("" + rb.velocity.magnitude);
             rb.AddForce(speed * (radius - rb.position.magnitude) * rb.position.normalized);
         } else {
             rb.AddForce(speed * movement);
@@ -110,7 +110,7 @@ public class PlayerControl : MonoBehaviour
             usedPowerUp = powerUps[powerUps.Count - 1];
             powerUpEffect(usedPowerUp);
             powerUps.RemoveAt(powerUps.Count - 1);
-            print("PowerUp " + usedPowerUp.name + " used by player");
+           // print("PowerUp " + usedPowerUp.name + " used by player");
         } catch (Exception e) {
             print("No powerups left");
         }
@@ -119,7 +119,7 @@ public class PlayerControl : MonoBehaviour
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
-        print("PowerUp " + powerUp.name + " added to player");
+        //print("PowerUp " + powerUp.name + " added to player");
     }
 
     private void powerUpEffect(PowerUp powerUp)
@@ -138,14 +138,14 @@ public class PlayerControl : MonoBehaviour
         if (statuses[0] > 0) {
             this.GetComponent<UniversalHealth>().healPlayer((int)statusList[0].magnitude);
             statuses[0] -= 20;
-            print ("End of speed regeneration");
+           // print ("End of speed regeneration");
         }
         if (statuses[3] > 0) {
             if (statuses[3] == statusList[3].time) speed *= statusList[3].magnitude;
             statuses[3] -= 20;
             if (statuses[3] <= 0) {
                 speed /= 2;
-                print ("End of speed boost");
+              //  print ("End of speed boost");
             }
         }
     }

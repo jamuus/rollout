@@ -8,6 +8,7 @@ public class HomingMissile : MonoBehaviour
     public float turnSpeed;
 
     public int damage;
+    public Explosion explosion;
     private Rigidbody homingMissile;
     private UniversalHealth health;
     private GameObject otherPlayer;
@@ -34,27 +35,27 @@ public class HomingMissile : MonoBehaviour
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.velocity = velocity.normalized * speed;
 
-        //Destroys the projectile afer 2 seconds
-        Destroy(gameObject, 2.0f);
+        //Destroys the projectile afer 8 seconds
+        Destroy(gameObject, 8.0f);
     }
 
+    //when the missile hits something, spawn an explosion
     void OnCollisionEnter(Collision col)
     {
-        GameObject collidedObject = col.gameObject;
+        var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
+        spawnedExplosion.Initialise(5, 200, 30, 10);
+        print("Explosion Successful");
+        Destroy(this.gameObject);
 
-        if (collidedObject.name == "player1" || collidedObject.name == "player2")
-        {
-            //Damage whatever collided with the projectile
-            health = collidedObject.GetComponent<UniversalHealth>();
-            health.damagePlayer(damage);
-        }
-        Destroy(gameObject);
+        //GameObject collidedObject = col.gameObject;
+        //if (collidedObject.name == "player1" || collidedObject.name == "player2")
+        //{
+        //    //damage whatever collided with the projectile
+        //    health = collidedObject.GetComponent<UniversalHealth>();
+        //    health.damagePlayer(damage);
+        //}
+        //Destroy(gameObject);
     }
-	
-	void Update ()
-    {
-	
-	}
 
     void FixedUpdate()
     {
@@ -65,5 +66,10 @@ public class HomingMissile : MonoBehaviour
             homingMissile.MoveRotation(Quaternion.RotateTowards(transform.rotation, targetRotation, turnSpeed));
         }
         homingMissile.velocity = transform.forward * speed;
+    }
+
+    void Explode(float givenRadius, float givenPower, float givenMaxDamage, float givenMinDamage)
+    {
+
     }
 }
