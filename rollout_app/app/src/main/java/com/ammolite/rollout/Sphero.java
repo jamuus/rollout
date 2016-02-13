@@ -2,7 +2,6 @@ package com.ammolite.rollout;
 
 import android.util.Log;
 
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 public final class Sphero {
@@ -26,6 +25,8 @@ public final class Sphero {
     private Sphero() { }
 
     public static void parseState(byte[] bytes) {
+        Log.d(TAG, "Parsing received Sphero state.");
+
         float oldHealth = health;
         float oldShiled = shield;
 
@@ -54,7 +55,7 @@ public final class Sphero {
         if ((oldHealth > health) || (oldShiled > shield))
             recentDamage = true;
 
-        Log.d("TEST", "Health: " + health + ", Shield: " + shield + ", Voltage: " + voltage);
+        Log.d(TAG, "Health: " + health + ", Shield: " + shield + ", Voltage: " + voltage);
     }
 
     public static void roll(float direction, float force) {
@@ -79,10 +80,12 @@ public final class Sphero {
     }
 
     public static void usePowerUp(int index) {
-        ServerMessage message = new ServerMessage(ServerMessageType.SPHERO_POWER_UP);
-        message.addContent(powerUps[index]);
-        message.addContent(name);
-        Server.sendTCPAsync(message);
+        if (index < powerUps.length) {
+            ServerMessage message = new ServerMessage(ServerMessageType.SPHERO_POWER_UP);
+            message.addContent(powerUps[index]);
+            message.addContent(name);
+            Server.sendTCPAsync(message);
+        }
     }
 
     public static void pauseGame() {
@@ -174,5 +177,13 @@ public final class Sphero {
 
     public static void setName(String value) {
         name = value;
+    }
+
+    public static int getNumberOfPowerUps() {
+        return powerUps.length;
+    }
+
+    public static int getPowerUp(int index) {
+        return (int)powerUps[index];
     }
 }

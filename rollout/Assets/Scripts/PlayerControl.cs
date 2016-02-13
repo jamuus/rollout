@@ -18,6 +18,7 @@ public class PlayerControl : MonoBehaviour
     public string verticalAxis;
     private Player player;
     public string powerUpButton;
+    private List<PowerUp> allPowerUps;
 
     public Sphero sphero;
 
@@ -28,7 +29,7 @@ public class PlayerControl : MonoBehaviour
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
         statusList = container.GetComponent<InitialiseStatus>().statuses;
-
+        allPowerUps = container.GetComponent<InitialisePowerUp>().powerUps;
     }
 
     void Awake()
@@ -50,7 +51,7 @@ public class PlayerControl : MonoBehaviour
         triggerStatusEffects();
 
         // move ingame sphero
-        if (sphero != null) {
+        /*if (sphero != null) {
             float moveHorizontal = sphero.Position.x;
             float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
@@ -61,7 +62,7 @@ public class PlayerControl : MonoBehaviour
 
             // float X = player.GetAxis("Horizontalx");
             // float Y = player.GetAxis("Verticalx");
-        }
+        }*/
     }
 
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
@@ -95,7 +96,7 @@ public class PlayerControl : MonoBehaviour
     }
 
 
-    void UsePowerUp(int powerUpID)
+    public void UsePowerUp(int powerUpID)
     {
         PowerUp usedPowerUp;
         try {
@@ -103,6 +104,8 @@ public class PlayerControl : MonoBehaviour
             powerUpEffect(usedPowerUp);
             powerUps.RemoveAt(0);
             print("PowerUp " + usedPowerUp.name + " used by player");
+
+            //sphero.PowerUps.RemoveAt(0);
         } catch (Exception e) {
             print("No powerups left");
         }
@@ -111,6 +114,7 @@ public class PlayerControl : MonoBehaviour
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
+        sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)allPowerUps.IndexOf(powerUp)));
         print("PowerUp " + powerUp.name + " added to player");
     }
 

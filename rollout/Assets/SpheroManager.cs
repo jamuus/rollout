@@ -29,11 +29,9 @@ public static class SpheroManager
 
     public static Sphero GetNextSphero()
     {
-        Debug.LogFormat("GET start");
         foreach (KeyValuePair<string, Sphero> sphero in Instances)
             if (!sphero.Value.HasController)
                 return sphero.Value;
-        Debug.LogFormat("GET end");
         return null;
     }
 
@@ -127,7 +125,7 @@ public static class SpheroManager
         //Shoot from the relevant sphero
         Instances[name].Shoot(SpheroWeaponType.Default, direction);
 
-        Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
+        //Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
     }
 
     public static void UsePowerUp(byte[] data)
@@ -137,7 +135,7 @@ public static class SpheroManager
         ++offset;
         string name = Encoding.ASCII.GetString(data, offset + 1, data[offset]);
 
-        // TODO
+        Instances[name].UsePowerUp(new SpheroPowerUp((SpheroPowerUpType)powerUpID));
 
         Debug.LogFormat("Sphero {0} using power up with ID {1}.", name, powerUpID);
     }
@@ -202,7 +200,7 @@ public class Sphero
         //Tell the sphero to shoot
         //playerProjectile.Shoot(directionVector);
         //UnityProjectileControl.Shoot(directionVector);
-        Test.QueueOnMainThread(() =>
+        MainThread.EnqueueAction(() =>
         {
             UnityProjectileControl.Shoot(directionVector);
         });
@@ -213,6 +211,15 @@ public class Sphero
     {
         Connection = null;
         HasController = false;
+    }
+
+    public void UsePowerUp(SpheroPowerUp powerUp)
+    {
+        MainThread.EnqueueAction(() =>
+        {
+            UnityObject.UsePowerUp((int)powerUp.Type);
+        });
+        PowerUps.Remove(powerUp);
     }
 
     public void SendStateToController()
@@ -243,7 +250,8 @@ public class Sphero
     }
 }
 
-public enum SpheroWeaponType : byte {
+public enum SpheroWeaponType : byte
+{
     Default = 0,
     RailGun = 1
 }
@@ -262,13 +270,23 @@ public class SpheroWeapon
     }
 }
 
-public enum SpheroPowerUpType : byte {
-    Something,
-    SomethingElse
+public enum SpheroPowerUpType : byte
+{
+    Boost           = 0,
+    DamageEnemy     = 1,
+    StunEnemey      = 2,
+    SlowDownEnemy   = 3,
+    Regeneration    = 4
 }
 
 public class SpheroPowerUp
 {
     public SpheroPowerUpType Type { get; set; }
+
+    public SpheroPowerUp(SpheroPowerUpType type)
+    {
+        Type = type;
+    }
+
     // TODO
 }

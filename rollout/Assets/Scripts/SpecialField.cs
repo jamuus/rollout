@@ -58,7 +58,7 @@ public class SpecialField : MonoBehaviour
                 break;
             }
 			StartCoroutine(fieldTimeout(10));
-            
+
 			if (isVolatile) {
 
                 Destroy(gameObject);
@@ -119,12 +119,14 @@ public class SpecialField : MonoBehaviour
     {
         UniversalHealth health = player.GetComponent<UniversalHealth> ();
         health.damagePlayer (magnitude);
+        player.GetComponent<PlayerControl>().sphero.Health -= magnitude;
     }
 
     void healPlayer(GameObject player)
     {
         UniversalHealth health = player.GetComponent<UniversalHealth> ();
         health.healPlayer (magnitude);
+        // TODO healing sphero.
     }
 
     void destroyPlayer(GameObject player)

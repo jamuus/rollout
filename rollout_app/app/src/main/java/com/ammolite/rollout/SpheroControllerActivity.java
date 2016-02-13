@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -29,6 +30,7 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
     private Sensor              accelerometer;
     private ThumbstickControl   thumbstick;
     private Vector2f            rollVector;
+    private Button[]            powerUpButtons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,27 +52,42 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
 
         rollVector = new Vector2f();
 
+        powerUpButtons = new Button[2];
+        powerUpButtons[0] = (Button)findViewById(R.id.btn_powerup_0);
+        powerUpButtons[1] = (Button)findViewById(R.id.btn_powerup_1);
+
         updateFunc = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                float roll = rollVector.length()/accelerometer.getMaximumRange();
                 Sphero.tick();
-                if (roll > ROLL_DEAD_ZONE)
-                {
+
+                float roll = rollVector.length() / accelerometer.getMaximumRange();
+                if (roll > ROLL_DEAD_ZONE) {
                     Sphero.roll(rollVector.angle(FORWARD_VECTOR), roll);
+                } else {
+                    Sphero.roll(rollVector.angle(FORWARD_VECTOR), 0);
                 }
-                else Sphero.roll(rollVector.angle(FORWARD_VECTOR),0);
-                if (thumbstick.getAbsoluteMagnitude() > ThumbstickControl.DEAD_ZONE_MAGNITUDE && Sphero.weaponReady())
-                {
+
+                if (thumbstick.getAbsoluteMagnitude() > ThumbstickControl.DEAD_ZONE_MAGNITUDE && Sphero.weaponReady()) {
                     Sphero.shoot(thumbstick.getAngle());
                     vibrator.vibrate(150);
                 }
-                if (Sphero.getHasRecentDamage())
-                {
-                    updateHealthBar();
-                    Sphero.setHasRecentDamage(false);
-                    vibrator.vibrate(750);
-                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (Sphero.getHasRecentDamage()) {
+                            updateHealthBar();
+                            Sphero.setHasRecentDamage(false);
+                            vibrator.vibrate(750);
+                        }
+
+                        int powerUpCount = Math.min(Sphero.getNumberOfPowerUps(), 2);
+                        for (int i = 0; i < powerUpButtons.length; ++i)
+                            powerUpButtons[i].setText(i < powerUpCount ? "" + Sphero.getPowerUp(i) : "None");
+                    }
+                });
+
                 return null;
             }
         };
@@ -78,18 +95,16 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
         Sphero.startUpdateThread(updateFunc);
     }
 
-    public void updateHealthBar()
-    {
+    public void updateHealthBar() {
         //Get the health bar
         FrameLayout healthBar = (FrameLayout)findViewById(R.id.health);
 
         //Work out the spheros health as a ratio and scale it to the size of the original bar
-        float normalisedSpheroHealth = Sphero.getHealth()/Sphero.getMaxHealth();
+        float normalisedSpheroHealth = Sphero.getHealth() / Sphero.getMaxHealth();
         float scaleFactor =  300 * this.getResources().getDisplayMetrics().densityDpi / 160f;
 
         //Change the colour if health is low
-        if (normalisedSpheroHealth < 0.2)
-        {
+        if (normalisedSpheroHealth < 0.2) {
             healthBar.setBackgroundColor(getResources().getColor(R.color.red));
             ((FrameLayout)findViewById(R.id.health_start)).setBackgroundColor(getResources().getColor(R.color.red));
             ((FrameLayout)findViewById(R.id.health_end)).setBackgroundColor(getResources().getColor(R.color.red));
@@ -134,7 +149,7 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
         super.onPause();
         sensorManager.unregisterListener(this);
         Sphero.stopUpdateThread();
-        Server.leaveServerAsync();
+        //Server.leaveServerAsync();
     }
 
     @Override
@@ -158,7 +173,7 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
         // TODO
     }
 
-    public void btnPowerUpOnClick(View v) {
+    /*public void btnPowerUpOnClick(View v) {
         FrameLayout frameLayout = (FrameLayout)v.getParent();
         TextView textView = (TextView)v;
 
@@ -174,5 +189,13 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
             textView.setTextSize(14);
             textView.setText("Missiles");
         }
+    }*/
+
+    public void btnPowerUpOnClick0(View v) {
+        Sphero.usePowerUp(0);
+    }
+
+    public void btnPowerUpOnClick1(View v) {
+        Sphero.usePowerUp(1);
     }
 }
