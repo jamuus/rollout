@@ -28,6 +28,10 @@ public class ServerListActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server_list);
 
+        PowerUpManager.loadAssetsFile(this);
+        for (int i = 0; i < 5; ++i)
+            Log.d(TAG, "POWERUP: " + PowerUpManager.get(i).getDescription());
+
         listView = (ListView)findViewById(R.id.server_list);
         adapter = new ServerHandleListAdapter(this, new ArrayList<ServerHandle>());
         listView.setAdapter(adapter);
