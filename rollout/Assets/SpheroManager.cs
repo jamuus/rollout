@@ -219,7 +219,9 @@ public class Sphero
         {
             UnityObject.UsePowerUp((int)powerUp.Type);
         });
-        PowerUps.Remove(powerUp);
+        Debug.LogFormat("1: Count Power Ups: {0}", PowerUps.Count);
+        Debug.LogFormat("1.5: Remove: {0}", PowerUps.Remove(powerUp));
+        Debug.LogFormat("2: Count Power Ups: {0}", PowerUps.Count);
     }
 
     public void SendStateToController()
@@ -279,13 +281,21 @@ public enum SpheroPowerUpType : byte
     Regeneration    = 4
 }
 
-public class SpheroPowerUp
+public class SpheroPowerUp : IEquatable<SpheroPowerUp>
 {
     public SpheroPowerUpType Type { get; set; }
 
     public SpheroPowerUp(SpheroPowerUpType type)
     {
         Type = type;
+    }
+
+    public bool Equals(SpheroPowerUp other)
+    {
+        if (other == null)
+            return false;
+
+        return Type == other.Type;
     }
 
     // TODO

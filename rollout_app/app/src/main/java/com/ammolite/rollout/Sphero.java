@@ -22,6 +22,10 @@ public final class Sphero {
     private static boolean      updateThreadIsRunning;
     private static boolean      recentDamage;
 
+    static {
+        powerUps = new byte[0];
+    }
+
     private Sphero() { }
 
     public static void parseState(byte[] bytes) {
