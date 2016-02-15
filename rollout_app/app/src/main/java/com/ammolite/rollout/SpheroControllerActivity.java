@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.concurrent.Callable;
 
@@ -83,8 +84,24 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
                         }
 
                         int powerUpCount = Math.min(Sphero.getNumberOfPowerUps(), 2);
-                        for (int i = 0; i < powerUpButtons.length; ++i)
-                            powerUpButtons[i].setText(i < powerUpCount ? "" + Sphero.getPowerUp(i) : "None");
+                        for (int i = 0; i < powerUpButtons.length; ++i) {
+                            if (i < powerUpCount) {
+                                final PowerUp powerUp = PowerUpManager.get(Sphero.getPowerUp(i));
+                                powerUpButtons[i].setBackgroundColor(powerUp.getColour());
+                                powerUpButtons[i].setText(powerUp.getName());
+                                powerUpButtons[i].setOnLongClickListener(new View.OnLongClickListener() {
+                                    @Override
+                                    public boolean onLongClick(View v) {
+                                        Toast.makeText(SpheroControllerActivity.this, powerUp.getDescription(),Toast.LENGTH_LONG).show();
+                                        return true;
+                                    }
+                                });
+                            } else {
+                                powerUpButtons[i].setText("None");
+                                powerUpButtons[i].setOnLongClickListener(null);
+                                powerUpButtons[i].setBackgroundColor(getResources().getColor(R.color.grey));
+                            }
+                        }
                     }
                 });
 
