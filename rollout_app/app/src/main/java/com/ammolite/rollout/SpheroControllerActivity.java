@@ -78,10 +78,10 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
                     @Override
                     public void run() {
                         if (Sphero.getHasRecentDamage()) {
-                            updateHealthBar();
                             Sphero.setHasRecentDamage(false);
                             vibrator.vibrate(750);
                         }
+                        updateHealthBar();
 
                         int powerUpCount = Math.min(Sphero.getNumberOfPowerUps(), 2);
                         for (int i = 0; i < powerUpButtons.length; ++i) {
@@ -128,7 +128,9 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
         }
 
         //Set the width to reflect the health
-        healthBar.getLayoutParams().width = (int)(normalisedSpheroHealth * scaleFactor);
+        ViewGroup.LayoutParams params = healthBar.getLayoutParams();
+        params.width = (int)(normalisedSpheroHealth * scaleFactor);
+        healthBar.setLayoutParams(params);
     }
 
     @Override
