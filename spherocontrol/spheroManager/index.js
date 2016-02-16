@@ -6,8 +6,6 @@ module.exports = function(opts) {
     opts = opts || {};
     var _onSpheroConnect = function _onSpheroConnect() {};
     var api = {
-        count: 0,
-        names: [],
         instances: [],
         onSpheroConnect: function onSpheroConnect(callback) {
             _onSpheroConnect = callback;
@@ -24,12 +22,11 @@ module.exports = function(opts) {
     };
 
     var connectedSpheros = {
-        instances: [],
         deviceNames: [],
-        friendlyNames: []
     };
     var spheroDeviceRegex = /tty\.Sphero.*/;
 
+    // Searches and connects to unconnected spheros
     function updateSpheros() {
         fs.readdir('/dev/', function(err, files) {
             if (err) return log('[ERROR] in readdir:', err);
@@ -49,9 +46,8 @@ module.exports = function(opts) {
                     if (err) {
                         log("[SPHERO] Error connecting:", err);
                     } else {
-                        log("[SPHERO] Connected", sphDevName)
+                        log("[SPHERO] Connected", sphDevName);
                         setupSpheroInstance(sph, sphDevName);
-                        connectedSpheros.instances.push(sph);
                         connectedSpheros.deviceNames.push(sphDevName);
                     }
                     setTimeout(updateSpheros, 2000);
@@ -65,12 +61,10 @@ module.exports = function(opts) {
     function removeSphero(sphero, deviceName) {
         connectedSpheros.instances.splice(sphero);
         connectedSpheros.deviceNames.splice(deviceName);
-        api.names.splice(deviceName);
         var i = api.instances.indexOf(sphero);
         if (i !== -1) {
             api.instances.splice(i);
         }
-        clearInterval(sphero.powerStateInterval);
     }
 
     function setupSpheroInstance(sphero, deviceName) {
@@ -81,21 +75,19 @@ module.exports = function(opts) {
         };
 
         function doRoll() {
-            var newpower = Math.round(spheroForce.power * 500);
-            var newangle = ((spheroForce.direction / (2 * Math.PI) + Math.PI) * 360) % 360;
-            if (newpower !== 0) {
-                // log('rolling', newpower, newangle);
-                sphero.roll(newpower, newangle, function() {
-                    doRoll();
-                });
-            } else {
-                // log(newpower);
-                setTimeout(doRoll, 100);
-            }
+            var newpower = Math.round(spheroForce.power * 255);
+            var newangle = ((spheroForce.direction / (2 * Math.PI)) * 360) % 360;
+            // if (newpower !== 0) {
+            // log('rolling', newpower, newangle);
+            sphero.roll(newpower, newangle, function() {
+                doRoll();
+            });
+            // } else {
+            // log(newpower);
+            // setTimeout(doRoll, 100);
+            // }
         }
         doRoll();
-        api.names.push(deviceName);
-        api.count++;
         var inst = {
             name: deviceName,
             newDataCallback: function newDataCallback(callback) {
@@ -109,7 +101,9 @@ module.exports = function(opts) {
             },
         };
         api.instances.push(inst);
-        // sphero.setStabilization(1, function(err) {});
+
+
+
         sphero.streamVelocity(dataPerSecond);
         sphero.on('velocity', function(_data) {
             var data = {
@@ -139,7 +133,7 @@ module.exports = function(opts) {
         var angle = 0;
         setInterval(() => {
             angle += (Math.PI / 30) / 2;
-            inst.force(angle, 0.1);
+            inst.force(angle, 0.2);
         }, 1000 / 60);
 
         _onSpheroConnect(api.instances[api.instances.length - 1]);

@@ -1,31 +1,49 @@
+var spheroIds = [
+    'ybr',
+    'boo',
+];
+
+var spheros = {
+    "ybr": initSphero(),
+    "boo": initSphero(),
+}
+
+function nothing() {
+
+}
+
+function initSphero() {
+    return {
+        x: 0,
+        y: 0,
+        dx: 0,
+        dy: 0,
+        lastVelocityUpdate: -1,
+        batteryVoltage: -1,
+        force: nothing,
+        driftAngle: 0
+    }
+}
+
 var debugLog = console.log;
 
 module.exports = function(spheroManager, dataOut) {
-    var api = {};
+    var api = spheros;
 
     spheroManager.onSpheroConnect(function(newSphero) {
         debugLog('Sphero', newSphero.name, 'connected.');
-        var spheroData = api[newSphero.name] = {
-            x: 0,
-            y: 0,
-            dx: 0,
-            dy: 0,
-            lastVelocityUpdate: -1,
-            batteryVoltage: 0,
-            force: newSphero.force,
-            driftAngle: 0
-        };
+
+        var spheroData = spheros[newSphero.name.toLowerCase().indexOf("ybr") !== -1 ? "ybr" : "boo"];
+        spheroData.force = newSphero.force;
+
         newSphero.newDataCallback(function(data, type) {
             for (var dataName in data) {
-                api[newSphero.name][dataName] = data[dataName];
+                spheroData[dataName] = data[dataName];
             }
             if (type === 'velocity') {
                 if (spheroData.lastVelocityUpdate !== -1) {
                     var now = new Date().getTime();
                     var diff = now - spheroData.lastVelocityUpdate;
-
-                    // spheroData.x += (diff / 1000) * spheroData.dx / 50;
-                    // spheroData.y += (diff / 1000) * spheroData.dy / 50;
 
                     newSpheroData(spheroData, diff);
                     dataOut({
@@ -64,15 +82,7 @@ module.exports = function(spheroManager, dataOut) {
         data.x = parseInt(parts[1]);
         data.y = parseInt(parts[2]);
 
-        // map id to sphero
-        // 0 -> ybr -> blue
-        // 1 -> boo -> orange
-
-        var idToDev = [
-            'tty.Sphero-YBR-AMP-SPP',
-            'tty.Sphero-BOO-AMP-SPP',
-        ];
-        var sphName = idToDev[data.id];
+        var sphName = spheroIds[data.id];
         if (api[sphName]) {
             var aft = new Date().getTime();
             var diff = aft - bef;
