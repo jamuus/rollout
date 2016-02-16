@@ -119,7 +119,7 @@ public class SpecialField : MonoBehaviour
     {
         UniversalHealth health = player.GetComponent<UniversalHealth> ();
         health.damagePlayer (magnitude);
-        player.GetComponent<PlayerControl>().sphero.Health -= magnitude;
+        //player.GetComponent<PlayerControl>().sphero.Health -= magnitude;
     }
 
     void healPlayer(GameObject player)

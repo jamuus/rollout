@@ -9,15 +9,16 @@ public struct PowerUp
     public string description;
     public int value;
     public bool instant;
+    public int id;
 }
 
 public class InitialisePowerUp:MonoBehaviour
 {
 	public List<PowerUp> powerUps = new List<PowerUp>();
-    
+
     void Start()
     {
-        PowerUp powerUp;
+        PowerUp powerUp = new PowerUp();
         powerUp.name = "Boost";
         powerUp.description = "Doubles movement speed";
         powerUp.value = 2;
@@ -49,5 +50,5 @@ public class InitialisePowerUp:MonoBehaviour
 		powerUps.Add(powerUp);
 
     }
-	 
+
 }

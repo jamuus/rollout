@@ -14,6 +14,9 @@ public class MainThread : MonoBehaviour
         lockObject  = new System.Object();
         actionQueue = new Queue<Action>();
 
+        // Load PowerUps from file.
+        PowerUpManager.Initialise();
+
         // This must be called before server is started.
         SpheroManager.Initialise();
 
