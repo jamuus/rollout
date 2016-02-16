@@ -26,7 +26,7 @@ int S_MAX = 256;
 int V_MIN = 0;
 int V_MAX = 256;
 const int MAX_NUM_OBJECTS = 2;
-//minimum and maximum object area
+// minimum and maximum object area
 const int MIN_OBJECT_AREA = 10 * 10;
 const int MAX_OBJECT_AREA = 40 * 40;
 const char* trackbar_name = "Trackbars";
@@ -256,7 +256,7 @@ int main( int, char** argv )
     bool calibrationMode = false;
 
     //open capture object at location zero (default location for webcam)
-    // capture.open(0);
+    // capture.open(1);
     capture.open("/Users/jamus/dev/rollout/spherocontrol/cvsphero/SpheroDetector/test5.mov");
 
     if (!capture.isOpened())

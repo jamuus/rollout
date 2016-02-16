@@ -13,6 +13,7 @@ module.exports = function(spheroManager, dataOut) {
             lastVelocityUpdate: -1,
             batteryVoltage: 0,
             force: newSphero.force,
+            driftAngle: 0
         };
         newSphero.newDataCallback(function(data, type) {
             for (var dataName in data) {
@@ -87,7 +88,6 @@ module.exports = function(spheroManager, dataOut) {
         // debugLog(data, dt);
     }
 
-
     var posLog = [
         [],
         []
@@ -97,12 +97,12 @@ module.exports = function(spheroManager, dataOut) {
 
     function newIpData(name, sphero, data, dt) {
         // data.x,  data.y, data.id
-        var angle;
+        var angle, dx, dy;
         posLog[data.id].push(data);
         if (posLog[data.id].length > 10) {
             posLog[data.id].splice(0, 1);
-            var dx = posLog[data.id][9].x - posLog[data.id][0].x;
-            var dy = posLog[data.id][9].y - posLog[data.id][0].y;
+            dx = posLog[data.id][9].x - posLog[data.id][0].x;
+            dy = posLog[data.id][9].y - posLog[data.id][0].y;
             var ipmag = Math.sqrt(dx * dx + dy * dy);
             var sphmag = Math.sqrt(sphero.dx * sphero.dx + sphero.dy * sphero.dy);
 
@@ -113,16 +113,17 @@ module.exports = function(spheroManager, dataOut) {
             }
             // if (data.id == 0 && !isNaN(angle))
             //     debugLog(angle * 360 / (2 * Math.PI), dx, sphero.dx);
-
         }
         var filteredAngle = angleLog.reduce((a, acc) => a + acc, 0) / 10;
         dataOut({
             ipData: {
                 name: name,
                 pos: data,
-                angle: filteredAngle
+                drift: filteredAngle,
+                angle: Math.atan2(dy, dx)
             }
         });
+        sphero.driftAngle = filteredAngle;
     }
 
     server.bind(PORT);
@@ -141,10 +142,7 @@ module.exports = function(spheroManager, dataOut) {
 
     dot product
         update known orientation - low pass/exp decay
-
 */
-
-
 
 var kalmanLog = function() {}; // console.log;
 

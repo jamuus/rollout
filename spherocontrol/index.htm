@@ -5,14 +5,22 @@
 
 <body>
     <center>
-        <canvas id="cvs1" width="600" height="400" style="border:1px solid #000000;">
+        <canvas id="absoluteCvs" width="600" height="400" style="border:1px solid #000000;">
         </canvas>
-        <canvas id="cvs2" width="200" height="200" style="border:1px solid #000000;">
+        <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;">
         </canvas>
-        <input id='text1' type='text' r/>
+        <canvas id="mycanvas" width="400" height="100"></canvas>
     </center>
     <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="smoothie.js"></script>
     <script>
+    var smoothie = new SmoothieChart();
+    smoothie.streamTo(document.getElementById("mycanvas"));
+    var sphero1 = new TimeSeries();
+    var sphero2 = new TimeSeries();
+    smoothie.addTimeSeries(sphero1);
+    smoothie.addTimeSeries(sphero2);
+
     var socket = io();
     socket.on('data', function(msg) {
         for (var dtype in msg) {
@@ -28,9 +36,9 @@
             }
         }
     });
-    var canvas1 = document.getElementById('cvs1');
+    var canvas1 = document.getElementById('absoluteCvs');
     var ctx1 = canvas1.getContext('2d');
-    var canvas2 = document.getElementById('cvs2');
+    var canvas2 = document.getElementById('spheroAngleCvs');
     var ctx2 = canvas2.getContext('2d');
 
     var spheroState = {
@@ -47,14 +55,20 @@
 
         spheroState.abs[data.name].x = data.pos.x;
         spheroState.abs[data.name].y = data.pos.y;
+
         spheroState.drift[data.name] = data.angle;
+        sphero1.append(new Date().getTime(), data.angle);
     }
 
     function updateSpheroData(data) {
         if (!spheroState.rel[data.name])
             spheroState.rel[data.name] = {};
-        spheroState.rel[data.name].x = data.data.dx;
-        spheroState.rel[data.name].y = data.data.dy;
+        var dx = spheroState.rel[data.name].x = data.data.dx;
+        var dy = spheroState.rel[data.name].y = data.data.dy;
+
+        // sphero1.append(new Date().getTime(), data.data.dx);
+        sphero2.append(new Date().getTime(), Math.atan2(dy, dx));
+
     }
 
     function drawCircle(pos, r) {
@@ -70,7 +84,6 @@
             drawCircle(sph, 5);
         }
     }
-    var textbox1 = document.getElementById('text1');
 
     function drawRel(dt) {
         ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
@@ -92,9 +105,7 @@
                 Math.sin(angle) * 250 + 100,
                 3
             );
-            textbox1.value = angle / (2 * Math.PI) * 360;
         }
-        // console.log(spheroState.rel)
     }
 
     function draw(dt) {

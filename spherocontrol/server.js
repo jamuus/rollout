@@ -17,7 +17,7 @@ var MessageType = {
     SPHERO_POWER_UP: 0x40,
     PAUSE_GAME: 0x80,
     NODE_INIT: 0x11,
-    APP_INIT: 0x21
+    APP_INIT: 0x21,
 };
 
 process.on('SIGINT', function(lmao) {
@@ -146,7 +146,8 @@ function connectToUnity(server) {
 }
 
 function startVisServer() {
-    var app = require('express')();
+    var express = require('express');
+    var app = express();
     var http = require('http').Server(app);
     var io = require('socket.io')(http);
     var path = require('path');
@@ -154,10 +155,10 @@ function startVisServer() {
     app.get('/', function(req, res) {
         res.sendFile(path.join(__dirname, 'index.htm'));
     });
+    app.use(express.static('./'));
 
     io.on('connection', function(socket) {
         console.log('socket.io connection');
-        socket.emit('lmao', 'lmao1');
     });
 
     http.listen(3000, function() {

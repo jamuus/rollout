@@ -84,7 +84,7 @@ module.exports = function(opts) {
             var newpower = Math.round(spheroForce.power * 500);
             var newangle = ((spheroForce.direction / (2 * Math.PI) + Math.PI) * 360) % 360;
             if (newpower !== 0) {
-                log('rolling', newpower, newangle);
+                // log('rolling', newpower, newangle);
                 sphero.roll(newpower, newangle, function() {
                     doRoll();
                 });
@@ -135,7 +135,12 @@ module.exports = function(opts) {
             green: 255,
             blue: 255
         });
-        inst.force(0, 0.05);
+
+        var angle = 0;
+        setInterval(() => {
+            angle += (Math.PI / 30) / 2;
+            inst.force(angle, 0.1);
+        }, 1000 / 60);
 
         _onSpheroConnect(api.instances[api.instances.length - 1]);
     }
