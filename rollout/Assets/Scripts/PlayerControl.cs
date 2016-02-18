@@ -16,6 +16,7 @@ public class PlayerControl : MonoBehaviour
     private GameObject container;
     public string horizontalAxis;
     public string verticalAxis;
+	private GameObject music;
 
 
     private Player player;
@@ -124,7 +125,11 @@ public class PlayerControl : MonoBehaviour
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
+		music = GameObject.Find("Music");
+		SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
+		manager.PickPowerUp (gameObject);
 		print("PowerUp " + powerUp.name + " added to " + gameObject.name);
+
     }
 
     public void powerUpEffect(PowerUp powerUp)

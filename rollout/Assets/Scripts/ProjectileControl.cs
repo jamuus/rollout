@@ -5,7 +5,7 @@ public class ProjectileControl : MonoBehaviour
 {
     private Vector3 velocity;
     public Projectile projectile;
-
+	private GameObject music;
     public HomingMissile homingMissile;
     private Vector3 projectilePosition;
     private GameObject otherPlayer;
@@ -40,6 +40,11 @@ public class ProjectileControl : MonoBehaviour
             var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
 
 			spawnedProjectile.Initialise(velocity, gameObject);
+
+			music = GameObject.Find("Music");
+			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
+			manager.Shoot (gameObject);
+
         }
 
 
