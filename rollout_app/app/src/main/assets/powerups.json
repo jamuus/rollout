@@ -4,34 +4,34 @@
         "name": "Boost",
         "description": "Doubles movement speed.",
         "image": "null",
-        "colour": "#000000"
+        "colour": "#2196F3"
     },
     {
         "id": 1,
         "name": "Damage Enemy",
         "description": "Deals damage to enemy player.",
         "image": "null",
-        "colour": "#000000"
+        "colour": "#F44336"
     },
     {
         "id": 2,
         "name": "Stun Enemy",
         "description": "Freezes enemy.",
         "image": "null",
-        "colour": "#000000"
+        "colour": "#FFC107"
     },
     {
         "id": 3,
         "name": "Slow Down Enemy",
         "description": "Slows down enemy player.",
         "image": "null",
-        "colour": "#000000"
+        "colour": "#673AB7"
     },
     {
         "id": 4,
         "name": "Regeneration",
         "description": "Player regenerates health continuously.",
         "image": "null",
-        "colour": "#000000"
+        "colour": "#4CAF50"
     }
 ]
