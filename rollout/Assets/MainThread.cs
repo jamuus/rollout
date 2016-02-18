@@ -36,6 +36,18 @@ public class MainThread : MonoBehaviour
         SpheroManager.Instances[boo.DeviceName] = boo;
 
         SpheroManager.boo.sphero = boo;
+
+        Sphero ybr = new Sphero();
+        ybr.DeviceName = "tty.Sphero-YBR-AMP-SPP";
+        ybr.Health = 96.4f;
+        ybr.Shield = 44.5f;
+        ybr.Weapons.Add(new SpheroWeapon(SpheroWeaponType.RailGun));
+        ybr.BatteryVoltage = 7.2f;
+        ybr.UnityObject = SpheroManager.ybr; // TODO This needs to be automated.
+        ybr.UnityProjectileControl = SpheroManager.ybr.GetComponent<ProjectileControl>();
+        SpheroManager.Instances[ybr.DeviceName] = ybr;
+
+        SpheroManager.ybr.sphero = ybr;
     }
 
     // Each tick, check if there are any actions that have been queued, and if
