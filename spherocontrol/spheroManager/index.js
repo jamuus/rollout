@@ -76,7 +76,7 @@ module.exports = function(opts) {
 
         function doRoll() {
             var newpower = Math.round(spheroForce.power * 255);
-            var newangle = ((spheroForce.direction / (2 * Math.PI)) * 360) % 360;
+            var newangle = (((spheroForce.direction / (2 * Math.PI)) * 360) + 360) % 360;
             // if (newpower !== 0) {
             // log('rolling', newpower, newangle);
             sphero.roll(newpower, newangle, function() {
@@ -125,16 +125,17 @@ module.exports = function(opts) {
         });
 
         sphero.setRgbLed({
-            red: 255,
-            green: 255,
-            blue: 255
+            red: 0,
+            green: 0,
+            blue: 0
         });
 
-        var angle = 0;
-        setInterval(() => {
-            angle += (Math.PI / 30) / 2;
-            inst.force(angle, 0.2);
-        }, 1000 / 60);
+        // var angle = 0;
+        // setInterval(() => {
+        //     angle += (Math.PI / 30) / 2;
+        //     inst.force(angle, 0.2);
+        // }, 1000 / 60);
+
 
         _onSpheroConnect(api.instances[api.instances.length - 1]);
     }

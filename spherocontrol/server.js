@@ -159,14 +159,24 @@ function startVisServer() {
 
     io.on('connection', function(socket) {
         console.log('socket.io connection');
+        socket.on('force', force);
     });
 
     http.listen(3000, function() {
         console.log('http listening on *:3000');
     });
 
-    return function(data) {
-        io.emit('data', data);
+    function force() {
+
+    }
+
+    return {
+        dataOut: function(data) {
+            io.emit('data', data);
+        },
+        forceCallback: function(callback) {
+            force = callback;
+        }
     }
 }
 
