@@ -166,7 +166,7 @@ function ip(dataOut) {
         }
     });
 
-    var angleLog = Filter(10);
+    var angleLog = Filter(100);
 
     var posLog = [XYFilter(10), XYFilter(10)];
     var lastPos = [{
@@ -202,7 +202,7 @@ function ip(dataOut) {
         angle = Math.acos(angle);
 
         // console.log(angle);
-        if (!isNaN(angle)) {
+        if (!isNaN(angle) && ipmag > 10) {
             angleLog.add(angle);
         }
 
