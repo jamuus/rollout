@@ -117,8 +117,9 @@
         spheroState.abs[data.name].x = data.pos.x;
         spheroState.abs[data.name].y = data.pos.y;
 
+        // console.log(data.drift);
+
         spheroState.drift[data.name] = data.drift;
-        console.log(data.drift);
         sphero1.append(new Date().getTime(), data.angle);
     }
 
@@ -150,7 +151,7 @@
         ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
         for (var name in spheroState.rel) {
             var sphdata = spheroState.rel[name];
-            var angle = spheroState.drift[name];
+
 
             drawLine(ctx2,
                 100,
@@ -158,6 +159,10 @@
                 sphdata.x / 10 + 100,
                 sphdata.y / 10 + 100
             );
+
+        }
+        for (var name in spheroState.drift) {
+            var angle = spheroState.drift[name];
 
             drawLine(ctx2,
                 100,

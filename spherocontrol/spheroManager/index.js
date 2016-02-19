@@ -59,12 +59,7 @@ module.exports = function(opts) {
     }
 
     function removeSphero(sphero, deviceName) {
-        connectedSpheros.instances.splice(sphero);
         connectedSpheros.deviceNames.splice(deviceName);
-        var i = api.instances.indexOf(sphero);
-        if (i !== -1) {
-            api.instances.splice(i);
-        }
     }
 
     function setupSpheroInstance(sphero, deviceName) {

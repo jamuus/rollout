@@ -36,7 +36,7 @@ function Filter(size) {
             }
         },
         value: function() {
-            return log.reduce((e, i) => e + i, 0);
+            return log.reduce((e, i) => e + i, 0) / size;
         }
     }
 }
@@ -52,7 +52,7 @@ function XYFilter(size) {
             }
         },
         value: function() {
-            return log.reduce((e, i) => {
+            var sum = log.reduce((e, i) => {
                 return {
                     x: e.x + i.x,
                     y: e.y + i.y
@@ -61,6 +61,11 @@ function XYFilter(size) {
                 x: 0,
                 y: 0
             });
+
+            return {
+                x: sum.x / size,
+                y: sum.y / size
+            }
         }
     }
 }
@@ -197,8 +202,9 @@ function ip(dataOut) {
         angle = Math.acos(angle);
 
         // console.log(angle);
-        if (!isNaN(angle))
+        if (!isNaN(angle)) {
             angleLog.add(angle);
+        }
 
         var filteredAngle = angleLog.value();
 
