@@ -101,7 +101,7 @@ public class PlayerControl : MonoBehaviour
         velocity = rb.velocity;
         if (outOfBounds) {
 			// accelerate in opposite direction
-            rb.AddForce(speed * (radius - rb.position.magnitude) * rb.position.normalized);
+            rb.AddForce(baseSpeed * (radius - rb.position.magnitude) * rb.position.normalized);
         } else {
             rb.AddForce(speed * movement);
         }
