@@ -90,7 +90,8 @@ public class PlayerControl : MonoBehaviour
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
         if (outOfBounds) {
-            rb.AddForce(speed * (radius - rb.position.magnitude) * rb.position.normalized);
+            // accelerate in opposite direction
+            rb.AddForce(baseSpeed * (radius - rb.position.magnitude) * rb.position.normalized);
         } else {
             rb.AddForce(speed * movement);
         }
