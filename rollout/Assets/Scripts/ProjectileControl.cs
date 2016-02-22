@@ -84,5 +84,11 @@ public class ProjectileControl : MonoBehaviour
         var weaponNum = (Weapons)Enum.Parse(typeof(Weapons), weaponString, true);
         activeWeapon = (int)weaponNum;
     }
+
+    public int ConvertID(int ID)
+    {
+        int convertedID = ID - 100;
+        return convertedID;
+    }
 }
 

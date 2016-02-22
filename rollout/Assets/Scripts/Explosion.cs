@@ -1,17 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Explosion : MonoBehaviour {
+public class Explosion : MonoBehaviour
+{
     private float explosionRadius;
     private float explosionPower;
     private float maxDamage;
     private float minDamage;
+    public ParticleSystem particles;
     //private UniversalHealth health;
 
-	// Use this for initialization
-	void Start () {
-	
-	}
+    // Use this for initialization
+    void Start()
+    {
+
+    }
 
     public void Initialise(float givenRadius, float givenPower, float givenMaxDamage, float givenMinDamage)
     {
@@ -22,11 +25,20 @@ public class Explosion : MonoBehaviour {
         minDamage = givenMinDamage;
         float distance, proportionalDistance;
         int damage;
+
         print("Explosion Initialised");
+
         //Get all nearby objects
         Collider[] nearbyObjects = Physics.OverlapSphere(transform.position, explosionRadius);
         print("found " + nearbyObjects.Length + " objects");
+
         //Apply explodiness
+        //particles = this.GetComponent<ParticleSystem>();
+        print("Particle System: " + particles.name);
+        var emitter = particles.emission;
+        emitter.enabled = true;
+        particles.Play(true);
+
         foreach (Collider body in nearbyObjects)
         {
             print("found collider");
@@ -52,9 +64,10 @@ public class Explosion : MonoBehaviour {
         Destroy(this.gameObject);
     }
 
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 }
