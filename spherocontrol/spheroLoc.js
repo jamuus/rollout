@@ -1,38 +1,101 @@
+var spheroIds = [
+    'boo',
+    'ybr',
+];
+
+var spheros = {
+    "ybr": initSphero(),
+    "boo": initSphero(),
+}
+
+function nothing() {
+    // console.log('nothing b0ss');
+}
+
+function initSphero() {
+    return {
+        x: 0,
+        y: 0,
+        dx: 0,
+        dy: 0,
+        lastVelocityUpdate: -1,
+        batteryVoltage: -1,
+        force: nothing,
+        driftAngle: 0
+    }
+}
+
+function Filter(size) {
+    var log = [];
+
+    return {
+        add: function(item) {
+            log.push(item);
+            if (log.length > size) {
+                log.splice(0, 1);
+            }
+        },
+        value: function() {
+            return log.reduce((e, i) => e + i, 0) / size;
+        }
+    }
+}
+
+function XYFilter(size) {
+    var log = [];
+
+    return {
+        add: function(item) {
+            log.push(item);
+            if (log.length > size) {
+                log.splice(0, 1);
+            }
+        },
+        value: function() {
+            var sum = log.reduce((e, i) => {
+                return {
+                    x: e.x + i.x,
+                    y: e.y + i.y
+                }
+            }, {
+                x: 0,
+                y: 0
+            });
+
+            return {
+                x: sum.x / size,
+                y: sum.y / size
+            }
+        }
+    }
+}
+
 var debugLog = console.log;
 
-module.exports = function(spheroManager, dataOut) {
-    var api = {};
+module.exports = function(spheroManager, fn) {
+    var dataOut = fn.dataOut;
+
+    fn.forceCallback(function(data) {
+        spheros.ybr.force(data.direction, data.force);
+        spheros.boo.force(data.direction, data.force);
+    });
 
     spheroManager.onSpheroConnect(function(newSphero) {
         debugLog('Sphero', newSphero.name, 'connected.');
-        var spheroData = api[newSphero.name] = {
-            x: 0,
-            y: 0,
-            dx: 0,
-            dy: 0,
-            lastVelocityUpdate: -1,
-            batteryVoltage: 0,
-            force: newSphero.force,
-        };
+
+        var spheroData = spheros[newSphero.name.toLowerCase().indexOf("ybr") !== -1 ? "ybr" : "boo"];
+        spheroData.force = newSphero.force;
+
         newSphero.newDataCallback(function(data, type) {
             for (var dataName in data) {
-                api[newSphero.name][dataName] = data[dataName];
+                spheroData[dataName] = data[dataName];
             }
             if (type === 'velocity') {
                 if (spheroData.lastVelocityUpdate !== -1) {
                     var now = new Date().getTime();
                     var diff = now - spheroData.lastVelocityUpdate;
 
-                    // spheroData.x += (diff / 1000) * spheroData.dx / 50;
-                    // spheroData.y += (diff / 1000) * spheroData.dy / 50;
-
-                    newSpheroData(spheroData, diff);
-                    dataOut({
-                        spheroData: {
-                            data: data,
-                            name: newSphero.name
-                        }
-                    });
+                    newSpheroData(newSphero, spheroData, diff);
 
                     spheroData.lastVelocityUpdate = now;
                 } else {
@@ -42,6 +105,36 @@ module.exports = function(spheroManager, dataOut) {
         });
     });
 
+    // var spheroFilter = {Filter(10), Filter(10)]
+    var spheroFilter = {};
+
+    function newSpheroData(sphero, data, dt) {
+        // data.dx, data.dy
+        if (!spheroFilter[sphero.name])
+            spheroFilter[sphero.name] = XYFilter(10);
+        spheroFilter[sphero.name].add({
+            x: data.dx,
+            y: -data.dy
+        });
+        var filteredData = spheroFilter[sphero.name].value();
+        dataOut({
+            spheroData: {
+                data: filteredData,
+                name: sphero.name
+            }
+        });
+
+        sphero.dx = filteredData.x;
+        sphero.dy = filteredData.y;
+    }
+
+    ip(dataOut);
+
+
+    return spheros;
+}
+
+function ip(dataOut) {
     var PORT = 1337;
     var HOST = '127.0.0.1';
 
@@ -63,64 +156,82 @@ module.exports = function(spheroManager, dataOut) {
         data.x = parseInt(parts[1]);
         data.y = parseInt(parts[2]);
 
-        // map id to sphero
-        // 0 -> ybr -> blue
-        // 1 -> boo -> orange
-
-        var idToDev = [
-            'tty.Sphero-YBR-AMP-SPP',
-            'tty.Sphero-BOO-AMP-SPP',
-        ];
-        var sphName = idToDev[data.id];
-        if (api[sphName]) {
+        var sphName = spheroIds[data.id];
+        if (spheros[sphName]) {
             var aft = new Date().getTime();
             var diff = aft - bef;
-            newIpData(sphName, api[sphName], data, diff);
+            newIpData(sphName, spheros[sphName], data, diff);
 
             // debugLog(sphName, data.x, data.y);
             bef = aft;
         }
     });
 
-    function newSpheroData(data, dt) {
-        // data.dx, data.dy
-        // debugLog(data, dt);
-    }
+    var angleLog = Filter(100);
 
-
-    var posLog = [
-        [],
-        []
-    ];
+    var posLog = [XYFilter(10), XYFilter(10)];
+    var lastPos = [{
+        x: 0,
+        y: 0
+    }, {
+        x: 0,
+        y: 0
+    }];
 
     function newIpData(name, sphero, data, dt) {
         // data.x,  data.y, data.id
-        var angle;
-        posLog[data.id].push(data);
-        if (posLog[data.id].length > 10) {
-            posLog[data.id].splice(0, 1);
-            var dx = posLog[data.id][9].x - posLog[data.id][0].x;
-            var dy = posLog[data.id][9].y - posLog[data.id][0].y;
-            var ipmag = Math.sqrt(dx * dx + dy * dy);
-            var sphmag = Math.sqrt(sphero.dx * sphero.dx + sphero.dy * sphero.dy);
+        var angle, dx, dy;
 
-            angle = (dx * sphero.dx + dy * sphero.dy) / (ipmag * sphmag);
-            // if (data.id == 0 && !isNaN(angle))
-            //     debugLog(angle * 360 / (2 * Math.PI), dx, sphero.dx);
-
+        if (data.x === -1 || data.y === -1) {
+            // lost sphero
+            return;
         }
+
+        posLog[data.id].add(data);
+
+        var filteredPos = posLog[data.id].value();
+
+        dx = filteredPos.x - lastPos[data.id].x;
+        dy = filteredPos.y - lastPos[data.id].y;
+
+        lastPos[data.id] = filteredPos;
+
+        var a = {
+            x: dx,
+            y: dy
+        };
+
+        var b = {
+            x: sphero.dx,
+            y: sphero.dy
+        };
+
+        var amag = Math.sqrt(a.x * a.x + a.y * a.y);
+        var bmag = Math.sqrt(b.x * b.x + b.y * b.y);
+
+        angle = (a.x * b.x + a.y * b.y) / (amag * bmag);
+        angle = Math.acos(angle);
+
+
+        if (!isNaN(angle) && bmag > 10) {
+            angleLog.add(angle);
+            console.log(angle / Math.PI * 180);
+        }
+
+        var filteredAngle = angleLog.value();
+
         dataOut({
             ipData: {
                 name: name,
                 pos: data,
-                angle: angle
+                drift: angle ? angle : 0.0,
+                angle: Math.atan2(dy, dx),
             }
         });
+        sphero.driftAngle = filteredAngle;
     }
 
     server.bind(PORT);
-
-    return api;
 }
 
 /*
@@ -134,10 +245,7 @@ module.exports = function(spheroManager, dataOut) {
 
     dot product
         update known orientation - low pass/exp decay
-
 */
-
-
 
 var kalmanLog = function() {}; // console.log;
 
