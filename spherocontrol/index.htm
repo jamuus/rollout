@@ -18,14 +18,17 @@
     smoothie.streamTo(document.getElementById("mycanvas"));
     var sphero1 = new TimeSeries();
     var sphero2 = new TimeSeries();
+    var sphero3 = new TimeSeries();
     smoothie.addTimeSeries(sphero1, {
         strokeStyle: 'rgb(0, 255, 0)',
-        // fillStyle: 'rgba(0, 255, 0, 0.4)',
         lineWidth: 1
     });
     smoothie.addTimeSeries(sphero2, {
         strokeStyle: 'rgb(255, 0, 0)',
-        // fillStyle: 'rgba(0, 255, 0, 0.4)',
+        lineWidth: 1
+    });
+    smoothie.addTimeSeries(sphero3, {
+        strokeStyle: 'rgb(0, 0, 255)',
         lineWidth: 1
     });
 
@@ -86,7 +89,7 @@
     });
 
     function calcNewForce() {
-        force = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 0.2 : 0.0;
+        force = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 1 : 0.0;
         var x = pressedKeys.w + -pressedKeys.s;
         var y = pressedKeys.d + -pressedKeys.a;
         var direction = Math.atan2(y, x); // / (2 * Math.PI) * 360;
@@ -105,22 +108,38 @@
     var spheroState = {
         abs: {},
         rel: {},
-        drift: {}
+        drift: {},
+        angle: {}
     };
+
+    var anglef = 0;
+
+    function circles() {
+        anglef += 2 / 20;
+        socket.emit('force', {
+            force: 1,
+            direction: anglef
+        });
+    }
+    // setInterval(circles, 1000 / 20);
 
     function updateIpData(data) {
         if (!spheroState.abs[data.name])
             spheroState.abs[data.name] = {};
         if (!spheroState.drift[data.name])
             spheroState.drift[data.name] = {};
+        if (!spheroState.angle[data.name])
+            spheroState.angle[data.name] = {};
 
         spheroState.abs[data.name].x = data.pos.x;
         spheroState.abs[data.name].y = data.pos.y;
 
-        // console.log(data.drift);
-
         spheroState.drift[data.name] = data.drift;
+        spheroState.angle[data.name] = data.angle;
+
+        sphero3.append(new Date().getTime(), data.drift);
         sphero1.append(new Date().getTime(), data.angle);
+        console.log(data.drift / (Math.PI * 2) * 360);
     }
 
     function updateSpheroData(data) {
@@ -130,7 +149,9 @@
         var dx = spheroState.rel[data.name].x = data.data.x;
         var dy = spheroState.rel[data.name].y = data.data.y;
 
-        sphero2.append(new Date().getTime(), Math.atan2(dy, dx));
+        var spheroAngle = Math.atan2(dy, dx);
+
+        sphero2.append(new Date().getTime(), spheroAngle);
     }
 
     function drawCircle(pos, r) {
@@ -170,6 +191,17 @@
                 Math.cos(angle) * 250 + 100,
                 Math.sin(angle) * 250 + 100,
                 3
+            );
+        }
+        for (var name in spheroState.angle) {
+            var angle = spheroState.angle[name];
+
+            drawLine(ctx2,
+                100,
+                100,
+                Math.cos(angle) * 250 + 100,
+                Math.sin(angle) * 250 + 100,
+                2
             );
         }
     }

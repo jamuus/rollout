@@ -1,6 +1,6 @@
 var spheroIds = [
-    'ybr',
     'boo',
+    'ybr',
 ];
 
 var spheros = {
@@ -9,7 +9,7 @@ var spheros = {
 }
 
 function nothing() {
-    console.log('nothing b0ss');
+    // console.log('nothing b0ss');
 }
 
 function initSphero() {
@@ -76,6 +76,7 @@ module.exports = function(spheroManager, fn) {
     var dataOut = fn.dataOut;
 
     fn.forceCallback(function(data) {
+        spheros.ybr.force(data.direction, data.force);
         spheros.boo.force(data.direction, data.force);
     });
 
@@ -113,7 +114,7 @@ module.exports = function(spheroManager, fn) {
             spheroFilter[sphero.name] = XYFilter(10);
         spheroFilter[sphero.name].add({
             x: data.dx,
-            y: data.dy
+            y: -data.dy
         });
         var filteredData = spheroFilter[sphero.name].value();
         dataOut({
@@ -123,8 +124,8 @@ module.exports = function(spheroManager, fn) {
             }
         });
 
-        sphero.dx = filteredData.dx;
-        sphero.dy = filteredData.dy;
+        sphero.dx = filteredData.x;
+        sphero.dy = filteredData.y;
     }
 
     ip(dataOut);
@@ -195,15 +196,26 @@ function ip(dataOut) {
 
         lastPos[data.id] = filteredPos;
 
-        var ipmag = Math.sqrt(dx * dx + dy * dy);
-        var sphmag = Math.sqrt(sphero.dx * sphero.dx + sphero.dy * sphero.dy);
+        var a = {
+            x: dx,
+            y: dy
+        };
 
-        angle = (dx * sphero.dx + dy * sphero.dy) / (ipmag * sphmag);
+        var b = {
+            x: sphero.dx,
+            y: sphero.dy
+        };
+
+        var amag = Math.sqrt(a.x * a.x + a.y * a.y);
+        var bmag = Math.sqrt(b.x * b.x + b.y * b.y);
+
+        angle = (a.x * b.x + a.y * b.y) / (amag * bmag);
         angle = Math.acos(angle);
 
-        // console.log(angle);
-        if (!isNaN(angle) && ipmag > 10) {
+
+        if (!isNaN(angle) && bmag > 10) {
             angleLog.add(angle);
+            console.log(angle / Math.PI * 180);
         }
 
         var filteredAngle = angleLog.value();
@@ -212,8 +224,8 @@ function ip(dataOut) {
             ipData: {
                 name: name,
                 pos: data,
-                drift: filteredAngle,
-                angle: Math.atan2(dy, dx)
+                drift: angle ? angle : 0.0,
+                angle: Math.atan2(dy, dx),
             }
         });
         sphero.driftAngle = filteredAngle;
