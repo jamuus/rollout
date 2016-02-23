@@ -58,6 +58,8 @@ public class CollisionAttack : MonoBehaviour
 			manager.CollideObstacle (gameObject);
 		} else if (col.gameObject.tag == "Projectile") {
 			manager.CollideProjectile (gameObject);
+		} else if (col.gameObject.tag == "Field") {
+		manager.CollideField (gameObject);
 		}
     }
 
