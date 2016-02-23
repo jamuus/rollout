@@ -7,7 +7,6 @@ public class Explosion : MonoBehaviour
     private float explosionPower;
     private float maxDamage;
     private float minDamage;
-    public ParticleSystem particles;
     //private UniversalHealth health;
 
     // Use this for initialization
@@ -33,14 +32,16 @@ public class Explosion : MonoBehaviour
         print("found " + nearbyObjects.Length + " objects");
 
         //Apply explodiness
-        //particles = this.GetComponent<ParticleSystem>();
-        print("Particle System: " + particles.name);
-        particles.Play(true);
+        ParticleSystem particles = GetComponent<ParticleSystem>();
+        print("Particle System: " + particles.maxParticles);
+        particles.Play();
 
-        foreach (Collider body in nearbyObjects) {
+        foreach (Collider body in nearbyObjects)
+        {
             print("found collider");
             GameObject objectInExplosion = body.gameObject;
-            if (objectInExplosion.name == "player1" || objectInExplosion.name == "player2") {
+            if (objectInExplosion.name == "player1" || objectInExplosion.name == "player2")
+            {
                 Rigidbody rb = objectInExplosion.GetComponent<Rigidbody>();
                 distance = Vector3.Distance(transform.position, body.transform.position);
 
