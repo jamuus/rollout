@@ -1,6 +1,6 @@
 var spheroIds = [
-    'boo',
     'ybr',
+    'boo',
 ];
 
 var spheros = {
@@ -205,17 +205,22 @@ function ip(dataOut) {
             x: sphero.dx,
             y: sphero.dy
         };
+        // console.log(name, b);
 
-        var amag = Math.sqrt(a.x * a.x + a.y * a.y);
+        // var amag = Math.sqrt(a.x * a.x + a.y * a.y);
         var bmag = Math.sqrt(b.x * b.x + b.y * b.y);
 
-        angle = (a.x * b.x + a.y * b.y) / (amag * bmag);
-        angle = Math.acos(angle);
+        // angle = (a.x * b.x + a.y * b.y) / (amag * bmag);
+        // angle = Math.acos(angle);
+        aangle = Math.atan2(a.y, a.x);
+        bangle = Math.atan2(b.y, b.x);
+        angle = aangle - bangle;
+        console.log(aangle, bangle, angle);
 
 
         if (!isNaN(angle) && bmag > 10) {
             angleLog.add(angle);
-            console.log(angle / Math.PI * 180);
+            // console.log(angle / Math.PI * 180);
         }
 
         var filteredAngle = angleLog.value();
