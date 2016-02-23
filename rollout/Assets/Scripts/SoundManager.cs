@@ -8,11 +8,11 @@ public class SoundManager : MonoBehaviour {
 	AudioSource sBGM;
 	private GameObject player1;
 	private GameObject player2;
-	private GameObject manager;
 	public AudioClip shoot;
 	public AudioClip collideProjectile;
 	public AudioClip collidePlayer;
-	public AudioClip collideField;
+	public AudioClip collideDamageField;
+	public AudioClip collideHealthField;
 	public AudioClip collideObstacle;
 	public AudioClip pickPowerUp;
 
@@ -88,9 +88,9 @@ public class SoundManager : MonoBehaviour {
 		}
 	}
 
-	public void CollideField(GameObject player){
-		sPlayer1.clip = collideField;
-		sPlayer2.clip = collideField;
+	public void CollideDamageField(GameObject player){
+		sPlayer1.clip = collideDamageField;
+		sPlayer2.clip = collideDamageField;
 		if (player.name == "player1") {
 			sPlayer1.Play ();
 			print(player.name + " plays ");
@@ -101,6 +101,18 @@ public class SoundManager : MonoBehaviour {
 		}
 	}
 
+	public void CollideHealthField(GameObject player){
+		sPlayer1.clip = collideDamageField;
+		sPlayer2.clip = collideDamageField;
+		if (player.name == "player1") {
+			sPlayer1.Play ();
+			print(player.name + " plays ");
+
+		} else if (player.name == "player2") {
+			sPlayer2.Play ();
+			print(player.name + " plays ") ;
+		}
+	}
 	public void CollideObstacle(GameObject player){
 		sPlayer1.clip = collideObstacle;
 		sPlayer2.clip = collideObstacle;
