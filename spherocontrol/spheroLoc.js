@@ -1,6 +1,6 @@
 var spheroIds = [
-    'ybr',
     'boo',
+    'ybr',
 ];
 
 var spheros = {
@@ -114,15 +114,15 @@ module.exports = function(spheroManager, fn) {
             spheroFilter[sphero.name] = XYFilter(10);
         spheroFilter[sphero.name].add({
             x: data.dx,
-            y: -data.dy
+            y: data.dy
         });
         var filteredData = spheroFilter[sphero.name].value();
-        dataOut({
-            spheroData: {
-                data: filteredData,
-                name: sphero.name
-            }
-        });
+        // dataOut({
+        //     spheroData: {
+        //         data: filteredData,
+        //         name: sphero.name
+        //     }
+        // });
 
         sphero.dx = filteredData.x;
         sphero.dy = filteredData.y;
@@ -187,7 +187,10 @@ function ip(dataOut) {
             return;
         }
 
-        posLog[data.id].add(data);
+        posLog[data.id].add({
+            x: data.x,
+            y: -data.y
+        });
 
         var filteredPos = posLog[data.id].value();
 
@@ -214,8 +217,11 @@ function ip(dataOut) {
         // angle = Math.acos(angle);
         aangle = Math.atan2(a.y, a.x);
         bangle = Math.atan2(b.y, b.x);
-        angle = aangle - bangle;
-        console.log(aangle, bangle, angle);
+        angle = bangle - aangle;
+        angle = angle > Math.PI ? angle - 2 * Math.PI : angle;
+        angle = angle < -Math.PI ? angle + 2 * Math.PI : angle;
+
+        // console.log(aangle, bangle, angle);
 
 
         if (!isNaN(angle) && bmag > 10) {
@@ -226,12 +232,17 @@ function ip(dataOut) {
         var filteredAngle = angleLog.value();
 
         dataOut({
+            spheroData: {
+                data: b,
+                name: name
+            },
             ipData: {
                 name: name,
                 pos: data,
-                drift: angle ? angle : 0.0,
+                drift: filteredAngle ? filteredAngle : 0.0,
                 angle: Math.atan2(dy, dx),
             }
+
         });
         sphero.driftAngle = filteredAngle;
     }

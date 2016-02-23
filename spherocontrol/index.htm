@@ -36,11 +36,11 @@
     socket.on('data', function(msg) {
         for (var dtype in msg) {
             switch (dtype) {
-                case 'ipData':
-                    updateIpData(msg[dtype]);
-                    break;
                 case 'spheroData':
                     updateSpheroData(msg[dtype]);
+                    break;
+                case 'ipData':
+                    updateIpData(msg[dtype]);
                     break;
                 default:
                     console.log('rip');
@@ -137,19 +137,24 @@
         spheroState.drift[data.name] = data.drift;
         spheroState.angle[data.name] = data.angle;
 
+
+        // var drift = spheroState.angle.boo + Math.atan2(spheroState.rel.boo.y, spheroState.rel.boo.x)
+
+
         spheroDrift.append(new Date().getTime(), data.drift);
         spheroIPAngle.append(new Date().getTime(), data.angle);
-        console.log(data.angle);
+
     }
 
     function updateSpheroData(data) {
         if (!spheroState.rel[data.name])
             spheroState.rel[data.name] = {};
-        // console.log(data);
+
         var dx = spheroState.rel[data.name].x = data.data.x;
         var dy = spheroState.rel[data.name].y = data.data.y;
 
         var spheroAngle = Math.atan2(dy, dx);
+
 
         spheroDataAngle.append(new Date().getTime(), spheroAngle);
     }
