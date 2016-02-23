@@ -7,7 +7,6 @@ public class ProjectileControl : MonoBehaviour
     private Vector3 velocity;
     public Projectile projectile;
     private GameObject music;
-    public HomingMissile homingMissile;
 
     //***TO ADD WEAPONS***
     //1) Write the weapon behaviour in a separate script
@@ -21,8 +20,8 @@ public class ProjectileControl : MonoBehaviour
     private int activeWeapon;
 
     //weapon variables
-    public BasicGun basicGun;
-    public HomingLauncher homingLauncher;
+    private BasicGun basicGun;
+    private HomingLauncher homingLauncher;
 
     //variables to aid firing
     private Vector3 projectilePosition;
@@ -52,14 +51,18 @@ public class ProjectileControl : MonoBehaviour
     public void Update()
     {
         //Checks if the player is trying to fire a weapon
-        if ((Input.GetButtonDown("Fire1") && gameObject.name == ("player1")) || (Input.GetButtonDown("Fire2") && gameObject.name == ("player2"))) {
+        if ((Input.GetButtonDown("Fire1") && gameObject.name == ("player1")) || (Input.GetButtonDown("Fire2") && gameObject.name == ("player2")))
+        {
             music = GameObject.Find("Music");
             SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
             manager.Shoot (gameObject);
+
             //Checks if the weapon has ammunition
-            if (ammunition[activeWeapon] != 0) {
+            if (ammunition[activeWeapon] != 0)
+            {
                 //fire the weapon and reduce ammunition as needed
-                switch (activeWeapon) {
+                switch (activeWeapon)
+                {
                 case (int)Weapons.basicGun:
                     basicGun.Fire();
                     break;

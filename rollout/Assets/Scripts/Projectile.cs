@@ -6,9 +6,6 @@ public class Projectile : MonoBehaviour
     private Vector3 velocity;
     private GameObject playerShooting;
     public float speed;
-
-    public int projectileDamage;
-
     public int damage;
 
     private UniversalHealth health;
@@ -55,7 +52,7 @@ public class Projectile : MonoBehaviour
             GameObject collidedObject = col.gameObject;
 
             health = collidedObject.GetComponent<UniversalHealth> ();
-            health.damagePlayer (projectileDamage);
+            health.damagePlayer (damage);
 
             music = GameObject.Find("Music");
             SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
