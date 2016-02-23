@@ -34,6 +34,7 @@ public class Explosion : MonoBehaviour
         //Apply explodiness
         ParticleSystem particles = GetComponent<ParticleSystem>();
         print("Particle System: " + particles.maxParticles);
+        particles.Stop();
         particles.Play();
 
         foreach (Collider body in nearbyObjects)
@@ -58,7 +59,7 @@ public class Explosion : MonoBehaviour
                 health.damagePlayer(damage);
             }
         }
-        Destroy(this.gameObject);
+        //Destroy(this.gameObject);
     }
 
 
