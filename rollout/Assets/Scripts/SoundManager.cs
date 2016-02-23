@@ -12,12 +12,13 @@ public class SoundManager : MonoBehaviour {
 	public AudioClip shoot;
 	public AudioClip collideProjectile;
 	public AudioClip collidePlayer;
+	public AudioClip collideField;
 	public AudioClip collideObstacle;
 	public AudioClip pickPowerUp;
 
 
 
-	public AudioClip cBGM;
+	public AudioClip BGM;
 
 	//	public AudioClip collideIntoObstacle;
 //	public AudioClip collideIntoPlayer;
@@ -87,6 +88,19 @@ public class SoundManager : MonoBehaviour {
 		}
 	}
 
+	public void CollideField(GameObject player){
+		sPlayer1.clip = collideField;
+		sPlayer2.clip = collideField;
+		if (player.name == "player1") {
+			sPlayer1.Play ();
+			print(player.name + " plays ");
+
+		} else if (player.name == "player2") {
+			sPlayer2.Play ();
+			print(player.name + " plays ") ;
+		}
+	}
+
 	public void CollideObstacle(GameObject player){
 		sPlayer1.clip = collideObstacle;
 		sPlayer2.clip = collideObstacle;
@@ -122,7 +136,7 @@ public class SoundManager : MonoBehaviour {
 		sPlayer1 = player1.GetComponent<AudioSource> ();
 		sPlayer2 = player2.GetComponent<AudioSource> ();
 		sBGM = GetComponent<AudioSource>();
-		sBGM.clip = cBGM;
+		sBGM.clip = BGM;
 		sBGM.Play ();
 		print("BGM SHOULD PLAY OK !!!!!!!!!!!") ;
 //		shoot = Resources.Load<AudioClip> ("SFX/zap");
