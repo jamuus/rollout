@@ -1,6 +1,6 @@
 var spheroIds = [
-    'boo',
     'ybr',
+    'boo',
 ];
 
 var spheros = {
@@ -14,15 +14,48 @@ function nothing() {
 
 function initSphero() {
     return {
-        x: 0,
-        y: 0,
-        dx: 0,
-        dy: 0,
+        ipPos: vec2log(10),
+        spheroVel: vec2log(10),
         lastVelocityUpdate: -1,
         batteryVoltage: -1,
         force: nothing,
         driftAngle: 0
     }
+}
+
+function vec2log(size) {
+    var log = [];
+
+    function add(item) {
+        log.push([item, new Date().getTime()]);
+        if (log.length > size) {
+            log.splice(0, 1);
+        }
+    }
+
+    function average() {
+        var sum = log.reduce(
+            (prev, cur) => {
+                return {
+                    x: cur[0].x + prev.x,
+                    y: cur[0].y + prev.y
+                };
+            }, {
+                x: 0,
+                y: 0
+            }
+        );
+
+        return {
+            x: sum.x / size,
+            y: sum.y / size
+        }
+    }
+
+    return {
+        add,
+        average
+    };
 }
 
 function Filter(size) {
@@ -75,66 +108,44 @@ var debugLog = console.log;
 module.exports = function(spheroManager, fn) {
     var dataOut = fn.dataOut;
 
+    // called by web client to test forces
     fn.forceCallback(function(data) {
         spheros.ybr.force(data.direction, data.force);
         spheros.boo.force(data.direction, data.force);
     });
 
+    // when a sphero is connected we need to setup some shtuff
     spheroManager.onSpheroConnect(function(newSphero) {
         debugLog('Sphero', newSphero.name, 'connected.');
 
-        var spheroData = spheros[newSphero.name.toLowerCase().indexOf("ybr") !== -1 ? "ybr" : "boo"];
-        spheroData.force = newSphero.force;
+        var spheroName = newSphero.name.toLowerCase().indexOf("ybr") !== -1 ? "ybr" : "boo";
+        var spheroState = spheros[spheroName];
 
-        newSphero.newDataCallback(function(data, type) {
-            for (var dataName in data) {
-                spheroData[dataName] = data[dataName];
-            }
+        // assign the api force to the sphero manager force function
+        spheroState.force = newSphero.force;
+
+        // when the sphero sends data we need to update our state
+        newSphero.newDataCallback((data, type) => {
+            // data is only velocity data so far
             if (type === 'velocity') {
-                if (spheroData.lastVelocityUpdate !== -1) {
-                    var now = new Date().getTime();
-                    var diff = now - spheroData.lastVelocityUpdate;
-
-                    newSpheroData(newSphero, spheroData, diff);
-
-                    spheroData.lastVelocityUpdate = now;
-                } else {
-                    spheroData.lastVelocityUpdate = new Date().getTime();
-                }
+                newSpheroData(data, spheroState);
             }
         });
     });
 
-    // var spheroFilter = {Filter(10), Filter(10)]
-    var spheroFilter = {};
-
-    function newSpheroData(sphero, data, dt) {
-        // data.dx, data.dy
-        if (!spheroFilter[sphero.name])
-            spheroFilter[sphero.name] = XYFilter(10);
-        spheroFilter[sphero.name].add({
-            x: data.dx,
-            y: data.dy
-        });
-        var filteredData = spheroFilter[sphero.name].value();
-        // dataOut({
-        //     spheroData: {
-        //         data: filteredData,
-        //         name: sphero.name
-        //     }
-        // });
-
-        sphero.dx = filteredData.x;
-        sphero.dy = filteredData.y;
-    }
-
-    ip(dataOut);
-
+    setupIp(dataOut);
 
     return spheros;
 }
 
-function ip(dataOut) {
+function newSpheroData(data, spheroState) {
+    spheroState.spheroVel.add({
+        x: data.dx,
+        y: data.dy
+    });
+}
+
+function setupIp(dataOut) {
     var PORT = 1337;
     var HOST = '127.0.0.1';
 
@@ -146,7 +157,7 @@ function ip(dataOut) {
         debugLog('Listening for image processing data on', address.address + ":" + address.port);
     });
 
-    var bef = new Date().getTime();
+    // var bef = new Date().getTime();
 
     server.on('message', function(message, remote) {
         var data = {};
@@ -157,97 +168,94 @@ function ip(dataOut) {
         data.y = parseInt(parts[2]);
 
         var sphName = spheroIds[data.id];
-        if (spheros[sphName]) {
-            var aft = new Date().getTime();
-            var diff = aft - bef;
-            newIpData(sphName, spheros[sphName], data, diff);
-
-            // debugLog(sphName, data.x, data.y);
-            bef = aft;
+        var spheroState = spheros[sphName];
+        if (spheroState) {
+            dataOut(newIpData(sphName, spheroState, data));
         }
     });
 
-    var angleLog = Filter(100);
-
-    var posLog = [XYFilter(10), XYFilter(10)];
-    var lastPos = [{
-        x: 0,
-        y: 0
-    }, {
-        x: 0,
-        y: 0
-    }];
-
-    function newIpData(name, sphero, data, dt) {
-        // data.x,  data.y, data.id
-        var angle, dx, dy;
-
-        if (data.x === -1 || data.y === -1) {
-            // lost sphero
-            return;
-        }
-
-        posLog[data.id].add({
-            x: data.x,
-            y: -data.y
-        });
-
-        var filteredPos = posLog[data.id].value();
-
-        dx = filteredPos.x - lastPos[data.id].x;
-        dy = filteredPos.y - lastPos[data.id].y;
-
-        lastPos[data.id] = filteredPos;
-
-        var a = {
-            x: dx,
-            y: dy
-        };
-
-        var b = {
-            x: sphero.dx,
-            y: sphero.dy
-        };
-        // console.log(name, b);
-
-        // var amag = Math.sqrt(a.x * a.x + a.y * a.y);
-        var bmag = Math.sqrt(b.x * b.x + b.y * b.y);
-
-        // angle = (a.x * b.x + a.y * b.y) / (amag * bmag);
-        // angle = Math.acos(angle);
-        aangle = Math.atan2(a.y, a.x);
-        bangle = Math.atan2(b.y, b.x);
-        angle = bangle - aangle;
-        angle = angle > Math.PI ? angle - 2 * Math.PI : angle;
-        angle = angle < -Math.PI ? angle + 2 * Math.PI : angle;
-
-        // console.log(aangle, bangle, angle);
-
-
-        if (!isNaN(angle) && bmag > 10) {
-            angleLog.add(angle);
-            // console.log(angle / Math.PI * 180);
-        }
-
-        var filteredAngle = angleLog.value();
-
-        dataOut({
-            spheroData: {
-                data: b,
-                name: name
-            },
-            ipData: {
-                name: name,
-                pos: data,
-                drift: filteredAngle ? filteredAngle : 0.0,
-                angle: Math.atan2(dy, dx),
-            }
-
-        });
-        sphero.driftAngle = filteredAngle;
-    }
 
     server.bind(PORT);
+}
+
+
+var angleLog = Filter(100);
+var lastPos = [{
+    x: 0,
+    y: 0
+}, {
+    x: 0,
+    y: 0
+}];
+
+function newIpData(name, sphero, data) {
+    // data.x, data.y, data.id
+    var angle, dx, dy;
+
+    // lost sphero
+    if (data.x === -1 || data.y === -1) {
+        return;
+    }
+
+    sphero.ipPos.add({
+        x: data.x,
+        y: -data.y
+    });
+
+    var filteredPos = sphero.ipPos.average();
+
+    ipDx = filteredPos.x - lastPos[data.id].x;
+    ipDy = filteredPos.y - lastPos[data.id].y;
+    lastPos[data.id] = filteredPos;
+
+    var ipDirVec = {
+        x: ipDx,
+        y: ipDy
+    };
+
+    var avgSpheroData = sphero.spheroVel.average();
+    var spheroDirVec = {
+        x: avgSpheroData.x,
+        y: avgSpheroData.y
+    };
+
+    var ipDirMag = Math.sqrt(
+        ipDirVec.x * ipDirVec.x +
+        ipDirVec.y * ipDirVec.y
+    );
+    var spheroDirMag = Math.sqrt(
+        spheroDirVec.x * spheroDirVec.x +
+        spheroDirVec.y * spheroDirVec.y
+    );
+
+    ipDirAngle = Math.atan2(ipDirVec.y, ipDirVec.x);
+    bangle = Math.atan2(spheroDirVec.y, spheroDirVec.x);
+    angle = bangle - ipDirAngle;
+    angle = angle > Math.PI ? angle - 2 * Math.PI : angle;
+    angle = angle < -Math.PI ? angle + 2 * Math.PI : angle;
+
+    if (!isNaN(angle) &&
+        spheroDirMag > 10 &&
+        ipDirMag > 10) {
+        angleLog.add(angle);
+    }
+
+    var filteredAngle = angleLog.value();
+
+    sphero.driftAngle = filteredAngle;
+
+    return {
+        spheroData: {
+            name: name,
+            data: spheroDirVec,
+        },
+        ipData: {
+            name: name,
+            pos: filteredPos,
+            drift: filteredAngle ? filteredAngle : 0.0,
+            angle: Math.atan2(ipDy, ipDx),
+        }
+    }
 }
 
 /*

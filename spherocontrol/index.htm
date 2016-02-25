@@ -19,6 +19,7 @@
     var spheroIPAngle = new TimeSeries();
     var spheroDataAngle = new TimeSeries();
     var spheroDrift = new TimeSeries();
+
     smoothie.addTimeSeries(spheroIPAngle, {
         strokeStyle: 'rgb(0, 255, 0)',
         lineWidth: 1
@@ -169,7 +170,10 @@
         ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
         for (var sphAbs in spheroState.abs) {
             var sph = spheroState.abs[sphAbs];
-            drawCircle(sph, 5);
+            drawCircle({
+                x: sph.x,
+                y: 720 + sph.y
+            }, 5);
         }
     }
 
