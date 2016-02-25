@@ -41,14 +41,15 @@ public class Explosion : MonoBehaviour
         {
             print("found collider");
             GameObject objectInExplosion = body.gameObject;
+            Rigidbody rb = objectInExplosion.GetComponent<Rigidbody>();
+
+            //Apply physical force
+            if (rb != null)
+                rb.AddExplosionForce(explosionPower, transform.position, explosionRadius);
+
             if (objectInExplosion.name == "player1" || objectInExplosion.name == "player2")
             {
-                Rigidbody rb = objectInExplosion.GetComponent<Rigidbody>();
                 distance = Vector3.Distance(transform.position, body.transform.position);
-
-                //Apply physical force
-                if (rb != null)
-                    rb.AddExplosionForce(explosionPower, transform.position, explosionRadius);
 
                 print("Explosion Force Applied");
                 //Give damage

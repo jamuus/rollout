@@ -43,7 +43,7 @@ public class HomingMissile : MonoBehaviour
     void OnCollisionEnter(Collision col)
     {
         var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
-        spawnedExplosion.Initialise(4, 200, 30, 10);
+        spawnedExplosion.Initialise(4, 200.0f, 30, 10);
         print("Explosion Successful");
         Destroy(this.gameObject);
 
