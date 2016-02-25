@@ -510,7 +510,7 @@ MonoBehaviour:
   upgrade: {fileID: 180820, guid: d9ef7db6aaea63644aaf89674834b30b, type: 2}
   random: 1
   symmetricBattleArena: 1
-  clusterObstacles: 0
+  clusterObstacles: 1
 --- !u!114 &528269758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -762,7 +762,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e75af2bbabc247c4fb2d54be9eaf7b48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseSpeed: 5
+  baseSpeed: 8
   speed: 0
   velocity: {x: 0, y: 0, z: 0}
   statuses: 0000000000000000000000000000000000000000
@@ -2443,7 +2443,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
   spreadCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -2465,7 +2465,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
 --- !u!114 &796036345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3027,7 +3027,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e75af2bbabc247c4fb2d54be9eaf7b48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseSpeed: 5
+  baseSpeed: 8
   speed: 0
   velocity: {x: 0, y: 0, z: 0}
   statuses: 0000000000000000000000000000000000000000
@@ -4796,7 +4796,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
   spreadCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -4818,7 +4818,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
 --- !u!114 &1208294700
 MonoBehaviour:
   m_ObjectHideFlags: 0

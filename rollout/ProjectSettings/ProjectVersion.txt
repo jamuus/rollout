@@ -1,10 +1,2 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-m_EditorVersion: 5.2.1f1
-=======
-m_EditorVersion: 5.3.1f1
->>>>>>> adding-events
-=======
 m_EditorVersion: 5.3.2f1
->>>>>>> Weapons
 m_StandardAssetsVersion: 0
