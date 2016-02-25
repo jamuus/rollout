@@ -16,10 +16,13 @@ function initSphero() {
     return {
         ipPos: vec2log(10),
         spheroVel: vec2log(10),
-        lastVelocityUpdate: -1,
         batteryVoltage: -1,
         force: nothing,
-        driftAngle: 0
+        driftAngle: 0,
+        absSpheroVel: {
+            x: -1,
+            y: -1
+        }
     }
 }
 
@@ -122,7 +125,10 @@ module.exports = function(spheroManager, fn) {
         var spheroState = spheros[spheroName];
 
         // assign the api force to the sphero manager force function
-        spheroState.force = newSphero.force;
+        spheroState.force = (dir, force) => {
+            var newDir = dir - spheroState.driftAngle;
+            newSphero.force(newDir, force);
+        }
 
         // when the sphero sends data we need to update our state
         newSphero.newDataCallback((data, type) => {
@@ -138,13 +144,6 @@ module.exports = function(spheroManager, fn) {
     return spheros;
 }
 
-function newSpheroData(data, spheroState) {
-    spheroState.spheroVel.add({
-        x: data.dx,
-        y: data.dy
-    });
-}
-
 function setupIp(dataOut) {
     var PORT = 1337;
     var HOST = '127.0.0.1';
@@ -156,8 +155,6 @@ function setupIp(dataOut) {
         var address = server.address();
         debugLog('Listening for image processing data on', address.address + ":" + address.port);
     });
-
-    // var bef = new Date().getTime();
 
     server.on('message', function(message, remote) {
         var data = {};
@@ -188,13 +185,37 @@ var lastPos = [{
     y: 0
 }];
 
+
+
+function newSpheroData(data, spheroState) {
+    spheroState.spheroVel.add({
+        x: data.dx,
+        y: data.dy
+    });
+
+    var absVelX = data.dx * Math.cos(spheroState.driftAngle) -
+        data.dy * Math.sin(spheroState.driftAngle);
+    var absVelY = data.dx * Math.sin(spheroState.driftAngle) +
+        data.dy * Math.cos(spheroState.driftAngle);
+
+    spheroState.absSpheroVel = {
+        x: absVelX,
+        y: absVelY
+    };
+}
+
 function newIpData(name, sphero, data) {
     // data.x, data.y, data.id
     var angle, dx, dy;
 
     // lost sphero
     if (data.x === -1 || data.y === -1) {
-        return;
+        return data.id === 1 ? {
+            spheroData: {
+                name: name,
+                data: sphero.absSpheroVel,
+            }
+        } : {};
     }
 
     sphero.ipPos.add({
@@ -244,10 +265,11 @@ function newIpData(name, sphero, data) {
 
     sphero.driftAngle = filteredAngle;
 
+
     return {
         spheroData: {
             name: name,
-            data: spheroDirVec,
+            data: sphero.absSpheroVel,
         },
         ipData: {
             name: name,
