@@ -7,174 +7,384 @@ using System.Threading;
 
 using UnityEngine;
 
-public static class Server
+public enum ServerMessageType {
+    Test            = 0x00,
+    RemoveSphero    = 0x01,
+    SetEndianness   = 0x02,
+    UpdateState     = 0x04,
+    RollSphero      = 0x08,
+    ServerDiscover  = 0x10,
+    SpheroShoot     = 0x20,
+    SpheroPowerUp   = 0x40,
+    PauseGame       = 0x80,
+    NodeInit        = 0x11,
+    AppInit         = 0x21
+}
+
+public class ServerMessage
 {
-    public enum MessageType
+    public ServerMessageType    Type   { get; set; }
+    public IPEndPoint           Target { get; set; }
+
+    private List<byte> data;
+
+    public ServerMessage()
     {
-        Test            = 0x00,
-        RemoveSphero    = 0x01,
-        SetEndianness   = 0x02,     // 1 -> little, 0 -> big
-        UpdateState     = 0x04,
-        RollSphero      = 0x08
+        data = new List<byte>();
+        // Add placeholder for type. Faster when compiling.
+        data.Add(0);
     }
 
-    public class Message
+    public ServerMessage(ServerMessageType type) :
+    this()
     {
-        public MessageType Type { get; set; }
-
-        private List<byte> data_;
-
-        public Message()
-        {
-            data_ = new List<byte>();
-        }
-
-        public Message(MessageType type) :
-            this()
-        {
-            Type = type;
-        }
-
-        // Add content methods append bytes to the message content.
-        // For a string, the first byte is the length.
-        // Null terminators are not encoded.
-        public void AddContent(string content)
-        {
-            data_.Add((byte)content.Length);
-            data_.AddRange(Encoding.ASCII.GetBytes(content));
-        }
-
-        public void AddContent(Vector2 content)
-        {
-            data_.AddRange(BitConverter.GetBytes(content.x));
-            data_.AddRange(BitConverter.GetBytes(content.y));
-        }
-
-        public void AddContent(byte content)
-        {
-            data_.Add(content);
-        }
-
-        public void AddContent(bool content)
-        {
-            data_.Add(Convert.ToByte(content));
-        }
-
-        public void AddContent(float content)
-        {
-            data_.AddRange(BitConverter.GetBytes(content));
-        }
-
-        public void AddContent(double content)
-        {
-            data_.AddRange(BitConverter.GetBytes(content));
-        }
-
-        public void AddContent(int content)
-        {
-            data_.AddRange(BitConverter.GetBytes(content));
-        }
-
-        // Create byte array representing message.
-        public byte[] Compile()
-        {
-            byte[] bytes = new byte[data_.Count + 1];
-            bytes[0] = (byte)Type;
-            Buffer.BlockCopy(data_.ToArray(), 0, bytes, 1, data_.Count);
-            return bytes;
-        }
+        Type = type;
     }
 
-    private static UdpClient connection_;
-    private static IPEndPoint ip_;
-    private static Thread listener_;
-
-    public static void OpenConnection(string ip, int port)
+    public void AddContent(string content)
     {
-        connection_ = new UdpClient(7778);
-        ip_ = new IPEndPoint(IPAddress.Parse(ip), port);
+        data.Add((byte)(content.Length & 0xff));
+        data.AddRange(Encoding.ASCII.GetBytes(content));
+    }
 
-        // Create a sepratate thread to listen for any incoming states
-        // from server.
-        listener_ = new Thread(() =>
-        {
+    public void AddContent(byte content)
+    {
+        data.Add(content);
+    }
+
+    public void AddContent(byte[] content)
+    {
+        data.AddRange(content);
+    }
+
+    public void AddContent(bool content)
+    {
+        data.Add(Convert.ToByte(content));
+    }
+
+    public void AddContent(float content)
+    {
+        data.AddRange(BitConverter.GetBytes(content));
+    }
+
+    public void AddContent(double content)
+    {
+        data.AddRange(BitConverter.GetBytes(content));
+    }
+
+    public void AddContent(int content)
+    {
+        data.AddRange(BitConverter.GetBytes(content));
+    }
+
+    public byte[] Compile()
+    {
+        byte[] bytes = data.ToArray();
+
+        bytes[0] = (byte)Type;
+        return bytes;
+    }
+}
+
+public class TcpConnection
+{
+    private Thread          thread;
+    private TcpClient       client;
+    private NetworkStream   stream;
+    private byte[]          buffer;
+
+    public TcpConnection(TcpClient client)
+    {
+        buffer = new byte[256];
+
+        this.client = client;
+        this.stream = client.GetStream();
+
+        thread = new Thread(() => {
             Thread.CurrentThread.IsBackground = true;
 
-            UdpClient localConnection = new UdpClient(7779);
-            IPEndPoint ipe = new IPEndPoint(IPAddress.Any, 0);
-
-            while (true)
-                ProcessReceivedBytes(localConnection.Receive(ref ipe));
-            //Thread.CurrentThread.Abort();  //TODO this should be an infinite loop but it breaks unity. Need to fix.
+            try {
+                while (true)
+                    ProcessStreamedData(stream.ReadByte());
+            } catch (ThreadAbortException ex) {
+                SpheroManager.RemoveSphero(buffer);
+                Server.TcpConnections.Remove(this);
+                //Thread.ResetAbort();
+            }
         });
-        listener_.Start();
+        thread.Start();
     }
 
-    public static void CloseConnection()
+    public void Close()
     {
-        listener_.Abort();
+        client.Close();
+        thread.Abort();
     }
 
-    public static void Send(Message message)
+    public void Send(byte[] bytes)
     {
-        byte[] bytes = message.Compile();
-        connection_.Send(bytes, bytes.Length, ip_);
+        stream.Write(bytes, 0, bytes.Length);
     }
 
-    public static void SendEndianness()
+    public void Send(ServerMessage message)
     {
-        byte[] bytes = new byte[] { (byte)MessageType.SetEndianness,
-            Convert.ToByte(BitConverter.IsLittleEndian) };
-        connection_.Send(bytes, bytes.Length, ip_);
+        Send(message.Compile());
     }
 
-    // SpheroManager state message format:
-    //  + MessageType   - 1 byte
-    //  + Multiple repeats of the following:
-    //   + DeviceName    - 1 + n bytes
-    //   + Velocity      - 8 bytes
-    private static void ProcessReceivedBytes(byte[] bytes)
+    private void ProcessStreamedData(int type)
     {
-        Debug.Log("Received from server...");
-        MessageType type = (MessageType)bytes[0];
-
-        if (type != MessageType.UpdateState)
-        {
-            Debug.Log(string.Format("Unexpected message type received: {0:x2}", bytes[0]));
+        if (!Enum.IsDefined(typeof(ServerMessageType), type)) {
+            Debug.LogFormat("Uknown type 0x{0:x2}.", type);
             return;
         }
 
-        // If no data, stop.
-        if (bytes.Length == 1)
-            return;
+        ServerMessageType messageType = (ServerMessageType)type;
+        Debug.LogFormat("0x{0:x2}.", type);
 
-        // At the moment, doesn't support removing of spheros.
-        // Also no error checking.
-        int index = 1;
-        while (index < bytes.Length)
-        {
-            string deviceName = Encoding.ASCII.GetString(bytes, index + 1, bytes[index]);
-            index += deviceName.Length + 1;
-            Vector2 velocity = new Vector2();
-            velocity.x = BitConverter.ToSingle(bytes, index);
-            index += 4;
-            velocity.y = BitConverter.ToSingle(bytes, index);
-            index += 4;
+        ServerMessage message = new ServerMessage();
 
-            Sphero sphero;
-            if (!SpheroManager.Instances.TryGetValue(deviceName, out sphero))
-            {
-                SpheroManager.Instances.Add(deviceName, new Sphero());
-                sphero = SpheroManager.Instances[deviceName];
+        switch (messageType) {
+        case ServerMessageType.SpheroShoot:
+            ReadStreamedBytes(6);
+            ReadStreamedBytes(buffer[5], 6);
+            SpheroManager.Shoot(buffer);
+            break;
+        case ServerMessageType.RollSphero:
+            ReadStreamedBytes(9);
+            ReadStreamedBytes(buffer[8], 9);
+            SpheroManager.Roll(buffer);
+            break;
+        case ServerMessageType.SpheroPowerUp:
+            ReadStreamedBytes(2);
+            ReadStreamedBytes(buffer[1], 2);
+            SpheroManager.UsePowerUp(buffer);
+            break;
+        case ServerMessageType.AppInit:
+            ReadStreamedBytes(1);
+
+            Sphero sphero = null;
+
+            message.Type = ServerMessageType.AppInit;
+            message.AddContent(BitConverter.IsLittleEndian);
+
+            if (BitConverter.ToBoolean(buffer, 0) && ((sphero = SpheroManager.GetNextSphero()) != null)) {
+                message.AddContent(sphero.DeviceName);
+            } else {
+                message.AddContent(SpheroManager.SpectatorName);
+                //SpectatorManager.Instances.Add(new Spectator(receivedFrom));
             }
 
-            // For now, update everything.
-            sphero.DeviceName = deviceName;
-            sphero.Velocity = velocity;
+            Send(message);
 
-            string output = string.Format("DNAME: {0}, VEL: ({1},{2})", deviceName, velocity.x, velocity.y);
-            Debug.Log(output);
+            if (sphero != null) {
+                sphero.HasController = true;
+                sphero.Connection = this;
+                Debug.LogFormat("Health: {0}", sphero.Health);
+                sphero.SendStateToController();
+            }
+            break;
+        case ServerMessageType.RemoveSphero:
+            ReadStreamedBytes(1);
+            ReadStreamedBytes(buffer[0], 1);
+            Close();
+            // SpheroManager.RemoveSphero(buffer);
+            // Server.TcpConnections.Remove(this);
+            break;
+        default:
+            break;
         }
-        Debug.Log("Done");
+    }
+
+    private void ReadStreamedBytes(int count, int offset = 0)
+    {
+        int remaining = count;
+        while (remaining > 0) {
+            int read = stream.Read(buffer, offset, remaining);
+            remaining -= read;
+            offset += read;
+
+            // TODO Handle when data is not received
+        }
+    }
+}
+
+public static class Server
+{
+    private static UdpClient            udpIncoming;
+    private static UdpClient            udpOutgoing;
+    private static TcpListener          tcpListener;
+    private static Thread               udpListenThread;
+    private static Thread               tcpListenThread;
+    private static System.Object        lockHandle;
+
+    public static List<TcpConnection>   TcpConnections;
+
+    public static IPEndPoint NodeServerTarget { get; private set; }
+
+    public static string Name { get; set; }
+
+    static Server()
+    {
+        Name = "Default Server Name";
+        lockHandle = new System.Object();
+        TcpConnections = new List<TcpConnection>();
+    }
+
+    public static void StartListening(int port)
+    {
+        udpIncoming = new UdpClient();
+        udpIncoming.Client.SetSocketOption(SocketOptionLevel.Socket,
+                                           SocketOptionName.ReuseAddress, true);
+        udpIncoming.Client.ReceiveBufferSize = 2048;
+        udpIncoming.Client.Bind(new IPEndPoint(IPAddress.Any, port));
+
+        udpOutgoing = new UdpClient();
+        udpOutgoing.Client.SetSocketOption(SocketOptionLevel.Socket,
+                                           SocketOptionName.ReuseAddress, true);
+        udpOutgoing.Client.Bind(new IPEndPoint(IPAddress.Any, port + 1));
+
+        udpListenThread = new Thread(() => {
+            Thread.CurrentThread.IsBackground = true;
+            while (true) {
+                IPEndPoint senderEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                byte[] data = udpIncoming.Receive(ref senderEndPoint);
+
+                new Thread(() => {
+                    Thread.CurrentThread.IsBackground = true;
+                    ProcessReceivedBytes(data, senderEndPoint);
+                }).Start();
+            }
+        });
+
+        tcpListenThread = new Thread(() => {
+            Thread.CurrentThread.IsBackground = true;
+
+            tcpListener = new TcpListener(IPAddress.Any, port);
+            tcpListener.Start();
+
+            while (true) {
+                TcpClient client = tcpListener.AcceptTcpClient();
+                Debug.LogFormat("Accepted TCP client {0}.", client.Client.RemoteEndPoint);
+
+                lock (lockHandle) {
+                    TcpConnections.Add(new TcpConnection(client));
+                }
+            }
+        });
+
+        udpListenThread.Start();
+        tcpListenThread.Start();
+
+        Debug.LogFormat("[Server] Started \"{0}\" successfully, listening on port {1}.",
+                        Name, port);
+    }
+
+    public static void StopListening()
+    {
+        foreach (TcpConnection connection in TcpConnections)
+            connection.Close();
+
+        tcpListenThread.Abort();
+        udpListenThread.Abort();
+
+        Debug.LogFormat("[Server] Stopped successfully.");
+    }
+
+    public static void Send(ServerMessage message)
+    {
+        byte[] bytes = message.Compile();
+
+        Debug.LogFormat("{0}, {1}, {2}", bytes, bytes.Length, message.Target);
+        udpOutgoing.Send(bytes, bytes.Length, message.Target);
+    }
+
+    public static void Send(byte[] bytes, IPEndPoint target)
+    {
+        udpOutgoing.Send(bytes, bytes.Length, target);
+    }
+
+    private static void ProcessReceivedBytes(byte[] bytes, IPEndPoint receivedFrom)
+    {
+        string prefix = string.Format("[Server] {0} - ", receivedFrom.ToString());
+
+        if (!Enum.IsDefined(typeof(ServerMessageType), (int)bytes[0])) {
+            Debug.LogFormat("{0} Unknown (0x{1:x2}).", prefix, bytes[0]);
+            return;
+        }
+
+        ServerMessage message = new ServerMessage();
+        ServerMessageType type = (ServerMessageType)bytes[0];
+
+        // Debug.LogFormat("{0} {1} (0x{2:x2}).", prefix, type.ToString(), bytes[0]);
+
+        ++receivedFrom.Port; // TODO might have to find a better way to do this.
+
+        switch (type) {
+        case ServerMessageType.Test:
+            break;
+        case ServerMessageType.RemoveSphero:
+            break;
+        case ServerMessageType.SetEndianness:
+            message.Type = ServerMessageType.SetEndianness;
+            message.Target = receivedFrom;
+            message.AddContent(BitConverter.IsLittleEndian);
+            Send(message);
+            break;
+        case ServerMessageType.UpdateState:
+            // Parse state, assumed to be received from Node.js server.
+            SpheroManager.ParseUpdatedState(bytes, 1);
+            break;
+        case ServerMessageType.RollSphero:
+            SpheroManager.Roll(bytes);
+            break;
+        case ServerMessageType.ServerDiscover:
+            message.Type = ServerMessageType.ServerDiscover;
+            message.Target = receivedFrom;
+            message.AddContent(Name);
+            Send(message);
+            break;
+        case ServerMessageType.SpheroShoot:
+            SpheroManager.Shoot(bytes);
+            break;
+        case ServerMessageType.SpheroPowerUp:
+            SpheroManager.UsePowerUp(bytes);
+            break;
+        case ServerMessageType.PauseGame:
+            break;
+        case ServerMessageType.NodeInit:
+            // When node identifies itself, send the endianness.
+            NodeServerTarget = receivedFrom;
+            message.Type = ServerMessageType.SetEndianness;
+            message.Target = NodeServerTarget;
+            message.AddContent(BitConverter.IsLittleEndian);
+            Send(message);
+            break;
+        case ServerMessageType.AppInit:
+            /*Sphero sphero = null;
+
+            message.Type = ServerMessageType.AppInit;
+            message.Target = receivedFrom;
+            message.AddContent(BitConverter.IsLittleEndian);
+
+            if (BitConverter.ToBoolean(bytes, 1) && ((sphero = SpheroManager.GetNextSphero()) != null))
+            {
+                message.AddContent(sphero.DeviceName);
+            }
+            else
+            {
+                message.AddContent(SpheroManager.SpectatorName);
+                SpectatorManager.Instances.Add(new Spectator(receivedFrom));
+            }
+
+            Send(message);
+
+            if (sphero != null)
+            {
+                sphero.ControllerTarget = receivedFrom;
+                sphero.HasController = true;
+                sphero.SendStateToController();
+            }*/
+            break;
+        }
     }
 }

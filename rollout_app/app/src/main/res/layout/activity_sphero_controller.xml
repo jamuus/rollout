@@ -1,0 +1,109 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/root"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+    <TextView
+        android:id="@+id/header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ROLLOUT"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="16dp"
+        android:textStyle="bold"
+        android:textColor="#505050"
+        android:textSize="24dp"
+        android:layout_alignParentTop="true"/>
+
+    <TextView
+        android:id="@+id/health_label"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:textStyle="bold"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="80dp"
+        android:text="H E A L T H"/>
+
+    <FrameLayout
+        android:id="@+id/health_start"
+        android:layout_below="@id/health_label"
+        android:layout_alignLeft="@id/health"
+        android:layout_width="3dp"
+        android:layout_height="30dp"
+        android:background="@color/green"/>
+
+    <FrameLayout
+        android:id="@+id/health"
+        android:layout_below="@id/health_label"
+        android:layout_alignLeft="@id/health_label"
+        android:layout_width="300dp"
+        android:layout_height="30dp"
+        android:background="@color/green"/>
+
+    <FrameLayout
+        android:id="@+id/health_end"
+        android:layout_below="@id/health_label"
+        android:layout_alignLeft="@id/health"
+        android:layout_width="3dp"
+        android:layout_height="30dp"
+        android:layout_marginLeft="300dp"
+        android:background="@color/green"/>
+
+    <TextView
+        android:id="@+id/powerups_label"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:textStyle="bold"
+        android:layout_below="@id/health"
+        android:layout_alignLeft="@id/health_label"
+        android:layout_marginTop="20dp"
+        android:text="P O W E R U P S"/>
+
+    <FrameLayout
+        android:id="@+id/powerup_1"
+        android:layout_below="@id/powerups_label"
+        android:layout_alignLeft="@id/health_label"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:background="@color/transparentgrey">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Coming Soon..."
+            android:tag="1"
+            android:textColor="@color/white"
+            android:textAllCaps="true"
+            android:background="?android:attr/selectableItemBackground"/>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/powerup_2"
+        android:layout_below="@id/powerups_label"
+        android:layout_toRightOf="@id/powerup_1"
+        android:layout_marginLeft="20dp"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:background="@color/transparentgrey">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Coming Soon..."
+            android:tag="1"
+            android:textColor="@color/white"
+            android:background="?android:attr/selectableItemBackground"/>
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/thumbstick_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SHOOT"
+        android:textStyle="bold"
+        android:visibility="gone"/>
+
+</RelativeLayout>

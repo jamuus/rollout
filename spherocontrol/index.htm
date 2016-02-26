@@ -1,0 +1,226 @@
+<html>
+
+<head>
+</head>
+
+<body>
+    <center>
+        <canvas id="absoluteCvs" width="600" height="400" style="border:1px solid #000000;">
+        </canvas>
+        <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;">
+        </canvas>
+        <canvas id="mycanvas" width="400" height="100"></canvas>
+    </center>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="smoothie.js"></script>
+    <script>
+    var smoothie = new SmoothieChart();
+    smoothie.streamTo(document.getElementById("mycanvas"));
+    var sphero1 = new TimeSeries();
+    var sphero2 = new TimeSeries();
+    var sphero3 = new TimeSeries();
+    smoothie.addTimeSeries(sphero1, {
+        strokeStyle: 'rgb(0, 255, 0)',
+        lineWidth: 1
+    });
+    smoothie.addTimeSeries(sphero2, {
+        strokeStyle: 'rgb(255, 0, 0)',
+        lineWidth: 1
+    });
+    smoothie.addTimeSeries(sphero3, {
+        strokeStyle: 'rgb(0, 0, 255)',
+        lineWidth: 1
+    });
+
+    var socket = io();
+    socket.on('data', function(msg) {
+        for (var dtype in msg) {
+            switch (dtype) {
+                case 'ipData':
+                    updateIpData(msg[dtype]);
+                    break;
+                case 'spheroData':
+                    updateSpheroData(msg[dtype]);
+                    break;
+                default:
+                    console.log('rip');
+            }
+        }
+    });
+    var control = {
+        force: 0,
+        direction: 0
+    };
+    var pressedKeys = {
+        w: false,
+        a: false,
+        s: false,
+        d: false,
+    }
+    document.addEventListener('keydown', function(event) {
+        if (event.keyCode === 87) {
+            pressedKeys.w = true;
+        }
+        if (event.keyCode === 65) {
+            pressedKeys.a = true;
+        }
+        if (event.keyCode === 83) {
+            pressedKeys.s = true;
+        }
+        if (event.keyCode === 68) {
+            pressedKeys.d = true;
+        }
+        calcNewForce();
+    });
+    document.addEventListener('keyup', function(event) {
+        if (event.keyCode === 87) {
+            pressedKeys.w = false;
+        }
+        if (event.keyCode === 65) {
+            pressedKeys.a = false;
+        }
+        if (event.keyCode === 83) {
+            pressedKeys.s = false;
+        }
+        if (event.keyCode === 68) {
+            pressedKeys.d = false;
+        }
+        calcNewForce();
+    });
+
+    function calcNewForce() {
+        force = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 1 : 0.0;
+        var x = pressedKeys.w + -pressedKeys.s;
+        var y = pressedKeys.d + -pressedKeys.a;
+        var direction = Math.atan2(y, x); // / (2 * Math.PI) * 360;
+        // console.log(direction);
+        socket.emit('force', {
+            force: force,
+            direction: direction
+        });
+    }
+
+    var canvas1 = document.getElementById('absoluteCvs');
+    var ctx1 = canvas1.getContext('2d');
+    var canvas2 = document.getElementById('spheroAngleCvs');
+    var ctx2 = canvas2.getContext('2d');
+
+    var spheroState = {
+        abs: {},
+        rel: {},
+        drift: {},
+        angle: {}
+    };
+
+    var anglef = 0;
+
+    function circles() {
+        anglef += 2 / 20;
+        socket.emit('force', {
+            force: 1,
+            direction: anglef
+        });
+    }
+    // setInterval(circles, 1000 / 20);
+
+    function updateIpData(data) {
+        if (!spheroState.abs[data.name])
+            spheroState.abs[data.name] = {};
+        if (!spheroState.drift[data.name])
+            spheroState.drift[data.name] = {};
+        if (!spheroState.angle[data.name])
+            spheroState.angle[data.name] = {};
+
+        spheroState.abs[data.name].x = data.pos.x;
+        spheroState.abs[data.name].y = data.pos.y;
+
+        spheroState.drift[data.name] = data.drift;
+        spheroState.angle[data.name] = data.angle;
+
+        sphero3.append(new Date().getTime(), data.drift);
+        sphero1.append(new Date().getTime(), data.angle);
+        console.log(data.drift / (Math.PI * 2) * 360);
+    }
+
+    function updateSpheroData(data) {
+        if (!spheroState.rel[data.name])
+            spheroState.rel[data.name] = {};
+        // console.log(data);
+        var dx = spheroState.rel[data.name].x = data.data.x;
+        var dy = spheroState.rel[data.name].y = data.data.y;
+
+        var spheroAngle = Math.atan2(dy, dx);
+
+        sphero2.append(new Date().getTime(), spheroAngle);
+    }
+
+    function drawCircle(pos, r) {
+        ctx1.beginPath();
+        ctx1.arc(pos.x / 1280 * 600, pos.y / 720 * 400, r, 0, 2 * Math.PI);
+        ctx1.stroke();
+    }
+
+    function drawAbs(dt) {
+        ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+        for (var sphAbs in spheroState.abs) {
+            var sph = spheroState.abs[sphAbs];
+            drawCircle(sph, 5);
+        }
+    }
+
+    function drawRel(dt) {
+        ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+        for (var name in spheroState.rel) {
+            var sphdata = spheroState.rel[name];
+
+
+            drawLine(ctx2,
+                100,
+                100,
+                sphdata.x / 10 + 100,
+                sphdata.y / 10 + 100
+            );
+
+        }
+        for (var name in spheroState.drift) {
+            var angle = spheroState.drift[name];
+
+            drawLine(ctx2,
+                100,
+                100,
+                Math.cos(angle) * 250 + 100,
+                Math.sin(angle) * 250 + 100,
+                3
+            );
+        }
+        for (var name in spheroState.angle) {
+            var angle = spheroState.angle[name];
+
+            drawLine(ctx2,
+                100,
+                100,
+                Math.cos(angle) * 250 + 100,
+                Math.sin(angle) * 250 + 100,
+                2
+            );
+        }
+    }
+
+    function draw(dt) {
+        drawAbs(dt);
+        drawRel(dt);
+        requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+
+    function drawLine(ctx, x1, y1, x2, y2, thickness) {
+        ctx.lineWidth = thickness | 1;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    }
+    </script>
+</body>
+
+</html>

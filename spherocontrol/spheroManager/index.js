@@ -2,21 +2,18 @@
 
 var debug = true;
 
-module.exports = function() {
+module.exports = function(opts) {
+    opts = opts || {};
     var _onSpheroConnect = function _onSpheroConnect() {};
     var api = {
-        count: 0,
-        names: [],
         instances: [],
-
         onSpheroConnect: function onSpheroConnect(callback) {
             _onSpheroConnect = callback;
         }
     };
 
-    // todo: parameterise
-    var updatePerSecond = 10;
-    var dataPerSecond = 30;
+    var updatePerSecond = 1;
+    var dataPerSecond = opts.dataPerSecond || 20;
 
     var sphero = require('sphero');
     var fs = require('fs');
@@ -25,78 +22,44 @@ module.exports = function() {
     };
 
     var connectedSpheros = {
-            instances: [],
-            deviceNames: [],
-            friendlyNames: []
-        },
-        desiredSpheros = 1;
+        deviceNames: [],
+    };
     var spheroDeviceRegex = /tty\.Sphero.*/;
 
+    // Searches and connects to unconnected spheros
     function updateSpheros() {
-        if (connectedSpheros.instances.length < desiredSpheros) {
-            fs.readdir('/dev/', function(err, files) {
-                if (err) return log('[ERROR] in readdir:', err);
-                log('Searching for spheros...');
-                var unconnectedSpheros = files.filter(function(device) {
-                    return device.match(spheroDeviceRegex);
-                }).filter(function(spheroDevice) {
-                    return connectedSpheros.deviceNames.indexOf(spheroDevice) === -1;
-                });
-                if (unconnectedSpheros.length === 0) log('None found');
+        fs.readdir('/dev/', function(err, files) {
+            if (err) return log('[ERROR] in readdir:', err);
 
-                var _iteratorNormalCompletion = true;
-                var _didIteratorError = false;
-                var _iteratorError = undefined;
-
-                try {
-                    for (var _iterator = unconnectedSpheros[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                        var newSpheroDev = _step.value;
-
-                        var spheroInstance = sphero('/dev/' + newSpheroDev);
-
-                        var spheroConnectCallback = (function(instance, deviceName) {
-                            return function(err) {
-                                if (err) {
-                                    log('[ERROR] in spheroOpen', err);
-                                    log('        Trying again in 1 second');
-                                    setTimeout(updateSpheros, 1000);
-                                } else {
-                                    log('Succesfully connected', deviceName);
-                                    setupSpheroInstance(instance, deviceName);
-                                    connectedSpheros.instances.push(instance);
-                                    connectedSpheros.deviceNames.push(deviceName);
-                                }
-                            };
-                        })(spheroInstance, newSpheroDev);
-                        log('Connecting to', newSpheroDev);
-                        spheroInstance.connect(spheroConnectCallback);
-                    }
-                } catch (err) {
-                    _didIteratorError = true;
-                    _iteratorError = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion && _iterator['return']) {
-                            _iterator['return']();
-                        }
-                    } finally {
-                        if (_didIteratorError) {
-                            throw _iteratorError;
-                        }
-                    }
-                }
+            var newSph = files.filter((device) => {
+                return device.match(spheroDeviceRegex);
+            }).filter((sphName) => {
+                return connectedSpheros.deviceNames.indexOf(sphName) === -1;
             });
-        }
+            if (newSph.length > 0) {
+                var sphDevName = newSph[0]
+                log("[SPHERO] Connecting to sphero", sphDevName);
+                var sph = sphero('/dev/' + sphDevName, {
+                    emitPacketErrors: true
+                });
+                sph.connect((err) => {
+                    if (err) {
+                        log("[SPHERO] Error connecting:", err);
+                    } else {
+                        log("[SPHERO] Connected", sphDevName);
+                        setupSpheroInstance(sph, sphDevName);
+                        connectedSpheros.deviceNames.push(sphDevName);
+                    }
+                    setTimeout(updateSpheros, 2000);
+                });
+            } else {
+                setTimeout(updateSpheros, 2000);
+            }
+        });
     }
 
     function removeSphero(sphero, deviceName) {
-        connectedSpheros.instances.splice(sphero);
         connectedSpheros.deviceNames.splice(deviceName);
-        api.names.splice(deviceName);
-        var i = api.instances.indexOf(sphero);
-        if (i !== -1) {
-            api.instances.splice(i);
-        }
     }
 
     function setupSpheroInstance(sphero, deviceName) {
@@ -105,12 +68,22 @@ module.exports = function() {
             direction: 0,
             power: 0
         };
-        setInterval(function() {
-            sphero.roll(Math.round(spheroForce.power * 255), spheroForce.direction % 360);
-        }, 1000 / updatePerSecond);
-        api.names.push(deviceName);
-        api.count++;
-        api.instances.push({
+
+        function doRoll() {
+            var newpower = Math.round(spheroForce.power * 255);
+            var newangle = (((spheroForce.direction / (2 * Math.PI)) * 360) + 360) % 360;
+            // if (newpower !== 0) {
+            // log('rolling', newpower, newangle);
+            sphero.roll(newpower, newangle, function() {
+                doRoll();
+            });
+            // } else {
+            // log(newpower);
+            // setTimeout(doRoll, 100);
+            // }
+        }
+        doRoll();
+        var inst = {
             name: deviceName,
             newDataCallback: function newDataCallback(callback) {
                 _newDataCallback = callback;
@@ -120,17 +93,19 @@ module.exports = function() {
                 if (power < 0) power = 0;
                 spheroForce.direction = direction;
                 spheroForce.power = power;
-            }
-        });
+            },
+        };
+        api.instances.push(inst);
+
+
 
         sphero.streamVelocity(dataPerSecond);
         sphero.on('velocity', function(_data) {
-            // parse data
             var data = {
-                xVelocity: _data.xVelocity.value[0],
-                yVelocity: _data.yVelocity.value[0]
+                dx: _data.xVelocity.value[0],
+                dy: _data.yVelocity.value[0]
             };
-            _newDataCallback(data);
+            _newDataCallback(data, 'velocity');
         });
 
         sphero.on('error', function(err) {
@@ -142,8 +117,20 @@ module.exports = function() {
         sphero.on('close', function() {
             log('Connection to', deviceName, 'closed');
             removeSphero(sphero, deviceName);
-            updateSpheros();
         });
+
+        sphero.setRgbLed({
+            red: 0,
+            green: 0,
+            blue: 0
+        });
+
+        // var angle = 0;
+        // setInterval(() => {
+        //     angle += (Math.PI / 30) / 2;
+        //     inst.force(angle, 0.2);
+        // }, 1000 / 60);
+
 
         _onSpheroConnect(api.instances[api.instances.length - 1]);
     }
@@ -152,17 +139,3 @@ module.exports = function() {
 
     return api;
 };
-
-// var spheros = require('./spheros');
-// // number of spheros
-// spheros.count;
-// // their names
-// var names = spheros.names;
-// // get one of the spheros
-// var ybr = spheros[names[0]]
-// // subscribe to sphero data
-// ybr.newDataCallback(function(data) {
-//     console.log(data);
-// });
-// // send sphero north with half force
-// ybr.force("north", 0.5);
