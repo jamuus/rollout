@@ -28,6 +28,9 @@ public class ServerListActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server_list);
 
+        //Temporarily go straight to the specator page
+        startActivity(new Intent(ServerListActivity.this, SpectatorControllerActivity.class));
+
         PowerUpManager.loadAssetsFile(this);
 
         listView = (ListView)findViewById(R.id.server_list);

@@ -9,7 +9,7 @@
     <string name="server_join_button">Join</string>
 
     <string name="searching_for_servers">Searching for servers &#8230;</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="spectator_title">What should happen next?</string>
     <string name="title_activity_sphero_controller">SpheroControllerActivity</string>
     <string name="title_activity_spectator_controller">SpectatorControllerActivity</string>
 </resources>
