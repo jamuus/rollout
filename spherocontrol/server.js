@@ -190,7 +190,6 @@ function spheroState(dataOut) {
 }
 
 function sendState() {
-
     var message = new Buffer(1);
     message[0] = MessageType.UPDATE_STATE;
 
@@ -207,9 +206,9 @@ function sendState() {
             idx += 4;
             buf.writeFloatLE(sphero.dy, idx);
             idx += 4;
-            buf.writeFloatLE(sphero.x, idx);
+            buf.writeFloatLE(sphero.pos.x, idx);
             idx += 4;
-            buf.writeFloatLE(sphero.y, idx);
+            buf.writeFloatLE(sphero.pos.y, idx);
             idx += 4;
             buf.writeFloatLE(sphero.batteryVoltage, idx);
         } else {

@@ -22,7 +22,13 @@ function initSphero() {
         absSpheroVel: {
             x: -1,
             y: -1
-        }
+        },
+        pos: {
+            x: -1,
+            y: -1
+        },
+        dx: 0,
+        dy: 0
     }
 }
 
