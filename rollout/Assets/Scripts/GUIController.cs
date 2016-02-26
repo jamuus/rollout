@@ -110,7 +110,7 @@ public class GUIController : MonoBehaviour
 		int i = 0; 
 		float x, y;
 		float r = 12.3f;
-		for (float theta = 0; theta <= (int)(1f * 3f * healthPercentage); theta += theta_scale) {
+		for (float theta = 0; theta < (int)(1f * 3f * healthPercentage); theta += theta_scale) {
 			x = (float)(r * Math.Cos (theta * 0.5f));
 			y = (float)(r * Math.Sin (theta * 0.5f));
 
