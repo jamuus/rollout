@@ -16,6 +16,8 @@ public class PlayerControl : MonoBehaviour
     private GameObject container;
     public string horizontalAxis;
     public string verticalAxis;
+    private GameObject music;
+
     private Player player;
     public string powerUpButton;
 
@@ -88,7 +90,8 @@ public class PlayerControl : MonoBehaviour
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
         if (outOfBounds) {
-            rb.AddForce(speed * (radius - rb.position.magnitude) * rb.position.normalized);
+            // accelerate in opposite direction
+            rb.AddForce(baseSpeed * (radius - rb.position.magnitude) * rb.position.normalized);
         } else {
             rb.AddForce(speed * movement);
         }
@@ -111,7 +114,10 @@ public class PlayerControl : MonoBehaviour
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
-        print("PowerUp " + powerUp.name + " added to player");
+        music = GameObject.Find("Music");
+        SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
+        manager.PickPowerUp (gameObject);
+        print("PowerUp " + powerUp.name + " added to " + gameObject.name);
     }
 
     public void powerUpEffect(PowerUp powerUp)
