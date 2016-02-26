@@ -2,28 +2,146 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
-                android:paddingBottom="@dimen/activity_vertical_margin"
                 tools:context="com.ammolite.rollout.SpectatorControllerActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="12dp"
+        android:src="@mipmap/ic_launcher"
+        />
+
+    <TextView
+        android:id="@+id/header_string"
+        android:text="@string/spectator_title"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:gravity="center_vertical"
+        android:layout_alignTop="@id/logo"
+        android:layout_toRightOf="@id/logo"
+        android:textSize="20sp"
+        android:textColor="#329886"/>
+
+    <TextView
+        android:id="@+id/countdown"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:text="5"
+        android:textSize="40sp"
+        android:textColor="#329886"
+        android:layout_centerInParent="true"/>
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@drawable/mip"/>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@id/countdown"
+        android:layout_alignLeft="@id/header_string"
+        android:layout_below="@id/header_string"
+        android:orientation="vertical"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="12dp">
 
-        <TextView
-            android:id="@+id/spectator_name"
-            android:text="@string/spectator_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <FrameLayout
+            android:id="@+id/event_1"
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:layout_alignParentTop="true"
+            android:background="@color/brown">
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/btn_event_1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tag="1"
+                android:text="Earthquake"
+                android:textColor="@color/white"
+                android:singleLine="false"
+                android:padding="20dp"
+                android:textAllCaps="true"
+                android:background="?android:attr/selectableItemBackground"/>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/event_2"
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:layout_below="@id/event_1"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@color/green">
+
+            <Button
+                android:id="@+id/btn_event_2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tag="1"
+                android:text="Special Box"
+                android:textColor="@color/white"
+                android:singleLine="false"
+                android:padding="20dp"
+                android:textAllCaps="true"
+                android:background="?android:attr/selectableItemBackground"/>
+
+        </FrameLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@id/countdown"
+        android:layout_below="@id/header_string"
+        android:orientation="vertical"
+        android:layout_marginRight="52dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="12dp">
+
+        <FrameLayout
+            android:id="@+id/event_3"
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:layout_alignParentTop="true"
+            android:background="@color/grey">
+
+            <Button
+                android:id="@+id/btn_event_3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tag="1"
+                android:text="Turret"
+                android:textColor="@color/white"
+                android:singleLine="false"
+                android:padding="20dp"
+                android:textAllCaps="true"
+                android:background="?android:attr/selectableItemBackground"/>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/event_4"
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:layout_below="@id/event_3"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@color/red">
+
+            <Button
+                android:id="@+id/btn_event_4"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tag="1"
+                android:text="Lava"
+                android:textColor="@color/white"
+                android:singleLine="false"
+                android:padding="20dp"
+                android:textAllCaps="true"
+                android:background="?android:attr/selectableItemBackground"/>
+
+        </FrameLayout>
+
+    </RelativeLayout>
 
 </RelativeLayout>
