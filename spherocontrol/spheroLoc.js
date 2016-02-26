@@ -1,6 +1,6 @@
 var spheroIds = [
-    'boo',
     'ybr',
+    'boo',
 ];
 
 var spheros = {
@@ -191,6 +191,7 @@ var lastPos = [{
     y: 0
 }];
 
+var bef = new Date().getTime();
 
 
 function newSpheroData(data, spheroState) {
@@ -208,6 +209,14 @@ function newSpheroData(data, spheroState) {
         x: absVelX,
         y: absVelY
     };
+
+    var aft = new Date().getTime();
+    var diff = (aft - bef) / 1000.0;
+    bef = aft;
+
+    spheroState.pos.x += (absVelX * diff) / 1000 * 10;
+    spheroState.pos.y += (absVelY * diff) / 1000 * 10;
+    // console.log(spheroState.pos);
 }
 
 function newIpData(name, sphero, data) {
@@ -256,8 +265,8 @@ function newIpData(name, sphero, data) {
     );
 
     ipDirAngle = Math.atan2(ipDirVec.y, ipDirVec.x);
-    bangle = Math.atan2(spheroDirVec.y, spheroDirVec.x);
-    angle = bangle - ipDirAngle;
+    spheroDirAngle = Math.atan2(spheroDirVec.y, spheroDirVec.x);
+    angle = spheroDirAngle - ipDirAngle;
     angle = angle > Math.PI ? angle - 2 * Math.PI : angle;
     angle = angle < -Math.PI ? angle + 2 * Math.PI : angle;
 
@@ -270,7 +279,6 @@ function newIpData(name, sphero, data) {
     var filteredAngle = angleLog.value();
 
     sphero.driftAngle = filteredAngle;
-
 
     return {
         spheroData: {
