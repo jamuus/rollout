@@ -6,6 +6,7 @@ public class HomingMissile : MonoBehaviour
     private Vector3 velocity;
     public float speed;
     public float turnSpeed;
+    public float explosionPower;
 
     public int damage;
     public Explosion explosion;
@@ -43,7 +44,7 @@ public class HomingMissile : MonoBehaviour
     void OnCollisionEnter(Collision col)
     {
         var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
-        spawnedExplosion.Initialise(4, 200.0f, 30, 10);
+        spawnedExplosion.Initialise(4, explosionPower, 30, 10);
         print("Explosion Successful");
         Destroy(this.gameObject);
 
