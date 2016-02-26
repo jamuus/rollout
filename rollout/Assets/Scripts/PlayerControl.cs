@@ -57,16 +57,6 @@ public class PlayerControl : MonoBehaviour
             rb.position = position;
 
             // Debug.Log(string.Format("{0}, {1}", moveHorizontal, moveVertical));
-
-            // // get controller input and omve sphero
-            // float X = player.GetAxis("Horizontalx");
-            // float Y = player.GetAxis("Verticalx");
-
-            // float force = Mathf.Sqrt(Mathf.Pow(X, 2)
-            //                          + Mathf.Pow(Y, 2));
-            // float direction = Vector2.Angle(new Vector2(0, 1), new Vector2(X, Y));
-            // if (X < 0) direction = -direction + 360.0f;
-            // // direction = Mathf.Rad2Deg * direction;
             // get controller input and omve sphero
             float X = player.GetAxis("Horizontalx");
             float Y = player.GetAxis("Verticalx");
@@ -84,6 +74,7 @@ public class PlayerControl : MonoBehaviour
     {
         //Server.CloseConnection();
         //Server.StopListening();
+        Server.CloseConnection();
     }
 
 
@@ -101,7 +92,7 @@ public class PlayerControl : MonoBehaviour
         velocity = rb.velocity;
         if (outOfBounds) {
 			// accelerate in opposite direction
-            rb.AddForce(speed * (radius - rb.position.magnitude) * rb.position.normalized);
+            rb.AddForce(baseSpeed * (radius - rb.position.magnitude) * rb.position.normalized);
         } else {
             rb.AddForce(speed * movement);
         }

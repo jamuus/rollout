@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
+using System;
 
 public class GUIController : MonoBehaviour
 {
@@ -23,7 +25,6 @@ public class GUIController : MonoBehaviour
 	void initialiseHealthBar()
 	{
 		lineRenderer = (LineRenderer)GetComponent<LineRenderer>();
-		lineRenderer.SetVertexCount(2);
 
 		Color playerColor;
 		if (player.name == "player1") {
@@ -37,6 +38,7 @@ public class GUIController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
 		renderHealthBar ();
 		renderStatuses ();
     }
@@ -44,18 +46,15 @@ public class GUIController : MonoBehaviour
 	void renderHealthBar()
 	{
 		if (player && player.name == "player1") {
-			lineRenderer.SetPosition(0, this.transform.position);
-			lineRenderer.SetPosition(1, this.transform.position - new Vector3((12 * getPlayerHealth()), 0,0));
-
+			drawArc ((float)getPlayerHealth(), -1f);
 		}
 		else if (player && player.name == "player2") {
-			lineRenderer.SetPosition(0, this.transform.position);
-			lineRenderer.SetPosition(1, this.transform.position + new Vector3((12 * getPlayerHealth()), 0,0));
+			drawArc ((float)getPlayerHealth(), 1f);
 		}
 		else {
 			Destroy(gameObject);
 		}
-		this.GetComponent<TextMesh> ().text = playerHealth.currentHealth.ToString(); //updates value on health bar
+		//this.GetComponent<TextMesh> ().text = playerHealth.currentHealth.ToString(); //updates value on health bar
 	}
 
     float getPlayerHealth()
@@ -96,5 +95,29 @@ public class GUIController : MonoBehaviour
 		string statusName = statuses [n].name;
 		string symbol = new string(statusName.Take (3).ToArray());
 		return symbol;
+	}
+
+	void drawArc(float healthPercentage, float boardSide)
+	{
+		float theta_scale = 0.01f;
+		int size = (int)((1f * 3f) * healthPercentage /theta_scale); //Total number of points in circle.
+
+		lineRenderer = (LineRenderer)GetComponent<LineRenderer>();
+		//lineRenderer.SetColors(color, color);
+		lineRenderer.SetWidth(1f, 1f);
+		lineRenderer.SetVertexCount(size);
+
+		int i = 0; 
+		float x, y;
+		float r = 12.3f;
+		for (float theta = 0; theta < (int)(1f * 3f * healthPercentage); theta += theta_scale) {
+			x = (float)(r * Math.Cos (theta * 0.5f));
+			y = (float)(r * Math.Sin (theta * 0.5f));
+
+			Vector3 pos = new Vector3 (x * boardSide, 0f, y * boardSide);
+			lineRenderer.SetPosition (i, pos);
+			i += 1;
+
+		}
 	}
 }
