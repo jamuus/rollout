@@ -1,6 +1,6 @@
 var spheroIds = [
-    'ybr',
     'boo',
+    'ybr',
 ];
 
 var spheros = {
