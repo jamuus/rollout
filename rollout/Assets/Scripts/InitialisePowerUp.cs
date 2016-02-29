@@ -9,7 +9,6 @@ public struct PowerUp {
     public string description;
     public int value;
     public bool instant;
-    public int id;
 }
 
 public class InitialisePowerUp: MonoBehaviour
