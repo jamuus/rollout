@@ -14,6 +14,10 @@ public class MainThread : MonoBehaviour
         lockObject  = new System.Object();
         actionQueue = new Queue<Action>();
 
+        #if SOFTWARE_MODE
+        Debug.LogFormat("WARNING: Running in software mode.");
+        #endif
+
         // Load PowerUps from file.
         PowerUpManager.Initialise();
 
@@ -21,7 +25,7 @@ public class MainThread : MonoBehaviour
         SpheroManager.Initialise();
 
         // Initialise server and start listening for controllers & node.
-        Server.Name = "Rollout Server";
+        Server.Name = "Iman";
         Server.StartListening(7777);
 
         // Add a test Sphero for debugging.

@@ -43,7 +43,7 @@ public static class SpheroManager
 
     public static void RemoveSphero(byte[] bytes)
     {
-        string name = Encoding.ASCII.GetString(bytes, 1, bytes[0]);
+        string name = Encoding.ASCII.GetString(bytes, 2, bytes[1]);
         Instances[name].Leave();
     }
 
@@ -99,7 +99,7 @@ public static class SpheroManager
 
     public static void Roll(byte[] data)
     {
-        int offset = 0;
+        int offset = 1;
         float direction = BitConverter.ToSingle(data, offset);
         offset += 4;
         float force = BitConverter.ToSingle(data, offset);
@@ -115,7 +115,7 @@ public static class SpheroManager
 
     public static void Shoot(byte[] data)
     {
-        int offset = 0;
+        int offset = 1;
         byte weaponID = data[offset];
         ++offset;
         float direction = BitConverter.ToSingle(data, offset);
@@ -130,32 +130,36 @@ public static class SpheroManager
 
     public static void UsePowerUp(byte[] data)
     {
-        int offset = 0;
+        int offset = 1;
         byte powerUpID = data[offset];
         ++offset;
         string name = Encoding.ASCII.GetString(data, offset + 1, data[offset]);
 
         Instances[name].UsePowerUp(new SpheroPowerUp((SpheroPowerUpType)powerUpID));
 
-        Debug.LogFormat("Sphero {0} using power up with ID {1}.", name, powerUpID);
+        //Debug.LogFormat("Sphero {0} using power up with ID {1}.", name, powerUpID);
     }
 }
 
 public class Sphero
 {
-    public string               DeviceName              { get; set; }
-    public Vector2              Velocity                { get; set; }
-    public Vector2              Position                { get; set; }
-    public float                BatteryVoltage          { get; set; }
-    //public IPEndPoint           ControllerTarget        { get; set; }
-    public float                Health                  { get; set; }
-    public float                Shield                  { get; set; }
-    public List<SpheroWeapon>   Weapons                 { get; set; }
-    public List<SpheroPowerUp>  PowerUps                { get; set; }
-    public bool                 HasController           { get; set; }
-    public TcpConnection        Connection              { get; set; }
-    public PlayerControl        UnityObject             { get; set; }
-    public ProjectileControl    UnityProjectileControl  { get; set; }
+    public string                       DeviceName              { get; set; }
+    public Vector2                      Velocity                { get; set; }
+    public Vector2                      Position                { get; set; }
+    public float                        BatteryVoltage          { get; set; }
+    //public IPEndPoint                   ControllerTarget        { get; set; }
+    public float                        Health                  { get; set; }
+    public float                        Shield                  { get; set; }
+    public List<SpheroWeapon>           Weapons                 { get; set; }
+    public List<SpheroPowerUp>          PowerUps                { get; set; }
+    public bool                         HasController           { get; set; }
+    //public TcpConnection                Connection              { get; set; }
+    public PlayerControl                UnityObject             { get; set; }
+    public ProjectileControl            UnityProjectileControl  { get; set; }
+    public TcpServerModule.Connection   Connection              { get; set; }
+    #if SOFTWARE_MODE
+    public Vector2                      Force                   { get; set; }
+    #endif
 
     public Sphero()
     {
@@ -174,14 +178,18 @@ public class Sphero
     //  + DeviceName  - 1 + n bytes
     public void Roll(float direction, float force)
     {
-        /*ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
+        #if SOFTWARE_MODE
+        Force = new Vector2(force * -Mathf.Sin(direction) * 10.0f, force * -Mathf.Cos(direction) * 10.0f);
+        #else
+        ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
 
         message.Target = Server.NodeServerTarget;
         message.AddContent(direction);
         message.AddContent(force);
         message.AddContent(DeviceName);
 
-        Server.Send(message);*/
+        Server.Send(message);
+        #endif
 
     }
 
@@ -195,7 +203,11 @@ public class Sphero
         direction += (float)Math.PI;
 
         //Covert the direction into a vector
-        Vector3 directionVector = new Vector3((float)Math.Cos(direction), 0.0f, (float)Math.Sin(direction));
+        #if SOFTWARE_MODE
+        Vector3 directionVector = new Vector3(-Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
+        #else
+        Vector3 directionVector = new Vector3(Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
+        #endif
 
         //Tell the sphero to shoot
         //playerProjectile.Shoot(directionVector);
@@ -219,9 +231,7 @@ public class Sphero
         {
             UnityObject.UsePowerUp((int)powerUp.Type);
         });
-        Debug.LogFormat("1: Count Power Ups: {0}", PowerUps.Count);
-        Debug.LogFormat("1.5: Remove: {0}", PowerUps.Remove(powerUp));
-        Debug.LogFormat("2: Count Power Ups: {0}", PowerUps.Count);
+        PowerUps.Remove(powerUp);
     }
 
     public void SendStateToController()
@@ -248,7 +258,8 @@ public class Sphero
         for (int i = 0; i < data.Length; ++i)
             Debug.LogFormat("Health: {0:x2}", data[i]);*/
 
-        Connection.Send(message);
+        //Connection.Send(message);
+        Server.SendTcp(Connection, message);
     }
 }
 

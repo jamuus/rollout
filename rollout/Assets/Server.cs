@@ -42,6 +42,25 @@ public class ServerMessage
         Type = type;
     }
 
+    public static int Length(ServerMessageType type)
+    {
+        switch (type)
+        {
+            case ServerMessageType.AppInit:
+                return 2;
+            case ServerMessageType.RollSphero:
+                return 10;
+            case ServerMessageType.SpheroShoot:
+                return 7;
+            case ServerMessageType.SpheroPowerUp:
+                return 3;
+            case ServerMessageType.RemoveSphero:
+                return 2;
+            default:
+                return -1;
+        }
+    }
+
     public void AddContent(string content)
     {
         data.Add((byte)(content.Length & 0xff));
@@ -87,7 +106,7 @@ public class ServerMessage
     }
 }
 
-public class TcpConnection
+/*public class TcpConnection
 {
     private Thread          thread;
     private TcpClient       client;
@@ -108,10 +127,15 @@ public class TcpConnection
             try
             {
                 while (true)
+                {
+                    //Debug.LogFormat("Waiting on TCP {0}", client.Client.RemoteEndPoint);
                     ProcessStreamedData(stream.ReadByte());
+                }
             }
             catch (ThreadAbortException ex)
             {
+                Debug.LogFormat("Thread abort.");
+
                 SpheroManager.RemoveSphero(buffer);
                 //Server.TcpConnections.Remove(this);
                 //Thread.ResetAbort();
@@ -129,13 +153,22 @@ public class TcpConnection
 
     public void Close()
     {
+        Debug.LogFormat("Client close.");
         client.Close();
         thread.Abort();
     }
 
     public void Send(byte[] bytes)
     {
-        stream.Write(bytes, 0, bytes.Length);
+        try
+        {
+            stream.Write(bytes, 0, bytes.Length);
+        }
+        catch (SocketException ex)
+        {
+            Debug.LogFormat("Connetion lost.");
+            Close();
+        }
     }
 
     public void Send(ServerMessage message)
@@ -145,6 +178,9 @@ public class TcpConnection
 
     private void ProcessStreamedData(int type)
     {
+        if ((ServerMessageType)type != ServerMessageType.RollSphero)
+            Debug.LogFormat("Received TCP from {0}", client.Client.RemoteEndPoint);
+
         if (!Enum.IsDefined(typeof(ServerMessageType), type))
         {
             Debug.LogFormat("Uknown type 0x{0:x2}.", type);
@@ -225,7 +261,7 @@ public class TcpConnection
             // TODO Handle when data is not received
         }
     }
-}
+}*/
 
 public static class Server
 {
@@ -233,10 +269,14 @@ public static class Server
     private static UdpClient            udpOutgoing;
     private static TcpListener          tcpListener;
     private static Thread               udpListenThread;
-    private static Thread               tcpListenThread;
+    //private static Thread               tcpListenThread;
     private static System.Object        lockHandle;
 
-    public static List<TcpConnection>   TcpConnections;
+    //public static List<TcpConnection>   TcpConnections;
+
+    private static TcpServerModule tcpServer;
+
+    public static List<TcpServerModule.Connection> Connections { get { return tcpServer.Connections; } }
 
     public static IPEndPoint NodeServerTarget { get; private set; }
 
@@ -246,7 +286,7 @@ public static class Server
     {
         Name = "Default Server Name";
         lockHandle = new System.Object();
-        TcpConnections = new List<TcpConnection>();
+        //TcpConnections = new List<TcpConnection>();
     }
 
     public static void StartListening(int port)
@@ -278,7 +318,11 @@ public static class Server
             }
         });
 
-        tcpListenThread = new Thread(() =>
+        tcpServer = new TcpServerModule();
+        tcpServer.DataReceived += TcpDataReceived;
+        tcpServer.Start();
+
+        /*tcpListenThread = new Thread(() =>
         {
             Thread.CurrentThread.IsBackground = true;
 
@@ -287,18 +331,20 @@ public static class Server
 
             while (true)
             {
+                Debug.LogFormat("Awaiting TCP client...");
                 TcpClient client = tcpListener.AcceptTcpClient();
                 Debug.LogFormat("Accepted TCP client {0}.", client.Client.RemoteEndPoint);
 
                 lock (lockHandle)
                 {
+                    Debug.LogFormat("Adding client {0}", client.Client.RemoteEndPoint);
                     TcpConnections.Add(new TcpConnection(client));
                 }
             }
-        });
+        });*/
 
         udpListenThread.Start();
-        tcpListenThread.Start();
+        //tcpListenThread.Start();
 
         Debug.LogFormat("[Server] Started \"{0}\" successfully, listening on port {1}.",
                         Name, port);
@@ -306,26 +352,88 @@ public static class Server
 
     public static void StopListening()
     {
-        foreach (TcpConnection connection in TcpConnections)
+        /*foreach (TcpConnection connection in TcpConnections)
             connection.Close();
 
-        tcpListenThread.Abort();
+        tcpListenThread.Abort();*/
+
+        tcpServer.Stop();
+
         udpListenThread.Abort();
 
         Debug.LogFormat("[Server] Stopped successfully.");
+    }
+
+    private static void TcpDataReceived(object sender, SocketAsyncEventArgs args)
+    {
+        TcpServerModule.Connection connection = args.UserToken as TcpServerModule.Connection;
+
+        ServerMessage message = new ServerMessage();
+        ServerMessageType type = (ServerMessageType)connection.Buffer[0];
+
+        switch (type)
+        {
+            case ServerMessageType.AppInit:
+                Sphero sphero = null;
+
+                message.Type = ServerMessageType.AppInit;
+                message.AddContent(BitConverter.IsLittleEndian);
+
+                if (BitConverter.ToBoolean(connection.Buffer, 0) && ((sphero = SpheroManager.GetNextSphero()) != null))
+                {
+                    message.AddContent(sphero.DeviceName);
+                }
+                else
+                {
+                    message.AddContent(SpheroManager.SpectatorName);
+                    //SpectatorManager.Instances.Add(new Spectator(receivedFrom));
+                }
+
+                tcpServer.Send(connection, message);
+
+                if (sphero != null)
+                {
+                    sphero.HasController = true;
+                    sphero.Connection = connection;
+                    sphero.SendStateToController();
+                }
+                break;
+            case ServerMessageType.RollSphero:
+                SpheroManager.Roll(connection.Buffer);
+                break;
+            case ServerMessageType.SpheroShoot:
+                SpheroManager.Shoot(connection.Buffer);
+                break;
+            case ServerMessageType.SpheroPowerUp:
+                SpheroManager.UsePowerUp(connection.Buffer);
+                break;
+            case ServerMessageType.RemoveSphero:
+                SpheroManager.RemoveSphero(connection.Buffer);
+                tcpServer.Disconnect(connection);
+                break;
+            default:
+                break;
+        }
+
+        connection.BufferOffset = 0;
+        connection.BufferRemaining = 1;
     }
 
     public static void Send(ServerMessage message)
     {
         byte[] bytes = message.Compile();
 
-        Debug.LogFormat("{0}, {1}, {2}", bytes, bytes.Length, message.Target);
         udpOutgoing.Send(bytes, bytes.Length, message.Target);
     }
 
     public static void Send(byte[] bytes, IPEndPoint target)
     {
         udpOutgoing.Send(bytes, bytes.Length, target);
+    }
+
+    public static bool SendTcp(TcpServerModule.Connection connection, ServerMessage message)
+    {
+        return tcpServer.Send(connection, message);
     }
 
     private static void ProcessReceivedBytes(byte[] bytes, IPEndPoint receivedFrom)
@@ -343,7 +451,9 @@ public static class Server
 
         // Debug.LogFormat("{0} {1} (0x{2:x2}).", prefix, type.ToString(), bytes[0]);
 
-        ++receivedFrom.Port; // TODO might have to find a better way to do this.
+        // Will be null if sent via TCP.
+        if (receivedFrom != null)
+            ++receivedFrom.Port; // TODO might have to find a better way to do this.
 
         switch (type)
         {
@@ -390,25 +500,24 @@ public static class Server
                 /*Sphero sphero = null;
 
                 message.Type = ServerMessageType.AppInit;
-                message.Target = receivedFrom;
                 message.AddContent(BitConverter.IsLittleEndian);
 
-                if (BitConverter.ToBoolean(bytes, 1) && ((sphero = SpheroManager.GetNextSphero()) != null))
+                if (BitConverter.ToBoolean(buffer, 0) && ((sphero = SpheroManager.GetNextSphero()) != null))
                 {
                     message.AddContent(sphero.DeviceName);
                 }
                 else
                 {
                     message.AddContent(SpheroManager.SpectatorName);
-                    SpectatorManager.Instances.Add(new Spectator(receivedFrom));
+                    //SpectatorManager.Instances.Add(new Spectator(receivedFrom));
                 }
 
                 Send(message);
 
                 if (sphero != null)
                 {
-                    sphero.ControllerTarget = receivedFrom;
                     sphero.HasController = true;
+                    sphero.Connection = this;
                     sphero.SendStateToController();
                 }*/
                 break;

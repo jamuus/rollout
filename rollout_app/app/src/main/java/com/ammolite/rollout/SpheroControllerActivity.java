@@ -8,6 +8,7 @@ import android.hardware.SensorManager;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +38,8 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sphero_controller);
+
+        Server.setSpheroControllerActivity(this);
 
         // Thumbstick control.
         thumbstick = new ThumbstickControl(this);
@@ -158,9 +161,21 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+
+        Log.d("TEST", "Back pressed.");
+
         sensorManager.unregisterListener(this);
         Sphero.stopUpdateThread();
         Server.leaveServerAsync();
+    }
+
+    public void kill() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                onBackPressed();
+            }
+        });
     }
 
     @Override
