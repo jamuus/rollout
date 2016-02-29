@@ -87,6 +87,32 @@ public class GUIController : MonoBehaviour
 
     }
 
+    //renders the active statuses
+    //two strings are rendered, one indicating inactive, one active statuses
+    void renderStatuses()
+    {
+
+        List<int> playerStatuses = playerStatus.statuses;
+        int numberOfStatuses = playerStatuses.Count;
+        string activeStatusString = "";
+        string inactiveStatusString = "";
+
+        for (int i = 0; i < numberOfStatuses; i++) {
+            if (playerStatuses [i] > 0) {
+                activeStatusString = (activeStatusString + " " + decodeStatusSymbol (i));
+                inactiveStatusString = (inactiveStatusString + "    ");
+            } else {
+                inactiveStatusString = (inactiveStatusString + " " + decodeStatusSymbol (i));
+                activeStatusString = (activeStatusString + "    ");
+            }
+            activeStatusString += " "; //decorative
+            inactiveStatusString += " "; //decorative
+        }
+        GameObject.Find (player.name + "activeStatuses").GetComponent<TextMesh> ().text = activeStatusString;
+        GameObject.Find (player.name + "inactiveStatuses").GetComponent<TextMesh> ().text = inactiveStatusString;
+
+    }
+
     string decodeStatusSymbol(int n)
     {
         string statusName = statuses [n].name;
@@ -107,9 +133,7 @@ public class GUIController : MonoBehaviour
         int i = 0;
         float x, y;
         float r = 12.3f;
-        for (float theta = 0;
-                theta < (int)(1f * 3f * healthPercentage) && i < size;
-                theta += theta_scale) {
+        for (float theta = 0; theta < (int)(1f * 3f * healthPercentage); theta += theta_scale) {
             x = (float)(r * Math.Cos (theta * 0.5f));
             y = (float)(r * Math.Sin (theta * 0.5f));
 
