@@ -85,12 +85,11 @@ public class PlayerControl : MonoBehaviour
         float radius = 11f;
         bool outOfBounds = radius < rb.position.magnitude; // check if left arena
 
-#if SOFTWARE_MODE
-        float moveHorizontal = sphero.Force.x;
-        float moveVertical   = sphero.Force.y;
-#else
         float moveHorizontal = Input.GetAxis(horizontalAxis);
         float moveVertical = Input.GetAxis(verticalAxis);
+#if SOFTWARE_MODE
+        moveHorizontal += sphero.Force.x;
+        moveVertical   += sphero.Force.y;
 #endif
 
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);

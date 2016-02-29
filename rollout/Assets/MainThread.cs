@@ -14,10 +14,6 @@ public class MainThread : MonoBehaviour
         lockObject  = new System.Object();
         actionQueue = new Queue<Action>();
 
-        #if SOFTWARE_MODE
-        Debug.LogFormat("WARNING: Running in software mode.");
-        #endif
-
         // Load PowerUps from file.
         PowerUpManager.Initialise();
 
@@ -27,6 +23,10 @@ public class MainThread : MonoBehaviour
         // Initialise server and start listening for controllers & node.
         Server.Name = "Iman";
         Server.StartListening(7777);
+
+#if SOFTWARE_MODE
+        Debug.LogFormat("WARNING: Running in software mode.");
+
 
         // Add a test Sphero for debugging.
         Sphero boo = new Sphero();
@@ -52,14 +52,14 @@ public class MainThread : MonoBehaviour
         SpheroManager.Instances[ybr.DeviceName] = ybr;
 
         SpheroManager.ybr.sphero = ybr;
+#endif
     }
 
     // Each tick, check if there are any actions that have been queued, and if
     // so perform them.
     void Update()
     {
-        lock (lockObject)
-        {
+        lock (lockObject) {
             foreach (Action action in actionQueue)
                 action();
             actionQueue.Clear();
@@ -82,8 +82,7 @@ public class MainThread : MonoBehaviour
     // Add an action to complete on the main thread in the next tick.
     public static void EnqueueAction(Action action)
     {
-        lock (lockObject)
-        {
+        lock (lockObject) {
             actionQueue.Enqueue(action);
         }
     }

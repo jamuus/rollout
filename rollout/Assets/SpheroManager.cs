@@ -157,9 +157,9 @@ public class Sphero
     public PlayerControl                UnityObject             { get; set; }
     public ProjectileControl            UnityProjectileControl  { get; set; }
     public TcpServerModule.Connection   Connection              { get; set; }
-    #if SOFTWARE_MODE
+#if SOFTWARE_MODE
     public Vector2                      Force                   { get; set; }
-    #endif
+#endif
 
     public Sphero()
     {
@@ -178,9 +178,9 @@ public class Sphero
     //  + DeviceName  - 1 + n bytes
     public void Roll(float direction, float force)
     {
-        #if SOFTWARE_MODE
+#if SOFTWARE_MODE
         Force = new Vector2(force * -Mathf.Sin(direction) * 10.0f, force * -Mathf.Cos(direction) * 10.0f);
-        #else
+#else
         ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
 
         message.Target = Server.NodeServerTarget;
@@ -189,7 +189,7 @@ public class Sphero
         message.AddContent(DeviceName);
 
         Server.Send(message);
-        #endif
+#endif
 
     }
 
@@ -203,17 +203,16 @@ public class Sphero
         direction += (float)Math.PI;
 
         //Covert the direction into a vector
-        #if SOFTWARE_MODE
+#if SOFTWARE_MODE
         Vector3 directionVector = new Vector3(-Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
-        #else
+#else
         Vector3 directionVector = new Vector3(Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
-        #endif
+#endif
 
         //Tell the sphero to shoot
         //playerProjectile.Shoot(directionVector);
         //UnityProjectileControl.Shoot(directionVector);
-        MainThread.EnqueueAction(() =>
-        {
+        MainThread.EnqueueAction(() => {
             UnityProjectileControl.Shoot(directionVector);
         });
 
@@ -227,8 +226,7 @@ public class Sphero
 
     public void UsePowerUp(SpheroPowerUp powerUp)
     {
-        MainThread.EnqueueAction(() =>
-        {
+        MainThread.EnqueueAction(() => {
             UnityObject.UsePowerUp((int)powerUp.Type);
         });
         PowerUps.Remove(powerUp);
@@ -263,8 +261,7 @@ public class Sphero
     }
 }
 
-public enum SpheroWeaponType : byte
-{
+public enum SpheroWeaponType : byte {
     Default = 0,
     RailGun = 1
 }
@@ -283,8 +280,7 @@ public class SpheroWeapon
     }
 }
 
-public enum SpheroPowerUpType : byte
-{
+public enum SpheroPowerUpType : byte {
     Boost           = 0,
     DamageEnemy     = 1,
     StunEnemey      = 2,

@@ -21,8 +21,6 @@ public class Projectile : MonoBehaviour
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.velocity = velocity.normalized * speed;
 
-
-
         //Destroys the projectile afer 2 seconds
         Destroy(gameObject, 2.0f);
         GetComponent<ParticleSystem> ().Play ();
