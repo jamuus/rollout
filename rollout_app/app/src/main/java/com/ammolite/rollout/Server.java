@@ -26,6 +26,7 @@ public final class Server {
     private static Thread               listeningThread;
     private static boolean              serverListening;
     private static ServerListActivity   serverListActivity;
+    private static SpheroControllerActivity spheroControllerActivity;
 
     private static boolean              tcpServerListen;
     private static Socket               tcpSocket;
@@ -128,6 +129,10 @@ public final class Server {
         }
     }
 
+    public static void setSpheroControllerActivity(SpheroControllerActivity activity) {
+        spheroControllerActivity = activity;
+    }
+
     public static void leaveServerAsync() {
         new Thread(new Runnable() {
             @Override
@@ -160,7 +165,6 @@ public final class Server {
                         }
                     }
 
-                    Log.d("TEST", "PRE LEAVE");
                     Sphero.leaveGame();
 
                     /*try {

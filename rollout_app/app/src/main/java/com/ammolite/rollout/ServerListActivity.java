@@ -28,6 +28,8 @@ public class ServerListActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server_list);
 
+        PowerUpManager.loadAssetsFile(this);
+
         listView = (ListView)findViewById(R.id.server_list);
         adapter = new ServerHandleListAdapter(this, new ArrayList<ServerHandle>());
         listView.setAdapter(adapter);
@@ -48,6 +50,7 @@ public class ServerListActivity extends ActionBarActivity {
             }
         };
 
+        Server.startListening();
         resume();
     }
 
@@ -111,12 +114,12 @@ public class ServerListActivity extends ActionBarActivity {
             }
         }).start();
 
-        Server.stopListening();
+        //Server.stopListening();
     }
 
     private void resume() {
         discoverServers = true;
-        Server.startListening();
+        //Server.startListening();
         serverDiscoverThread = new Thread(serverDiscoverAction);
         serverDiscoverThread.start();
     }

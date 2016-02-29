@@ -20,6 +20,7 @@ public class PlayerControl : MonoBehaviour
 
     private Player player;
     public string powerUpButton;
+    private List<PowerUp> allPowerUps;
 
     public Sphero sphero;
 
@@ -30,7 +31,7 @@ public class PlayerControl : MonoBehaviour
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
         statusList = container.GetComponent<InitialiseStatus>().statuses;
-
+        allPowerUps = container.GetComponent<InitialisePowerUp>().powerUps;
     }
 
     void Awake()
@@ -52,7 +53,7 @@ public class PlayerControl : MonoBehaviour
         triggerStatusEffects();
 
         // move ingame sphero
-        if (sphero != null) {
+        /*if (sphero != null) {
             float moveHorizontal = sphero.Position.x;
             float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
@@ -63,7 +64,7 @@ public class PlayerControl : MonoBehaviour
 
             // float X = player.GetAxis("Horizontalx");
             // float Y = player.GetAxis("Verticalx");
-        }
+        }*/
     }
 
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
@@ -84,8 +85,13 @@ public class PlayerControl : MonoBehaviour
         float radius = 11f;
         bool outOfBounds = radius < rb.position.magnitude; // check if left arena
 
+#if SOFTWARE_MODE
+        float moveHorizontal = sphero.Force.x;
+        float moveVertical   = sphero.Force.y;
+#else
         float moveHorizontal = Input.GetAxis(horizontalAxis);
         float moveVertical = Input.GetAxis(verticalAxis);
+#endif
 
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
@@ -98,7 +104,7 @@ public class PlayerControl : MonoBehaviour
     }
 
 
-    void UsePowerUp(int powerUpID)
+    public void UsePowerUp(int powerUpID)
     {
         PowerUp usedPowerUp;
         try {
@@ -106,6 +112,8 @@ public class PlayerControl : MonoBehaviour
             powerUpEffect(usedPowerUp);
             powerUps.RemoveAt(0);
             print("PowerUp " + usedPowerUp.name + " used by player");
+
+            //sphero.PowerUps.RemoveAt(0);
         } catch (Exception e) {
             print("No powerups left");
         }
@@ -114,6 +122,7 @@ public class PlayerControl : MonoBehaviour
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
+
         music = GameObject.Find("Music");
         SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
         manager.PickPowerUp (gameObject);

@@ -20,11 +20,23 @@ public class UniversalHealth : MonoBehaviour
 
     }
 
+    void updateSphero()
+    {
+        //Get the sphero
+        Sphero sphero = ((PlayerControl)gameObject.GetComponent<PlayerControl>()).sphero;
+
+        //Set properties
+        sphero.Health = currentHealth; 
+    }
+
     public void damagePlayer(int damage)
     {
         if (damage > 0)
         {
             currentHealth -= damage;
+
+            //Update the spheros health
+            updateSphero();
 
             //DEBUG
             print(gameObject.name + " takes " + damage + " damage");
@@ -40,9 +52,13 @@ public class UniversalHealth : MonoBehaviour
     {
         //Heal the player clamping the health to the maximum value
         currentHealth = Math.Min(currentHealth + healValue, maxHealth);
+
+        //Update the spheros health
+        updateSphero();
+
     }
 
-	public int getMaxHealth()
+    public int getMaxHealth()
 	{
 		return maxHealth;
 	}
