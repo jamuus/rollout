@@ -23,30 +23,33 @@
         android:textSize="20sp"
         android:textColor="#329886"/>
 
-    <TextView
-        android:id="@+id/countdown"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="5"
-        android:textSize="40sp"
-        android:textColor="#329886"
-        android:layout_centerInParent="true"/>
-
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_toLeftOf="@id/countdown"
-        android:layout_alignLeft="@id/header_string"
-        android:layout_below="@id/header_string"
-        android:orientation="vertical"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="12dp">
+        android:layout_below="@id/header_string">
+
+        <TextView
+            android:id="@+id/countdown"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="5"
+            android:textSize="40sp"
+            android:textColor="#329886"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_vertical"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="40dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"/>
 
         <FrameLayout
             android:id="@+id/event_1"
             android:layout_width="match_parent"
-            android:layout_height="110dp"
-            android:layout_alignParentTop="true"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="64dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="40dp"
+            android:layout_toLeftOf="@id/countdown"
             android:background="@color/brown">
 
             <Button
@@ -66,70 +69,15 @@
         <FrameLayout
             android:id="@+id/event_2"
             android:layout_width="match_parent"
-            android:layout_height="110dp"
-            android:layout_below="@id/event_1"
+            android:layout_height="match_parent"
+            android:layout_marginRight="64dp"
             android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:background="@color/green">
-
-            <Button
-                android:id="@+id/btn_event_2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:tag="1"
-                android:text="Special Box"
-                android:textColor="@color/white"
-                android:singleLine="false"
-                android:padding="20dp"
-                android:textAllCaps="true"
-                android:background="?android:attr/selectableItemBackground"/>
-
-        </FrameLayout>
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_toRightOf="@id/countdown"
-        android:layout_below="@id/header_string"
-        android:orientation="vertical"
-        android:layout_marginRight="52dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="12dp">
-
-        <FrameLayout
-            android:id="@+id/event_3"
-            android:layout_width="match_parent"
-            android:layout_height="110dp"
-            android:layout_alignParentTop="true"
-            android:background="@color/grey">
-
-            <Button
-                android:id="@+id/btn_event_3"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:tag="1"
-                android:text="Turret"
-                android:textColor="@color/white"
-                android:singleLine="false"
-                android:padding="20dp"
-                android:textAllCaps="true"
-                android:background="?android:attr/selectableItemBackground"/>
-
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/event_4"
-            android:layout_width="match_parent"
-            android:layout_height="110dp"
-            android:layout_below="@id/event_3"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="40dp"
+            android:layout_toRightOf="@id/countdown"
             android:background="@color/red">
 
             <Button
-                android:id="@+id/btn_event_4"
+                android:id="@+id/btn_event_2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:tag="1"
@@ -143,5 +91,37 @@
         </FrameLayout>
 
     </RelativeLayout>
+
+    <!--<RelativeLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_below="@id/header_string"-->
+        <!--android:orientation="vertical"-->
+        <!--android:layout_marginRight="52dp"-->
+        <!--android:layout_marginLeft="30dp"-->
+        <!--android:paddingTop="20dp"-->
+        <!--android:paddingBottom="40dp">-->
+
+        <!--<FrameLayout-->
+            <!--android:id="@+id/event_4"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:background="@color/red">-->
+
+            <!--<Button-->
+                <!--android:id="@+id/btn_event_4"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:tag="1"-->
+                <!--android:text="Lava"-->
+                <!--android:textColor="@color/white"-->
+                <!--android:singleLine="false"-->
+                <!--android:padding="20dp"-->
+                <!--android:textAllCaps="true"-->
+                <!--android:background="?android:attr/selectableItemBackground"/>-->
+
+        <!--</FrameLayout>-->
+
+    <!--</RelativeLayout>-->
 
 </RelativeLayout>
