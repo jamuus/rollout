@@ -53,7 +53,7 @@ public class PlayerControl : MonoBehaviour
         triggerStatusEffects();
 
         // move ingame sphero
-        /*if (sphero != null) {
+        if (sphero != null) {
             float moveHorizontal = sphero.Position.x;
             float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
@@ -64,7 +64,7 @@ public class PlayerControl : MonoBehaviour
 
             // float X = player.GetAxis("Horizontalx");
             // float Y = player.GetAxis("Verticalx");
-        }*/
+        }
     }
 
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
