@@ -43,19 +43,10 @@ public class HomingMissile : MonoBehaviour
     //when the missile hits something, spawn an explosion
     void OnCollisionEnter(Collision col)
     {
-        var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
-        spawnedExplosion.Initialise(4, explosionPower, 30, 10);
-        print("Explosion Successful");
-        Destroy(this.gameObject);
-
-        //GameObject collidedObject = col.gameObject;
-        //if (collidedObject.name == "player1" || collidedObject.name == "player2")
-        //{
-        //    //damage whatever collided with the projectile
-        //    health = collidedObject.GetComponent<UniversalHealth>();
-        //    health.damagePlayer(damage);
-        //}
-        //Destroy(gameObject);
+        //var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
+        //spawnedExplosion.Initialise(4, explosionPower, 30, 10);
+        //print("Explosion Successful");
+        //Destroy(this.gameObject);
     }
 
     void FixedUpdate()
@@ -69,8 +60,10 @@ public class HomingMissile : MonoBehaviour
         homingMissile.velocity = transform.forward * speed;
     }
 
-    void Explode(float givenRadius, float givenPower, float givenMaxDamage, float givenMinDamage)
+    void OnDestroy()
     {
-
+        var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
+        spawnedExplosion.Initialise(4, explosionPower, 30, 10);
+        print("Explosion Successful");
     }
 }
