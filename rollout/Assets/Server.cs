@@ -7,8 +7,7 @@ using System.Threading;
 
 using UnityEngine;
 
-public enum ServerMessageType
-{
+public enum ServerMessageType {
     Test            = 0x00,
     RemoveSphero    = 0x01,
     SetEndianness   = 0x02,
@@ -37,27 +36,26 @@ public class ServerMessage
     }
 
     public ServerMessage(ServerMessageType type) :
-        this()
+    this()
     {
         Type = type;
     }
 
     public static int Length(ServerMessageType type)
     {
-        switch (type)
-        {
-            case ServerMessageType.AppInit:
-                return 2;
-            case ServerMessageType.RollSphero:
-                return 10;
-            case ServerMessageType.SpheroShoot:
-                return 7;
-            case ServerMessageType.SpheroPowerUp:
-                return 3;
-            case ServerMessageType.RemoveSphero:
-                return 2;
-            default:
-                return -1;
+        switch (type) {
+        case ServerMessageType.AppInit:
+            return 2;
+        case ServerMessageType.RollSphero:
+            return 10;
+        case ServerMessageType.SpheroShoot:
+            return 7;
+        case ServerMessageType.SpheroPowerUp:
+            return 3;
+        case ServerMessageType.RemoveSphero:
+            return 2;
+        default:
+            return -1;
         }
     }
 
@@ -302,16 +300,13 @@ public static class Server
                                            SocketOptionName.ReuseAddress, true);
         udpOutgoing.Client.Bind(new IPEndPoint(IPAddress.Any, port + 1));
 
-        udpListenThread = new Thread(() =>
-        {
+        udpListenThread = new Thread(() => {
             Thread.CurrentThread.IsBackground = true;
-            while (true)
-            {
+            while (true) {
                 IPEndPoint senderEndPoint = new IPEndPoint(IPAddress.Any, 0);
                 byte[] data = udpIncoming.Receive(ref senderEndPoint);
 
-                new Thread(() =>
-                {
+                new Thread(() => {
                     Thread.CurrentThread.IsBackground = true;
                     ProcessReceivedBytes(data, senderEndPoint);
                 }).Start();
@@ -320,7 +315,7 @@ public static class Server
 
         tcpServer = new TcpServerModule();
         tcpServer.DataReceived += TcpDataReceived;
-        tcpServer.Start();
+        // tcpServer.Start();
 
         /*tcpListenThread = new Thread(() =>
         {
@@ -371,48 +366,43 @@ public static class Server
         ServerMessage message = new ServerMessage();
         ServerMessageType type = (ServerMessageType)connection.Buffer[0];
 
-        switch (type)
-        {
-            case ServerMessageType.AppInit:
-                Sphero sphero = null;
+        switch (type) {
+        case ServerMessageType.AppInit:
+            Sphero sphero = null;
 
-                message.Type = ServerMessageType.AppInit;
-                message.AddContent(BitConverter.IsLittleEndian);
+            message.Type = ServerMessageType.AppInit;
+            message.AddContent(BitConverter.IsLittleEndian);
 
-                if (BitConverter.ToBoolean(connection.Buffer, 0) && ((sphero = SpheroManager.GetNextSphero()) != null))
-                {
-                    message.AddContent(sphero.DeviceName);
-                }
-                else
-                {
-                    message.AddContent(SpheroManager.SpectatorName);
-                    //SpectatorManager.Instances.Add(new Spectator(receivedFrom));
-                }
+            if (BitConverter.ToBoolean(connection.Buffer, 0) && ((sphero = SpheroManager.GetNextSphero()) != null)) {
+                message.AddContent(sphero.DeviceName);
+            } else {
+                message.AddContent(SpheroManager.SpectatorName);
+                //SpectatorManager.Instances.Add(new Spectator(receivedFrom));
+            }
 
-                tcpServer.Send(connection, message);
+            tcpServer.Send(connection, message);
 
-                if (sphero != null)
-                {
-                    sphero.HasController = true;
-                    sphero.Connection = connection;
-                    sphero.SendStateToController();
-                }
-                break;
-            case ServerMessageType.RollSphero:
-                SpheroManager.Roll(connection.Buffer);
-                break;
-            case ServerMessageType.SpheroShoot:
-                SpheroManager.Shoot(connection.Buffer);
-                break;
-            case ServerMessageType.SpheroPowerUp:
-                SpheroManager.UsePowerUp(connection.Buffer);
-                break;
-            case ServerMessageType.RemoveSphero:
-                SpheroManager.RemoveSphero(connection.Buffer);
-                tcpServer.Disconnect(connection);
-                break;
-            default:
-                break;
+            if (sphero != null) {
+                sphero.HasController = true;
+                sphero.Connection = connection;
+                sphero.SendStateToController();
+            }
+            break;
+        case ServerMessageType.RollSphero:
+            SpheroManager.Roll(connection.Buffer);
+            break;
+        case ServerMessageType.SpheroShoot:
+            SpheroManager.Shoot(connection.Buffer);
+            break;
+        case ServerMessageType.SpheroPowerUp:
+            SpheroManager.UsePowerUp(connection.Buffer);
+            break;
+        case ServerMessageType.RemoveSphero:
+            SpheroManager.RemoveSphero(connection.Buffer);
+            tcpServer.Disconnect(connection);
+            break;
+        default:
+            break;
         }
 
         connection.BufferOffset = 0;
@@ -440,8 +430,7 @@ public static class Server
     {
         string prefix = string.Format("[Server] {0} - ", receivedFrom.ToString());
 
-        if (!Enum.IsDefined(typeof(ServerMessageType), (int)bytes[0]))
-        {
+        if (!Enum.IsDefined(typeof(ServerMessageType), (int)bytes[0])) {
             Debug.LogFormat("{0} Unknown (0x{1:x2}).", prefix, bytes[0]);
             return;
         }
@@ -455,72 +444,71 @@ public static class Server
         if (receivedFrom != null)
             ++receivedFrom.Port; // TODO might have to find a better way to do this.
 
-        switch (type)
-        {
-            case ServerMessageType.Test:
-                break;
-            case ServerMessageType.RemoveSphero:
-                break;
-            case ServerMessageType.SetEndianness:
-                message.Type = ServerMessageType.SetEndianness;
-                message.Target = receivedFrom;
-                message.AddContent(BitConverter.IsLittleEndian);
-                Send(message);
-                break;
-            case ServerMessageType.UpdateState:
-                // Parse state, assumed to be received from Node.js server.
-                SpheroManager.ParseUpdatedState(bytes, 1);
-                break;
-            case ServerMessageType.RollSphero:
-                SpheroManager.Roll(bytes);
-                break;
-            case ServerMessageType.ServerDiscover:
-                message.Type = ServerMessageType.ServerDiscover;
-                message.Target = receivedFrom;
-                message.AddContent(Name);
-                Send(message);
-                break;
-            case ServerMessageType.SpheroShoot:
-                SpheroManager.Shoot(bytes);
-                break;
-            case ServerMessageType.SpheroPowerUp:
-                SpheroManager.UsePowerUp(bytes);
-                break;
-            case ServerMessageType.PauseGame:
-                break;
-            case ServerMessageType.NodeInit:
-                // When node identifies itself, send the endianness.
-                NodeServerTarget = receivedFrom;
-                message.Type = ServerMessageType.SetEndianness;
-                message.Target = NodeServerTarget;
-                message.AddContent(BitConverter.IsLittleEndian);
-                Send(message);
-                break;
-            case ServerMessageType.AppInit:
-                /*Sphero sphero = null;
+        switch (type) {
+        case ServerMessageType.Test:
+            break;
+        case ServerMessageType.RemoveSphero:
+            break;
+        case ServerMessageType.SetEndianness:
+            message.Type = ServerMessageType.SetEndianness;
+            message.Target = receivedFrom;
+            message.AddContent(BitConverter.IsLittleEndian);
+            Send(message);
+            break;
+        case ServerMessageType.UpdateState:
+            // Parse state, assumed to be received from Node.js server.
+            SpheroManager.ParseUpdatedState(bytes, 1);
+            break;
+        case ServerMessageType.RollSphero:
+            SpheroManager.Roll(bytes);
+            break;
+        case ServerMessageType.ServerDiscover:
+            message.Type = ServerMessageType.ServerDiscover;
+            message.Target = receivedFrom;
+            message.AddContent(Name);
+            Send(message);
+            break;
+        case ServerMessageType.SpheroShoot:
+            SpheroManager.Shoot(bytes);
+            break;
+        case ServerMessageType.SpheroPowerUp:
+            SpheroManager.UsePowerUp(bytes);
+            break;
+        case ServerMessageType.PauseGame:
+            break;
+        case ServerMessageType.NodeInit:
+            // When node identifies itself, send the endianness.
+            NodeServerTarget = receivedFrom;
+            message.Type = ServerMessageType.SetEndianness;
+            message.Target = NodeServerTarget;
+            message.AddContent(BitConverter.IsLittleEndian);
+            Send(message);
+            break;
+        case ServerMessageType.AppInit:
+            /*Sphero sphero = null;
 
-                message.Type = ServerMessageType.AppInit;
-                message.AddContent(BitConverter.IsLittleEndian);
+            message.Type = ServerMessageType.AppInit;
+            message.AddContent(BitConverter.IsLittleEndian);
 
-                if (BitConverter.ToBoolean(buffer, 0) && ((sphero = SpheroManager.GetNextSphero()) != null))
-                {
-                    message.AddContent(sphero.DeviceName);
-                }
-                else
-                {
-                    message.AddContent(SpheroManager.SpectatorName);
-                    //SpectatorManager.Instances.Add(new Spectator(receivedFrom));
-                }
+            if (BitConverter.ToBoolean(buffer, 0) && ((sphero = SpheroManager.GetNextSphero()) != null))
+            {
+                message.AddContent(sphero.DeviceName);
+            }
+            else
+            {
+                message.AddContent(SpheroManager.SpectatorName);
+                //SpectatorManager.Instances.Add(new Spectator(receivedFrom));
+            }
 
-                Send(message);
+            Send(message);
 
-                if (sphero != null)
-                {
-                    sphero.HasController = true;
-                    sphero.Connection = this;
-                    sphero.SendStateToController();
-                }*/
-                break;
+            if (sphero != null)
+            {
+                sphero.HasController = true;
+                sphero.Connection = this;
+                sphero.SendStateToController();
+            }*/
+            break;
         }
     }
 }
