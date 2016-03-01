@@ -20,7 +20,7 @@ public class BasicGun : MonoBehaviour {
         //Spawn the projectile outside of the player in the direction you are aiming
         projectilePosition = transform.position + velocity.normalized;
         var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
-
+        spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
         spawnedProjectile.Initialise(velocity);
         
     }

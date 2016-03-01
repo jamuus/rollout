@@ -74,6 +74,17 @@ public class ProjectileControl : MonoBehaviour
                 }
             }
         }
+
+        //change the active weapon based on key press
+        //will not be in the final game, testing purposes only
+        if(Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            ChangeActiveWeapon("basicGun");
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            ChangeActiveWeapon("homingLauncher");
+        }
     }
 
     private void Shoot()
@@ -103,16 +114,19 @@ public class ProjectileControl : MonoBehaviour
         //ADD CODE FOR SWITCHING WEAPONS AND ADDING AMMUNITION ON PICKUP
     }
 
-    public void AddAmmo(string weaponString, int amount)
+    public void AddAmmo(int ID, int amount)
     {
-        var weaponNum = (Weapons)Enum.Parse(typeof(Weapons), weaponString, true);
-        ammunition[(int)weaponNum] += amount;
+        ammunition[ConvertID(ID)] += amount;
+    }
+
+    public void ChangeActiveWeapon(int ID)
+    {
+        activeWeapon = ConvertID(ID);
     }
 
     public void ChangeActiveWeapon(string weaponString)
     {
-        var weaponNum = (Weapons)Enum.Parse(typeof(Weapons), weaponString, true);
-        activeWeapon = (int)weaponNum;
+        activeWeapon = (int)(Weapons)Enum.Parse(typeof(Weapons), weaponString, true);
     }
 
     public int ConvertID(int ID)

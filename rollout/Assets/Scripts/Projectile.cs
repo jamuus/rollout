@@ -43,6 +43,12 @@ public class Projectile : MonoBehaviour
         Destroy(gameObject, 2.0f);
     }
 
+    //forces the projectile to ignore a specific collider
+    public void ignoreCollider(Collider collider)
+    {
+        Physics.IgnoreCollision(gameObject.GetComponent<Collider>(), collider);
+    }
+
 
     void OnCollisionEnter(Collision col)
     {
