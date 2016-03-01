@@ -313,7 +313,7 @@ public static class Server
             }
         });
 
-        tcpServer = new TcpServerModule();
+        tcpServer = new TcpServerModule(port);
         tcpServer.DataReceived += TcpDataReceived;
         // tcpServer.Start();
 

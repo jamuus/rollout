@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.concurrent.Callable;
@@ -102,7 +101,7 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
                             } else {
                                 powerUpButtons[i].setText("None");
                                 powerUpButtons[i].setOnLongClickListener(null);
-                                powerUpButtons[i].setBackgroundColor(getResources().getColor(R.color.grey));
+                                powerUpButtons[i].setBackgroundColor(getResources().getColor(R.color.transparentgrey));
                             }
                         }
                     }

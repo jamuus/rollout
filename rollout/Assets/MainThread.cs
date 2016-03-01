@@ -14,6 +14,12 @@ public class MainThread : MonoBehaviour
         lockObject  = new System.Object();
         actionQueue = new Queue<Action>();
 
+        Debug.LogFormat(".NET/Mono Version: {0}.", System.Environment.Version);
+
+#if SOFTWARE_MODE
+        Debug.LogFormat("WARNING: Running in software mode.");
+#endif
+
         // Load PowerUps from file.
         PowerUpManager.Initialise();
 

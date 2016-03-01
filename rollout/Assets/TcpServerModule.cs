@@ -92,6 +92,7 @@ public class TcpServerModule
             Disconnect(connection);
 
         Connections.Clear();
+        listenSocket.Close();
 
         Log("Stopped listening and closed all active connections.");
     }
