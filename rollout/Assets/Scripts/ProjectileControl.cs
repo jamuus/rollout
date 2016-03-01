@@ -57,22 +57,7 @@ public class ProjectileControl : MonoBehaviour
             SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
             manager.Shoot (gameObject);
 
-            //Checks if the weapon has ammunition
-            if (ammunition[activeWeapon] != 0)
-            {
-                //fire the weapon and reduce ammunition as needed
-                switch (activeWeapon)
-                {
-                case (int)Weapons.basicGun:
-                    basicGun.Fire();
-                    break;
-
-                case (int)Weapons.homingLauncher:
-                    homingLauncher.Fire(otherPlayer);
-                    ammunition[(int)Weapons.homingLauncher] -= 1;
-                    break;
-                }
-            }
+            Shoot();
         }
 
         //change the active weapon based on key press
@@ -89,14 +74,31 @@ public class ProjectileControl : MonoBehaviour
 
     private void Shoot()
     {
-        //Get the velocity of the player2
-        velocity = GetComponent<Rigidbody>().velocity;
+        ////Get the velocity of the player2
+        //velocity = GetComponent<Rigidbody>().velocity;
 
-        //If the player isn't moving just hard code it
-        if (velocity.magnitude == 0) velocity = new Vector3(1f, 0f, 0f);
+        ////If the player isn't moving just hard code it
+        //if (velocity.magnitude == 0) velocity = new Vector3(1f, 0f, 0f);
 
-        //Call shoot
-        Shoot(velocity);
+        ////Call shoot
+        //Shoot(velocity);
+
+        //Checks if the weapon has ammunition
+        if (ammunition[activeWeapon] != 0)
+        {
+            //fire the weapon and reduce ammunition as needed
+            switch (activeWeapon)
+            {
+                case (int)Weapons.basicGun:
+                    basicGun.Fire();
+                    break;
+
+                case (int)Weapons.homingLauncher:
+                    homingLauncher.Fire(otherPlayer);
+                    ammunition[(int)Weapons.homingLauncher] -= 1;
+                    break;
+            }
+        }
     }
 
     public void Shoot(Vector3 velocity)

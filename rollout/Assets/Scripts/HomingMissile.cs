@@ -46,7 +46,7 @@ public class HomingMissile : MonoBehaviour
         //var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
         //spawnedExplosion.Initialise(4, explosionPower, 30, 10);
         //print("Explosion Successful");
-        //Destroy(this.gameObject);
+        Destroy(this.gameObject);
     }
 
     void FixedUpdate()
