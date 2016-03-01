@@ -87,7 +87,6 @@ public static class SpheroManager
                     boo.sphero = sphero;
                     Debug.LogFormat("boo - {0}", deviceName);
                 }
-
             }
 
             sphero.DeviceName = deviceName;
