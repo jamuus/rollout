@@ -12,8 +12,6 @@ public class SpectatorControllerActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_spectator_controller);
-
-        ((TextView)findViewById(R.id.spectator_name)).setText("Playing as \"Spectator\".");
     }
 
     @Override
