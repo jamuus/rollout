@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 
+
 public class CollisionAttack : MonoBehaviour
 {
     //Base attack value
@@ -10,6 +11,7 @@ public class CollisionAttack : MonoBehaviour
     //Accessing other parts of the players
     private UniversalHealth health;
     private ParticleSystem particles;
+	private GameObject music;
 
     //Player Velocities
     private Vector3 otherPlayerVel;
@@ -41,16 +43,26 @@ public class CollisionAttack : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
+		music = GameObject.Find("Music");
+		SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
         //If you collided with the other player
-        if (otherPlayer && col.gameObject.name == otherPlayer.name)
-        {
-            //Calculate and deal some damage to the player
-            int damage = calculateDamage(col) * collisionAttackValue;
-            health.damagePlayer(damage);
+		if (otherPlayer && col.gameObject.name == otherPlayer.name) {
+			//Calculate and deal some damage to the player
+			int damage = calculateDamage (col) * collisionAttackValue;
+			health.damagePlayer (damage);
+			manager.CollidePlayer (col.gameObject);
 
-            //Play collision particle effect
-            //particles.Play (); //this causes some errors
-        }
+			//Play collision particle effect
+			//particles.Play (); //this causes some errors
+		} else if (col.gameObject.tag == "Obstacle") {
+			manager.CollideObstacle (gameObject);
+		} else if (col.gameObject.tag == "Projectile") {
+			manager.CollideProjectile (gameObject);
+		} else if (col.gameObject.tag == "DamageField") {
+		manager.CollideDamageField (gameObject);
+		} else if (col.gameObject.tag == "HealthField") {
+			manager.CollideHealthField (gameObject);
+		}
     }
 
     int calculateDamage(Collision col)

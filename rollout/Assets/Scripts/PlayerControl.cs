@@ -16,6 +16,8 @@ public class PlayerControl : MonoBehaviour
     private GameObject container;
     public string horizontalAxis;
     public string verticalAxis;
+    private GameObject music;
+
     private Player player;
     public string powerUpButton;
     private List<PowerUp> allPowerUps;
@@ -51,7 +53,7 @@ public class PlayerControl : MonoBehaviour
         triggerStatusEffects();
 
         // move ingame sphero
-        /*if (sphero != null) {
+        if (sphero != null) {
             float moveHorizontal = sphero.Position.x;
             float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
@@ -62,7 +64,7 @@ public class PlayerControl : MonoBehaviour
 
             // float X = player.GetAxis("Horizontalx");
             // float Y = player.GetAxis("Verticalx");
-        }*/
+        }
     }
 
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
@@ -83,18 +85,18 @@ public class PlayerControl : MonoBehaviour
         float radius = 11f;
         bool outOfBounds = radius < rb.position.magnitude; // check if left arena
 
-        #if SOFTWARE_MODE
-        float moveHorizontal = sphero.Force.x;
-        float moveVertical   = sphero.Force.y;
-        #else
         float moveHorizontal = Input.GetAxis(horizontalAxis);
         float moveVertical = Input.GetAxis(verticalAxis);
-        #endif
+#if SOFTWARE_MODE
+        moveHorizontal += sphero.Force.x;
+        moveVertical   += sphero.Force.y;
+#endif
 
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
         if (outOfBounds) {
-            rb.AddForce(speed * (radius - rb.position.magnitude) * rb.position.normalized);
+            // accelerate in opposite direction
+            rb.AddForce(baseSpeed * (radius - rb.position.magnitude) * rb.position.normalized);
         } else {
             rb.AddForce(speed * movement);
         }
@@ -119,8 +121,11 @@ public class PlayerControl : MonoBehaviour
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
-        sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)allPowerUps.IndexOf(powerUp)));
-        print("PowerUp " + powerUp.name + " added to player");
+
+        music = GameObject.Find("Music");
+        SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
+        manager.PickPowerUp (gameObject);
+        print("PowerUp " + powerUp.name + " added to " + gameObject.name);
     }
 
     public void powerUpEffect(PowerUp powerUp)

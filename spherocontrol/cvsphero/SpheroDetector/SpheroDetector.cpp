@@ -26,7 +26,7 @@ int S_MAX = 256;
 int V_MIN = 0;
 int V_MAX = 256;
 const int MAX_NUM_OBJECTS = 2;
-//minimum and maximum object area
+// minimum and maximum object area
 const int MIN_OBJECT_AREA = 10 * 10;
 const int MAX_OBJECT_AREA = 40 * 40;
 const char* trackbar_name = "Trackbars";
@@ -121,8 +121,7 @@ void trackFilteredObject(Sphero &theSphero, Mat threshold, Mat HSV, Mat &cameraF
                 //we only want the object with the largest area so we safe a reference area each
                 //iteration and compare it to the area in the next iteration.
                 if (area > MIN_OBJECT_AREA) {
-
-                    Sphero boo;
+                    // Sphero boo;
 
                     theSphero.setXPos(moment.m10 / area);
                     theSphero.setYPos(moment.m01 / area);
@@ -145,12 +144,14 @@ void trackFilteredObject(Sphero &theSphero, Mat threshold, Mat HSV, Mat &cameraF
 
         } else putText(cameraFeed, "TOO MUCH NOISE! ADJUST FILTER", Point(0, 50), 1, 2, Scalar(0, 0, 255), 2);
     }
+    if (!objectFound) {
+        theSphero.setXPos(-1);
+        theSphero.setYPos(-1);
+    }
 }
 
 void trackFilteredObject(Mat threshold, Mat HSV, Mat &cameraFeed)
 {
-
-
     vector <Sphero> spheros;
 
     Mat temp;
@@ -256,8 +257,8 @@ int main( int, char** argv )
     bool calibrationMode = false;
 
     //open capture object at location zero (default location for webcam)
-    // capture.open(0);
-    capture.open("/Users/jamus/dev/rollout/spherocontrol/cvsphero/SpheroDetector/test5.mov");
+    capture.open(1);
+    // capture.open("/Users/jamus/dev/rollout/spherocontrol/cvsphero/SpheroDetector/test5.mov");
 
     if (!capture.isOpened())
         return -1;
@@ -295,6 +296,8 @@ int main( int, char** argv )
             inRange(HSV, boo.getHSVmin(), boo.getHSVmax(), threshold);
             morphOps(threshold);
             trackFilteredObject(boo, threshold, HSV, frame);
+
+            // imshow(window_name, threshold);
 
             Sphero ybr("ybr");
             cvtColor(frame, HSV, COLOR_BGR2HSV);
