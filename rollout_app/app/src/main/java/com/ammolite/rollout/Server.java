@@ -147,38 +147,42 @@ public final class Server {
         ServerMessage message = new ServerMessage(ServerMessageType.APP_INIT);
         message.addContent(asPlayer);
 
-        try {
-            tcpSocket = new Socket(server.getTarget(), UNITY_PORT);
-            toServerStream = new DataOutputStream(tcpSocket.getOutputStream());
-            fromServerStream = new DataInputStream(tcpSocket.getInputStream());
+        if (asPlayer) {
+            try {
+                tcpSocket = new Socket(server.getTarget(), UNITY_PORT);
+                toServerStream = new DataOutputStream(tcpSocket.getOutputStream());
+                fromServerStream = new DataInputStream(tcpSocket.getInputStream());
 
-            tcpServerListen = true;
+                tcpServerListen = true;
 
-            tcpThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (tcpServerListen) {
-                        try {
-                            processReceivedBytesTCP(fromServerStream.read());
-                        } catch (IOException ex) {
-                            Log.d(TAG, "Exception receiving on TCP connection.", ex);
+                tcpThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (tcpServerListen) {
+                            try {
+                                processReceivedBytesTCP(fromServerStream.read());
+                            } catch (IOException ex) {
+                                Log.d(TAG, "Exception receiving on TCP connection.", ex);
+                            }
                         }
-                    }
 
-                    Sphero.leaveGame();
+                        Sphero.leaveGame();
 
                     /*try {
                         tcpSocket.close();
                     } catch (IOException ex) {
                         Log.d(TAG, "Exception closing TCP socket.", ex);
                     }*/
-                }
-            });
-            tcpThread.start();
+                    }
+                });
+                tcpThread.start();
 
-            sendTCP(message);
-        } catch (IOException ex) {
-            Log.d(TAG, "Exception opening TCP connection.", ex);
+                sendTCP(message);
+            } catch (IOException ex) {
+                Log.d(TAG, "Exception opening TCP connection.", ex);
+            }
+        } else {
+            send(message);
         }
     }
 

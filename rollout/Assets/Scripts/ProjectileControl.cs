@@ -39,7 +39,7 @@ public class ProjectileControl : MonoBehaviour
         }
 
         //Set the initial weapon to the basic gun
-        activeWeapon = (int)Weapons.homingLauncher;
+        activeWeapon = (int)Weapons.basicGun;
         ammunition[(int)Weapons.basicGun] = -1;
         ammunition[(int)Weapons.homingLauncher] = 20;
 
@@ -121,4 +121,3 @@ public class ProjectileControl : MonoBehaviour
         return convertedID;
     }
 }
-

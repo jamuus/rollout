@@ -4,13 +4,20 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.widget.Button;
 
 
 public class SpectatorControllerActivity extends ActionBarActivity {
+    private Button[] eventButtons;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        eventButtons = new Button[2];
+        eventButtons[0] = (Button)findViewById(R.id.btn_event_1);
+        eventButtons[1] = (Button)findViewById(R.id.btn_event_2);
+
         setContentView(R.layout.activity_spectator_controller);
     }
 

@@ -315,7 +315,7 @@ public static class Server
 
         tcpServer = new TcpServerModule(port);
         tcpServer.DataReceived += TcpDataReceived;
-        // tcpServer.Start();
+        tcpServer.Start();
 
         /*tcpListenThread = new Thread(() =>
         {
@@ -485,29 +485,16 @@ public static class Server
             Send(message);
             break;
         case ServerMessageType.AppInit:
-            /*Sphero sphero = null;
-
+            // Assume that as join is coming over UDP app is a spectator.
+            message.Target = receivedFrom;
             message.Type = ServerMessageType.AppInit;
             message.AddContent(BitConverter.IsLittleEndian);
-
-            if (BitConverter.ToBoolean(buffer, 0) && ((sphero = SpheroManager.GetNextSphero()) != null))
-            {
-                message.AddContent(sphero.DeviceName);
-            }
-            else
-            {
-                message.AddContent(SpheroManager.SpectatorName);
-                //SpectatorManager.Instances.Add(new Spectator(receivedFrom));
-            }
-
+            message.AddContent(SpheroManager.SpectatorName);
             Send(message);
 
-            if (sphero != null)
-            {
-                sphero.HasController = true;
-                sphero.Connection = this;
-                sphero.SendStateToController();
-            }*/
+            if (!SpectatorManager.Instances.Contains(received));
+                SpectatorManager.Instances.Add(new Spectator(receivedFrom));
+
             break;
         }
     }
