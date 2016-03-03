@@ -28,32 +28,30 @@ public class ServerListActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server_list);
 
-        startActivity(new Intent(ServerListActivity.this, SpectatorControllerActivity.class));
+        PowerUpManager.loadAssetsFile(this);
 
-//        PowerUpManager.loadAssetsFile(this);
-//
-//        listView = (ListView)findViewById(R.id.server_list);
-//        adapter = new ServerHandleListAdapter(this, new ArrayList<ServerHandle>());
-//        listView.setAdapter(adapter);
-//
-//        txtSearching = (TextView)findViewById(R.id.txt_searching_for_servers);
-//
-//        serverDiscoverAction = new Runnable() {
-//            @Override
-//            public void run() {
-//                while (discoverServers) {
-//                    Server.discoverServers(ServerListActivity.this);
-//                    try {
-//                        Thread.sleep(3000);
-//                    } catch (InterruptedException ex) {
-//                        Log.d(TAG, "Exception sleeping discover thread.", ex);
-//                    }
-//                }
-//            }
-//        };
-//
-//        Server.startListening();
-//        resume();
+        listView = (ListView)findViewById(R.id.server_list);
+        adapter = new ServerHandleListAdapter(this, new ArrayList<ServerHandle>());
+        listView.setAdapter(adapter);
+
+        txtSearching = (TextView)findViewById(R.id.txt_searching_for_servers);
+
+        serverDiscoverAction = new Runnable() {
+            @Override
+            public void run() {
+                while (discoverServers) {
+                    Server.discoverServers(ServerListActivity.this);
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException ex) {
+                        Log.d(TAG, "Exception sleeping discover thread.", ex);
+                    }
+                }
+            }
+        };
+
+        Server.startListening();
+        resume();
     }
 
     @Override
