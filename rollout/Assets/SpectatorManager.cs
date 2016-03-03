@@ -17,6 +17,20 @@ public static class SpectatorManager
         foreach (Spectator s in Instances)
             Server.Send(data, s.Target);
     }
+
+    public static void SendNewEvents()
+    {
+        // Hardcode events for now.
+        byte[] eventIds = new byte[] { 0, 4 };
+
+        // Set up message.
+        ServerMessage message = new ServerMessage(ServerMessageType.SetEvents);
+        foreach (byte id in eventIds)
+            message.AddContent(id);
+        message.AddContent(10000); // Countdown time in ms.
+
+        SendToAll(message);
+    }
 }
 
 public class Spectator

@@ -18,7 +18,9 @@ public enum ServerMessageType {
     SpheroPowerUp   = 0x40,
     PauseGame       = 0x80,
     NodeInit        = 0x11,
-    AppInit         = 0x21
+    AppInit         = 0x21,
+    SetEvents       = 0x22,
+    VoteEvent       = 0x23
 }
 
 public class ServerMessage
@@ -492,8 +494,13 @@ public static class Server
             message.AddContent(SpheroManager.SpectatorName);
             Send(message);
 
-            if (!SpectatorManager.Instances.Contains(received));
-                SpectatorManager.Instances.Add(new Spectator(receivedFrom));
+            Spectator spectator = new Spectator(receivedFrom);
+            if (!SpectatorManager.Instances.Contains(spectator));
+                SpectatorManager.Instances.Add(spectator);
+
+            // Testing.
+            Thread.Sleep(2000);
+            SpectatorManager.SendNewEvents();
 
             break;
         }

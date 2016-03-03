@@ -21,12 +21,12 @@ public final class Server {
     private static final int    PORT_INCOMING   = 8889;
     private static final int    BUFFER_SIZE     = 2048;
 
-    private static DatagramSocket       udpIncoming;
-    private static DatagramSocket       udpOutgoing;
-    private static Thread               listeningThread;
-    private static boolean              serverListening;
-    private static ServerListActivity   serverListActivity;
-    private static SpheroControllerActivity spheroControllerActivity;
+    private static DatagramSocket               udpIncoming;
+    private static DatagramSocket               udpOutgoing;
+    private static Thread                       listeningThread;
+    private static boolean                      serverListening;
+    private static ServerListActivity           serverListActivity;
+    private static SpectatorControllerActivity  spectatorControllerActivity;
 
     private static boolean              tcpServerListen;
     private static Socket               tcpSocket;
@@ -127,10 +127,6 @@ public final class Server {
         } catch (InterruptedException ex) {
             Log.d(TAG, "Exception stopping TCP thread.");
         }
-    }
-
-    public static void setSpheroControllerActivity(SpheroControllerActivity activity) {
-        spheroControllerActivity = activity;
     }
 
     public static void leaveServerAsync() {
@@ -260,7 +256,7 @@ public final class Server {
         }
     }
 
-    private static void processReceivedBytes(byte[] bytes, InetAddress receivedFrom) {
+    private static void processReceivedBytes(final byte[] bytes, InetAddress receivedFrom) {
         if (bytes.length <= 1) {
             Log.d(TAG, "Received invalid message (too short).");
             return;
@@ -277,6 +273,15 @@ public final class Server {
                 break;
             case ServerMessageType.UPDATE_STATE:
                 Sphero.parseState(bytes);
+                break;
+            case ServerMessageType.SET_EVENTS:
+                spectatorControllerActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        spectatorControllerActivity.setEvents(bytes[1], bytes[2]);
+                        spectatorControllerActivity.startCountdown(BitConverter.toInt(bytes, 3));
+                    }
+                });
                 break;
             default:
                 Log.d(TAG, "Unknown message type \"" + type + "\".");
@@ -300,5 +305,9 @@ public final class Server {
                 connectTo(server, asPlayer);
             }
         }).start();
+    }
+
+    public static void setSpectatorControllerActivity(SpectatorControllerActivity activity) {
+        spectatorControllerActivity = activity;
     }
 }

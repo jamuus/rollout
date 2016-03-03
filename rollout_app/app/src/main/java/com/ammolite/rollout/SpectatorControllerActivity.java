@@ -5,20 +5,25 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.TextView;
 
 
 public class SpectatorControllerActivity extends ActionBarActivity {
-    private Button[] eventButtons;
+    private Button[]    eventButtons;
+    private TextView    txtTimeRemaining;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_spectator_controller);
+
+        Server.setSpectatorControllerActivity(this);
 
         eventButtons = new Button[2];
         eventButtons[0] = (Button)findViewById(R.id.btn_event_1);
         eventButtons[1] = (Button)findViewById(R.id.btn_event_2);
 
-        setContentView(R.layout.activity_spectator_controller);
+        txtTimeRemaining = (TextView)findViewById(R.id.countdown);
     }
 
     @Override
@@ -41,5 +46,27 @@ public class SpectatorControllerActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void setEvents(int event0, int event1) {
+        eventButtons[0].setText("" + event0);
+        eventButtons[1].setText("" + event1);
+    }
+
+    public void startCountdown(int ms) {
+        new FixedCountDownTimer(ms, 1000) {
+            public void onTick(long millisUntilFinished) {
+                txtTimeRemaining.setText("" + Math.round(millisUntilFinished / 1000.0f));
+            }
+
+            public void onFinish() {
+                txtTimeRemaining.setText("0");
+                for (int i = 0; i < eventButtons.length; ++i) {
+                    eventButtons[i].setOnClickListener(null);
+                    eventButtons[i].setBackgroundColor(getResources().getColor(R.color.transparentgrey));
+                    eventButtons[i].setText("Waiting for next vote.");
+                }
+            }
+        }.start();
     }
 }
