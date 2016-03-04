@@ -30,17 +30,15 @@
 
         <TextView
             android:id="@+id/countdown"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="match_parent"
             android:text="5"
             android:textSize="40sp"
             android:textColor="#329886"
             android:layout_centerHorizontal="true"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:layout_marginTop="20dp"
-            android:layout_marginBottom="40dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"/>
+            android:layout_marginBottom="40dp"/>
 
         <FrameLayout
             android:id="@+id/event_1"
