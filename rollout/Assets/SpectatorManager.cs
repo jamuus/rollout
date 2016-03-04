@@ -5,11 +5,13 @@ using System.Threading;
 
 public class VoteEventArgs : EventArgs
 {
-    public int Id { get; private set; }
+    public int Id       { get; private set; }
+    public int Votes    { get; private set; }
 
-    public VoteEventArgs(int id)
+    public VoteEventArgs(int id, int votes)
     {
         Id = id;
+        Votes = votes;
     }
 }
 
@@ -60,9 +62,9 @@ public static class SpectatorManager
         {
             Thread.CurrentThread.IsBackground = true;
             Thread.Sleep(time);
-            int winner = GetEventVoteWinner();
+            VoteEventArgs winner = GetEventVoteWinner();
             if (VoteWinnerDetermined != null)
-                VoteWinnerDetermined(null, new VoteEventArgs(winner));
+                VoteWinnerDetermined(null, winner);
         }).Start();
     }
 
@@ -74,7 +76,7 @@ public static class SpectatorManager
         }
     }
 
-    public static int GetEventVoteWinner()
+    private static VoteEventArgs GetEventVoteWinner()
     {
         int max = -1, id = -1;
         for (int i = 0; i < eventVoteCounts.Length; ++i)
@@ -86,7 +88,7 @@ public static class SpectatorManager
             }
         }
 
-        return id;
+        return new VoteEventArgs(id, max);
     }
 }
 
