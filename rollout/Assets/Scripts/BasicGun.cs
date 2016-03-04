@@ -5,6 +5,7 @@ public class BasicGun : MonoBehaviour {
     public Projectile projectile;
     private Vector3 velocity;
     private Vector3 projectilePosition;
+    public float fireRate;
 
     public void Fire ()
     {
@@ -22,11 +23,21 @@ public class BasicGun : MonoBehaviour {
         var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
         spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
         spawnedProjectile.Initialise(velocity);
-        
+        print("gun shot");
     }
 
-	// Use this for initialization
-	void Start () {
+    public void Fire(Vector3 velocity)
+    {
+        //Spawn the projectile outside of the player in the direction you are aiming
+        projectilePosition = transform.position + velocity.normalized;
+        var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
+        spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
+        spawnedProjectile.Initialise(velocity);
+
+    }
+
+    // Use this for initialization
+    void Start () {
 	
 	}
 	

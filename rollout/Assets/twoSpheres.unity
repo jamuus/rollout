@@ -2490,6 +2490,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
+  fireRate: 0.5
 --- !u!1 &831618167
 GameObject:
   m_ObjectHideFlags: 0
@@ -4831,6 +4832,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
+  fireRate: 0.5
 --- !u!114 &1208294701
 MonoBehaviour:
   m_ObjectHideFlags: 0

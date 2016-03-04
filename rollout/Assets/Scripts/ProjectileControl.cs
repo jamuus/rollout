@@ -27,6 +27,7 @@ public class ProjectileControl : MonoBehaviour
     private Vector3 projectilePosition;
     private GameObject otherPlayer;
     private Quaternion projectileRotation;
+    private float shootTime;
 
 
     void Start()
@@ -51,12 +52,8 @@ public class ProjectileControl : MonoBehaviour
     public void Update()
     {
         //Checks if the player is trying to fire a weapon
-        if ((Input.GetButtonDown("Fire1") && gameObject.name == ("player1")) || (Input.GetButtonDown("Fire2") && gameObject.name == ("player2")))
+        if ((Input.GetButton("Fire1") && gameObject.name == ("player1")) || (Input.GetButton("Fire2") && gameObject.name == ("player2")))
         {
-            music = GameObject.Find("Music");
-            SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-            manager.Shoot (gameObject);
-
             Shoot();
         }
 
@@ -72,25 +69,28 @@ public class ProjectileControl : MonoBehaviour
         }
     }
 
+    //For shooting in game
     private void Shoot()
     {
-        ////Get the velocity of the player2
-        //velocity = GetComponent<Rigidbody>().velocity;
-
-        ////If the player isn't moving just hard code it
-        //if (velocity.magnitude == 0) velocity = new Vector3(1f, 0f, 0f);
-
-        ////Call shoot
-        //Shoot(velocity);
-
         //Checks if the weapon has ammunition
         if (ammunition[activeWeapon] != 0)
         {
+            //play the shooting sound
+            music = GameObject.Find("Music");
+            SoundManager manager = (SoundManager)music.GetComponent(typeof(SoundManager));
+            manager.Shoot(gameObject);
+
             //fire the weapon and reduce ammunition as needed
+            //GET CONTINUOUS FIRE WORKING WITH FIRE RATE
             switch (activeWeapon)
             {
                 case (int)Weapons.basicGun:
-                    basicGun.Fire();
+                    print(basicGun.fireRate);
+                    if (Time.time - shootTime >= basicGun.fireRate)
+                    {
+                        basicGun.Fire();
+                        shootTime = Time.time;
+                    }         
                     break;
 
                 case (int)Weapons.homingLauncher:
@@ -98,17 +98,35 @@ public class ProjectileControl : MonoBehaviour
                     ammunition[(int)Weapons.homingLauncher] -= 1;
                     break;
             }
+            print("Shooting done");
         }
     }
 
-    public void Shoot(Vector3 velocity)
-    {
-        //Spawn the projectile outside of the player in the direction you are aiming
-        projectilePosition = transform.position + velocity.normalized;
-        var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
+    //For shooting from the app
+    //public void Shoot(Vector3 velocity)
+    //{
+    //    if (ammunition[activeWeapon] != 0)
+    //    {
 
-        spawnedProjectile.Initialise(velocity);
-    }
+    //        //play the shooting sound
+    //        music = GameObject.Find("Music");
+    //        SoundManager manager = (SoundManager)music.GetComponent(typeof(SoundManager));
+    //        manager.Shoot(gameObject);
+
+    //        //fire the weapon and reduce ammunition as needed
+    //        switch (activeWeapon)
+    //        {
+    //            case (int)Weapons.basicGun:
+    //                basicGun.Fire();
+    //                break;
+
+    //            case (int)Weapons.homingLauncher:
+    //                homingLauncher.Fire(otherPlayer);
+    //                ammunition[(int)Weapons.homingLauncher] -= 1;
+    //                break;
+    //        }
+    //    }
+    //}
 
 
     public void FixedUpdate()

@@ -25,7 +25,6 @@ public class Projectile : MonoBehaviour
 
         //Destroys the projectile afer 2 seconds
         Destroy(gameObject, 2.0f);
-        GetComponent<ParticleSystem> ().Play ();
     }
 
     //In case you want to set your own speed and damage

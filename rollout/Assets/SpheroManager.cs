@@ -198,7 +198,7 @@ public class Sphero
         Vector3 directionVector = new Vector3((float)Math.Cos(direction), (float)Math.Sin(direction), 0.0f);
 
         //Tell the sphero to shoot
-        playerProjectile.Shoot(directionVector);
+       // playerProjectile.Shoot(directionVector);
 
     }
 
