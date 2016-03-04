@@ -15,8 +15,13 @@ public class Events : MonoBehaviour {
 	int eventTimer;
 	private List<GameObject> spawnedObjects = new List<GameObject>();
 	int recurringID = 0; // id = 0 is inactive
+    private float timeUntilNextEvent;
+    private float timeOfLastEvent;
 
-	public GameObject enemy;
+
+    public float timeUntilFirstEvent;
+    public float timeBetweenEvents;
+    public GameObject enemy;
 	GameObject player1;
 	GameObject player2;
 
@@ -25,13 +30,21 @@ public class Events : MonoBehaviour {
 		initialiseEvents (); // trigger event with id
 		player1 = GameObject.Find ("player1");
 		player2 = GameObject.Find ("player2");
+
+        timeUntilNextEvent = timeUntilFirstEvent;
+        timeOfLastEvent = 0;
 	}
 
 	void Update () {
 		updateTimer ();
 		applyRecurringEvent ();
-	}
 
+        if(Time.time > timeOfLastEvent + timeUntilNextEvent)
+        {
+            //TO-DO: Trigger a vote for the next event
+        }
+	}
+    
 	public void initialiseEvents()
 	{
 		GlobalEvent globalEvent = new GlobalEvent();
@@ -119,6 +132,7 @@ public class Events : MonoBehaviour {
 		if (eventTimer > 0) {
 			eventTimer -= 25;
 			if (eventTimer <= 0) {
+                timeOfLastEvent = Time.time;
 				resetOldState ();
 			}
 		}

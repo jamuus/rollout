@@ -534,6 +534,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ae0aa68c0d4f41f1ab2de7a51c0698e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timeUntilFirstEvent: 60
+  timeBetweenEvents: 30
   enemy: {fileID: 168830, guid: e733536f7413944ce8794d0a7908468a, type: 2}
 --- !u!1 &609668535
 GameObject:
