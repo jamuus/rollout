@@ -4,6 +4,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -68,5 +69,11 @@ public class SpectatorControllerActivity extends ActionBarActivity {
                 }
             }
         }.start();
+    }
+
+    public void eventClicked(View v)
+    {
+        //Get the tag of the element which was selected
+        v.getTag();
     }
 }
