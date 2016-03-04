@@ -159,8 +159,6 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
     public void onBackPressed() {
         super.onBackPressed();
 
-        Log.d("TEST", "Back pressed.");
-
         sensorManager.unregisterListener(this);
         Sphero.stopUpdateThread();
         Server.leaveServerAsync();
@@ -171,7 +169,6 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
         super.onPause();
         sensorManager.unregisterListener(this);
         Sphero.stopUpdateThread();
-        //Server.leaveServerAsync();
     }
 
     @Override

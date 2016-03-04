@@ -499,9 +499,12 @@ public static class Server
                 SpectatorManager.Instances.Add(spectator);
 
             // Testing.
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
             SpectatorManager.SendNewEvents();
 
+            break;
+        case ServerMessageType.VoteEvent:
+            SpectatorManager.EventVote(bytes[1]);
             break;
         }
     }

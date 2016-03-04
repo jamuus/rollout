@@ -182,6 +182,12 @@ public final class Server {
         }
     }
 
+    public static void voteEvent(int eventId) {
+        ServerMessage message = new ServerMessage(ServerMessageType.VOTE_EVENT);
+        message.addContent((byte)(eventId & 0xff));
+        sendAsync(message);
+    }
+
     public static void sendTCP(ServerMessage message) {
         byte[] data = message.compile();
         try {

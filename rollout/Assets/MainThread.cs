@@ -59,6 +59,14 @@ public class MainThread : MonoBehaviour
 
         SpheroManager.ybr.sphero = ybr;
 #endif
+
+    // Testing events.
+    SpectatorManager.VoteWinnerDetermined += OnEventWinnerDetermined;
+    }
+
+    private void OnEventWinnerDetermined(object sender, VoteEventArgs args)
+    {
+        Debug.LogFormat("VOTE WINNER: {0}.", args.Id);
     }
 
     // Each tick, check if there are any actions that have been queued, and if
