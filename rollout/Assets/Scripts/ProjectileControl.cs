@@ -53,10 +53,11 @@ public class ProjectileControl : MonoBehaviour
         //Checks if the player is trying to fire a weapon
         if ((Input.GetButtonDown("Fire1") && gameObject.name == ("player1")) || (Input.GetButtonDown("Fire2") && gameObject.name == ("player2")))
         {
-            music = GameObject.Find("Music");
-            SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-            manager.Shoot (gameObject);
+//            music = GameObject.Find("Music");
 
+			music = gameObject.transform.GetChild(0).gameObject;
+			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
+			manager.Shoot ();
             //Checks if the weapon has ammunition
             if (ammunition[activeWeapon] != 0)
             {

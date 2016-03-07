@@ -114,9 +114,9 @@ public class PlayerControl : MonoBehaviour
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
-        music = GameObject.Find("Music");
+		music = gameObject.transform.GetChild(0).gameObject;
         SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-        manager.PickPowerUp (gameObject);
+        manager.PickPowerUp ();
         print("PowerUp " + powerUp.name + " added to " + gameObject.name);
     }
 

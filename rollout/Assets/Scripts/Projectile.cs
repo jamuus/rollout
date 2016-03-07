@@ -54,15 +54,15 @@ public class Projectile : MonoBehaviour
             health = collidedObject.GetComponent<UniversalHealth> ();
             health.damagePlayer (damage);
 
-            music = GameObject.Find("Music");
+			music = gameObject.transform.GetChild(0).gameObject;
             SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-            manager.CollideProjectile (collidedObject);
+            manager.CollideProjectile ();
 
             Destroy (gameObject, 0.5f);
         } else {
-            music = GameObject.Find("Music");
+			music = gameObject.transform.GetChild(0).gameObject;
             SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-            manager.CollideObstacle (col.gameObject);
+            manager.CollideObstacle ();
         }
     }
 
