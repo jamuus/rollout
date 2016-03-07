@@ -21,16 +21,16 @@ public static class SpectatorManager
 {
     public static EventHandler<VoteEventArgs> VoteWinnerDetermined;
 
-    public static List<Spectator> Instances { get; private set; }
+    public static List<Spectator>   Instances    { get; private set; }
+    public static Events            EventManager { get; private set; }
 
-    public static Events   EventManager { get; private set; }
-
-    private static int[]    eventVoteCounts;
-    private static System.Object   lockSync;
+    private static int[]            eventVoteCounts;
+    private static System.Object    lockSync;
 
     static SpectatorManager()
     {
         Instances = new List<Spectator>();
+
         // Hardcoded size, needs to be adjusted for when more are added. Should also
         // probably be loaded from a config file.
         eventVoteCounts = new int[3];
@@ -50,16 +50,12 @@ public static class SpectatorManager
             Server.Send(data, s.Target);
     }
 
-    public static void SendNewEvents()
+    public static void SendNewEvents(int event0, int event1, int time)
     {
-        // Hardcode events for now.
-        byte[] eventIds = new byte[] { 1, 2 };
-
         // Set up message.
         ServerMessage message = new ServerMessage(ServerMessageType.SetEvents);
-        foreach (byte id in eventIds)
-            message.AddContent(id);
-        int time = 10000;
+        message.AddContent((byte)event0);
+        message.AddContent((byte)event1);
         message.AddContent(time); // Countdown time in ms.
 
         for (int i = 0; i < eventVoteCounts.Length; ++i)

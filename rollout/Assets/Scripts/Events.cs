@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Events : MonoBehaviour {
 
@@ -9,6 +10,7 @@ public class Events : MonoBehaviour {
 		public string name;
 		public string description;
 		public int time; //ms
+		public int id;
 	}
 
 	public List<GlobalEvent> globalEvents = new List<GlobalEvent>();
@@ -25,6 +27,8 @@ public class Events : MonoBehaviour {
 	GameObject player1;
 	GameObject player2;
 
+	private System.Random random;
+
 
 	void Start () {
 		initialiseEvents (); // trigger event with id
@@ -33,6 +37,8 @@ public class Events : MonoBehaviour {
 
         timeUntilNextEvent = timeUntilFirstEvent;
         timeOfLastEvent = 0;
+
+		random = new System.Random();
 	}
 
 	void Update () {
@@ -42,7 +48,8 @@ public class Events : MonoBehaviour {
         if(Time.time > timeOfLastEvent + timeUntilNextEvent)
         {
 			timeOfLastEvent = float.MaxValue;
-            SpectatorManager.SendNewEvents();
+			var selected = globalEvents.OrderBy(x => random.Next(0, globalEvents.Count)).Take(2).ToList();
+			SpectatorManager.SendNewEvents(selected[0].id, selected[1].id, 10000);
         }
 	}
 
@@ -53,16 +60,19 @@ public class Events : MonoBehaviour {
 		globalEvent.name = "Hell";
 		globalEvent.description = "Spawn a lot of lava";
 		globalEvent.time = 10000;
+		globalEvent.id = 0;
 		globalEvents.Add (globalEvent);
 
 		globalEvent.name = "Earthquake";
 		globalEvent.description = "Shakes spheros up";
 		globalEvent.time = 50000;
+		globalEvent.id = 1;
 		globalEvents.Add (globalEvent);
 
 		globalEvent.name = "Enemy";
 		globalEvent.description = "Spawn a vicious enemy that shoots at players";
 		globalEvent.time = 100000;
+		globalEvent.id = 2;
 		globalEvents.Add (globalEvent);
 	}
 

@@ -29,7 +29,7 @@ public class MainThread : MonoBehaviour
         SpectatorManager.Initialise();
 
         // Initialise server and start listening for controllers & node.
-        Server.Name = "Iman";
+        Server.Name = "Rollout Server";
         Server.StartListening(7777);
 
 #if SOFTWARE_MODE
