@@ -181,8 +181,7 @@ function setupIp(dataOut) {
     server.bind(PORT);
 }
 
-
-var angleLog = Filter(100);
+var angleLog = Filter(30);
 var lastPos = [{
     x: 0,
     y: 0
@@ -196,8 +195,8 @@ var bef = new Date().getTime();
 
 function newSpheroData(data, spheroState) {
     spheroState.spheroVel.add({
-        x: data.dx,
-        y: data.dy
+        x: data.dx / 1000.0,
+        y: data.dy / 1000.0
     });
 
     var absVelX = data.dx * Math.cos(spheroState.driftAngle) -
@@ -207,15 +206,17 @@ function newSpheroData(data, spheroState) {
 
     spheroState.absSpheroVel = {
         x: absVelX,
-        y: absVelY
+        y: absVelY,
     };
 
     var aft = new Date().getTime();
+    // number of seconds past
     var diff = (aft - bef) / 1000.0;
     bef = aft;
 
-    spheroState.pos.x += (absVelX * diff) / 1000 * 10;
-    spheroState.pos.y += (absVelY * diff) / 1000 * 10;
+    // update pos in meters
+    spheroState.pos.x += (absVelX * diff);
+    spheroState.pos.y += (absVelY * diff);
     // console.log(spheroState.pos);
 }
 
@@ -233,10 +234,14 @@ function newIpData(name, sphero, data) {
         } : {};
     }
 
-    sphero.ipPos.add({
+    var ipData = {
         x: data.x,
         y: -data.y
-    });
+    }
+
+    var transformedPosition = pixelToPosition(ipData);
+
+    sphero.ipPos.add(transformedPosition);
 
     var filteredPos = sphero.ipPos.average();
 
@@ -271,12 +276,12 @@ function newIpData(name, sphero, data) {
     angle = angle < -Math.PI ? angle + 2 * Math.PI : angle;
 
     if (!isNaN(angle) &&
-        spheroDirMag > 10 &&
-        ipDirMag > 10) {
+        spheroDirMag > 0.1) {
         angleLog.add(angle);
     }
 
     var filteredAngle = angleLog.value();
+    // console.log(spheroDirMag, ipDirMag);
 
     sphero.driftAngle = filteredAngle;
 
@@ -294,18 +299,66 @@ function newIpData(name, sphero, data) {
     }
 }
 
-/*
-    get a dx from ip
-        create movement vector from last data and this
-        if sphero has travelled along a line, use this vector
-        low pass of differences
-    get a dx from sphero data
-        straight up diff vector
-        low pass of diff vectors
+var arenaSize = {
+    x: 2.0,
+    y: 2.0,
+};
+var imageSize = {
+    x: 1280,
+    y: 720,
+};
 
-    dot product
-        update known orientation - low pass/exp decay
-*/
+function pixelToPosition(pos) {
+    return {
+        x: pos.x / imageSize.x * arenaSize.x,
+        y: pos.y / imageSize.y * arenaSize.y,
+    }
+}
+
+
+KalmanModel = (function() {
+
+    function KalmanModel(x_0, P_0, F_k, Q_k) {
+        this.x_k = x_0;
+        this.P_k = P_0;
+        this.F_k = F_k;
+        this.Q_k = Q_k;
+    }
+
+    KalmanModel.prototype.update = function(o) {
+        this.I = Matrix.I(this.P_k.rows());
+        //init
+        this.x_k_ = this.x_k;
+        this.P_k_ = this.P_k;
+
+        //Predict
+        this.x_k_k_ = this.F_k.x(this.x_k_);
+        this.P_k_k_ = this.F_k.x(this.P_k_.x(this.F_k.transpose())).add(this.Q_k);
+
+        //update
+        this.y_k = o.z_k.subtract(o.H_k.x(this.x_k_k_)); //observation residual
+        this.S_k = o.H_k.x(this.P_k_k_.x(o.H_k.transpose())).add(o.R_k); //residual covariance
+        this.K_k = this.P_k_k_.x(o.H_k.transpose().x(this.S_k.inverse())); //Optimal Kalman gain
+        this.x_k = this.x_k_k_.add(this.K_k.x(this.y_k));
+        this.P_k = this.I.subtract(this.K_k.x(o.H_k)).x(this.P_k_k_);
+    }
+
+    return KalmanModel;
+})();
+
+KalmanObservation = (function() {
+
+    function KalmanObservation(z_k, H_k, R_k) {
+        this.z_k = z_k; //observation
+        this.H_k = H_k; //observation model
+        this.R_k = R_k; //observation noise covariance
+    }
+
+    return KalmanObservation;
+})();
+
+/*
+
 
 var kalmanLog = function() {}; // console.log;
 
@@ -422,3 +475,5 @@ setInterval(function() {
 
     kalmanLog();
 }, 2000);
+
+*/

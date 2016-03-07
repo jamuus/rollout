@@ -82,7 +82,6 @@ void morphOps(Mat &thresh)
 }
 void drawObject(vector<Sphero> spheros, Mat &frame)
 {
-
     for (int i = 0; i < spheros.size(); i++) {
 
         cv::circle(frame, cv::Point(spheros.at(i).getXPos(), spheros.at(i).getYPos()), 10, cv::Scalar(0, 0, 255));

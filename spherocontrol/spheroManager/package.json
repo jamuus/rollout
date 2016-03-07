@@ -9,6 +9,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "sphero": "jamuus/sphero.js#dev"
+        "sphero": "jamuus/sphero.js#dev",
+        "serialport": "*"
     }
 }

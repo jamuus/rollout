@@ -90,7 +90,7 @@
     });
 
     function calcNewForce() {
-        force = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 0.6 : 0.0;
+        force = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 0.3 : 0.0;
         var x = pressedKeys.w + -pressedKeys.s;
         var y = pressedKeys.d + -pressedKeys.a;
         var direction = Math.atan2(y, x);
@@ -162,7 +162,7 @@
 
     function drawCircle(pos, r) {
         ctx1.beginPath();
-        ctx1.arc(pos.x / 1280 * 600, pos.y / 720 * 400, r, 0, 2 * Math.PI);
+        ctx1.arc(pos.x / 2 * 600, pos.y / 2 * 400, r, 0, 2 * Math.PI);
         ctx1.stroke();
     }
 
