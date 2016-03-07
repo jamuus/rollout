@@ -41,10 +41,11 @@ public class Events : MonoBehaviour {
 
         if(Time.time > timeOfLastEvent + timeUntilNextEvent)
         {
-            //TO-DO: Trigger a vote for the next event
+			timeOfLastEvent = float.MaxValue;
+            SpectatorManager.SendNewEvents();
         }
 	}
-    
+
 	public void initialiseEvents()
 	{
 		GlobalEvent globalEvent = new GlobalEvent();

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 
+using UnityEngine;
+
 public class VoteEventArgs : EventArgs
 {
     public int Id       { get; private set; }
@@ -21,8 +23,10 @@ public static class SpectatorManager
 
     public static List<Spectator> Instances { get; private set; }
 
+    public static Events   EventManager { get; private set; }
+
     private static int[]    eventVoteCounts;
-    private static Object   lockSync;
+    private static System.Object   lockSync;
 
     static SpectatorManager()
     {
@@ -31,7 +35,12 @@ public static class SpectatorManager
         // probably be loaded from a config file.
         eventVoteCounts = new int[3];
 
-        lockSync = new Object();
+        lockSync = new System.Object();
+    }
+
+    public static void Initialise()
+    {
+        EventManager = GameObject.Find("Container").GetComponent<Events>();
     }
 
     public static void SendToAll(ServerMessage message)

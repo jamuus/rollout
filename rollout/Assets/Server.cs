@@ -498,10 +498,6 @@ public static class Server
             if (!SpectatorManager.Instances.Contains(spectator));
                 SpectatorManager.Instances.Add(spectator);
 
-            // Testing.
-            Thread.Sleep(1000);
-            SpectatorManager.SendNewEvents();
-
             break;
         case ServerMessageType.VoteEvent:
             SpectatorManager.EventVote(bytes[1]);

@@ -32,6 +32,14 @@ public class SpectatorControllerActivity extends ActionBarActivity {
         eventButtonParents[1] = (FrameLayout)findViewById(R.id.event_2);
 
         txtTimeRemaining = (TextView)findViewById(R.id.countdown);
+
+        txtTimeRemaining.setText("0");
+        for (int i = 0; i < eventButtons.length; ++i) {
+            eventButtons[i].setOnLongClickListener(null);
+            eventButtons[i].setText("Waiting for next vote.");
+            eventButtonParents[i].setBackgroundColor(getResources().getColor(R.color.transparentgrey));
+            eventButtons[i].setTag(-1);
+        }
     }
 
     @Override
