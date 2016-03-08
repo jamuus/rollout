@@ -124,8 +124,11 @@ public final class Server {
         tcpServerListen = false;
         try {
             tcpThread.join();
+            tcpSocket.close();
         } catch (InterruptedException ex) {
-            Log.d(TAG, "Exception stopping TCP thread.");
+            Log.d(TAG, "Exception stopping TCP thread.", ex);
+        } catch (IOException ex) {
+            Log.d(TAG, "Exception closing TCP socket.", ex);
         }
     }
 
@@ -136,6 +139,22 @@ public final class Server {
                 leaveServer();
             }
         }).start();
+    }
+
+    public static boolean isTcpActive() {
+        return tcpServerListen;
+    }
+
+    public static void stopTcpThread() {
+        tcpServerListen = false;
+        try {
+            tcpSocket.close();
+            tcpThread.join();
+        } catch (InterruptedException ex) {
+            Log.d(TAG, "Exception stopping TCP thread.", ex);
+        } catch (IOException ex) {
+            Log.d(TAG, "Exception closing TCP socket.", ex);
+        }
     }
 
     public static void connectTo(ServerHandle server, boolean asPlayer) {
@@ -162,13 +181,9 @@ public final class Server {
                             }
                         }
 
-                        Sphero.leaveGame();
-
-                    /*try {
-                        tcpSocket.close();
-                    } catch (IOException ex) {
-                        Log.d(TAG, "Exception closing TCP socket.", ex);
-                    }*/
+                        if (Sphero.getName() != null) {
+                            Sphero.leaveGame();
+                        }
                     }
                 });
                 tcpThread.start();

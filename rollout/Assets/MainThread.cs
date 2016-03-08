@@ -37,29 +37,29 @@ public class MainThread : MonoBehaviour
 
 
         // Add a test Sphero for debugging.
-        Sphero boo = new Sphero();
-        boo.DeviceName = "tty.Sphero-BOO-AMP-SPP";
-        boo.Health = 96.4f;
-        boo.Shield = 44.5f;
-        boo.Weapons.Add(new SpheroWeapon(SpheroWeaponType.RailGun));
-        boo.BatteryVoltage = 7.2f;
-        boo.UnityObject = SpheroManager.boo; // TODO This needs to be automated.
-        boo.UnityProjectileControl = SpheroManager.boo.GetComponent<ProjectileControl>();
-        SpheroManager.Instances[boo.DeviceName] = boo;
-
-        SpheroManager.boo.sphero = boo;
-
-        Sphero ybr = new Sphero();
-        ybr.DeviceName = "tty.Sphero-YBR-AMP-SPP";
-        ybr.Health = 96.4f;
-        ybr.Shield = 44.5f;
-        ybr.Weapons.Add(new SpheroWeapon(SpheroWeaponType.RailGun));
-        ybr.BatteryVoltage = 7.2f;
-        ybr.UnityObject = SpheroManager.ybr; // TODO This needs to be automated.
-        ybr.UnityProjectileControl = SpheroManager.ybr.GetComponent<ProjectileControl>();
-        SpheroManager.Instances[ybr.DeviceName] = ybr;
-
-        SpheroManager.ybr.sphero = ybr;
+        // Sphero boo = new Sphero();
+        // boo.DeviceName = "tty.Sphero-BOO-AMP-SPP";
+        // boo.Health = 96.4f;
+        // boo.Shield = 44.5f;
+        // boo.Weapons.Add(new SpheroWeapon(SpheroWeaponType.RailGun));
+        // boo.BatteryVoltage = 7.2f;
+        // boo.UnityObject = SpheroManager.boo; // TODO This needs to be automated.
+        // boo.UnityProjectileControl = SpheroManager.boo.GetComponent<ProjectileControl>();
+        // SpheroManager.Instances[boo.DeviceName] = boo;
+        //
+        // SpheroManager.boo.sphero = boo;
+        //
+        // Sphero ybr = new Sphero();
+        // ybr.DeviceName = "tty.Sphero-YBR-AMP-SPP";
+        // ybr.Health = 96.4f;
+        // ybr.Shield = 44.5f;
+        // ybr.Weapons.Add(new SpheroWeapon(SpheroWeaponType.RailGun));
+        // ybr.BatteryVoltage = 7.2f;
+        // ybr.UnityObject = SpheroManager.ybr; // TODO This needs to be automated.
+        // ybr.UnityProjectileControl = SpheroManager.ybr.GetComponent<ProjectileControl>();
+        // SpheroManager.Instances[ybr.DeviceName] = ybr;
+        //
+        // SpheroManager.ybr.sphero = ybr;
 #endif
 
         // Testing events.

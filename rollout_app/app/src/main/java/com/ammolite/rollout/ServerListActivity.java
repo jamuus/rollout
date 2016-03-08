@@ -92,6 +92,10 @@ public class ServerListActivity extends ActionBarActivity {
             @Override
             public void run() {
                 if (name.equals(SPECTATOR_NAME)) {
+                    if (Server.isTcpActive()) {
+                        Server.stopTcpThread();
+                    }
+
                     startActivity(new Intent(ServerListActivity.this, SpectatorControllerActivity.class));
                 } else {
                     Sphero.setName(name);

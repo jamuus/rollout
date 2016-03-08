@@ -90,8 +90,11 @@ public class PlayerControl : MonoBehaviour
         float moveHorizontal = Input.GetAxis(horizontalAxis);
         float moveVertical = Input.GetAxis(verticalAxis);
 #if SOFTWARE_MODE
-        moveHorizontal += sphero.Force.x;
-        moveVertical   += sphero.Force.y;
+        if (sphero != null)
+        {
+            moveHorizontal += sphero.Force.x;
+            moveVertical   += sphero.Force.y;
+        }
 #endif
 
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
