@@ -79,7 +79,8 @@ public class MainThread : MonoBehaviour
     // so perform them.
     void Update()
     {
-        lock (lockObject) {
+        lock (lockObject)
+        {
             foreach (Action action in actionQueue)
                 action();
             actionQueue.Clear();
@@ -102,7 +103,8 @@ public class MainThread : MonoBehaviour
     // Add an action to complete on the main thread in the next tick.
     public static void EnqueueAction(Action action)
     {
-        lock (lockObject) {
+        lock (lockObject)
+        {
             actionQueue.Enqueue(action);
         }
     }

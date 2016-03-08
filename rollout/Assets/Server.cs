@@ -188,7 +188,8 @@ public static class Server
                 if (BitConverter.ToBoolean(connection.Buffer, 0) && ((sphero = SpheroManager.GetNextSphero()) != null))
                 {
                     message.AddContent(sphero.DeviceName);
-                } else
+                }
+                else
                 {
                     message.AddContent(SpheroManager.SpectatorName);
                     //SpectatorManager.Instances.Add(new Spectator(receivedFrom));
