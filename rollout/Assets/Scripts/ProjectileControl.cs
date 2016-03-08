@@ -17,6 +17,7 @@ public class ProjectileControl : MonoBehaviour
     //intialise the weapon structures
     enum Weapons : int { basicGun, homingLauncher };
     private int[] ammunition = new int[2];
+    private ArrayList fireRates = new ArrayList();
     private int activeWeapon;
 
     //weapon variables
@@ -46,7 +47,11 @@ public class ProjectileControl : MonoBehaviour
 
         //access the weapons
         basicGun = GetComponent<BasicGun>();
+        fireRates.Add(basicGun.fireRate);
+
         homingLauncher = GetComponent<HomingLauncher>();
+        fireRates.Add(homingLauncher.fireRate);
+
     }
 
     public void Update()
@@ -72,8 +77,9 @@ public class ProjectileControl : MonoBehaviour
     //For shooting in game
     private void Shoot()
     {
-        //Checks if the weapon has ammunition
-        if (ammunition[activeWeapon] != 0)
+        float sinceLastShot = Time.time - shootTime;
+        //Checks if the weapon has ammunition and shoots according to fire rate
+        if (ammunition[activeWeapon] != 0 && sinceLastShot >= (float)fireRates[activeWeapon])
         {
             //play the shooting sound
             music = GameObject.Find("Music");
@@ -81,24 +87,19 @@ public class ProjectileControl : MonoBehaviour
             manager.Shoot(gameObject);
 
             //fire the weapon and reduce ammunition as needed
-            //GET CONTINUOUS FIRE WORKING WITH FIRE RATE
             switch (activeWeapon)
             {
                 case (int)Weapons.basicGun:
-                    print(basicGun.fireRate);
-                    if (Time.time - shootTime >= basicGun.fireRate)
-                    {
                         basicGun.Fire();
-                        shootTime = Time.time;
-                    }         
                     break;
 
                 case (int)Weapons.homingLauncher:
-                    homingLauncher.Fire(otherPlayer);
-                    ammunition[(int)Weapons.homingLauncher] -= 1;
+                        homingLauncher.Fire(otherPlayer);
+                        ammunition[(int)Weapons.homingLauncher] -= 1;
                     break;
             }
-            print("Shooting done");
+
+            shootTime = Time.time;
         }
     }
 

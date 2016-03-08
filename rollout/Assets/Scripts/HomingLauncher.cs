@@ -9,6 +9,8 @@ public class HomingLauncher : MonoBehaviour
     private Vector3 velocity;
     private Quaternion projectileRotation;
     private Vector3 projectilePosition;
+    public int ammunition = 20;
+    public float fireRate = 1;
 
 
     public void Fire(GameObject givenOtherPlayer)
