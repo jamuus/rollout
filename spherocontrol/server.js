@@ -63,7 +63,8 @@ function discover() {
         discoverSocket.setBroadcast(true);
         var buf = new Buffer(1);
         buf[0] = MessageType.SERVER_DISCOVER;
-        discoverSocket.send(buf, 0, buf.length, UNITY_PORT, "localhost", function() {
+        discoverSocket.send(buf, 0, buf.length, UNITY_PORT, "255.255.255.255", function() {
+
             discoverSocket.close();
         });
     });
@@ -138,7 +139,7 @@ function connectToUnity(server) {
     udpOutgoing.bind(PORT, function() {
         var buf = new Buffer(1);
         buf[0] = MessageType.NODE_INIT;
-        udpOutgoing.send(buf, 0, buf.length, UNITY_PORT, server.ip);
+        udpOutgoing.send(buf, 0, buf.length, UNITY_PORT, server._ip);
         connectedServer = server;
 
         setInterval(sendState, 1000 / 60);
@@ -206,6 +207,7 @@ function sendState() {
             idx += 4;
             buf.writeFloatLE(sphero.dy, idx);
             idx += 4;
+            // console.log(sphero.pos);
             buf.writeFloatLE(sphero.pos.x, idx);
             idx += 4;
             buf.writeFloatLE(sphero.pos.y, idx);
@@ -218,7 +220,7 @@ function sendState() {
         message = Buffer.concat([message, buf]);
     }
 
-    udpOutgoing.send(message, 0, message.length, UNITY_PORT, connectedServer.ip, function(err) {
+    udpOutgoing.send(message, 0, message.length, UNITY_PORT, connectedServer._ip, function(err) {
         if (err) throw err;
     });
 }
