@@ -596,6 +596,48 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
+--- !u!1001 &721526490
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 485554, guid: 357837b6b87e49f42b14420bbe336bbd, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 3.8504405
+      objectReference: {fileID: 0}
+    - target: {fileID: 485554, guid: 357837b6b87e49f42b14420bbe336bbd, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 485554, guid: 357837b6b87e49f42b14420bbe336bbd, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: -6.5675077
+      objectReference: {fileID: 0}
+    - target: {fileID: 485554, guid: 357837b6b87e49f42b14420bbe336bbd, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 485554, guid: 357837b6b87e49f42b14420bbe336bbd, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 485554, guid: 357837b6b87e49f42b14420bbe336bbd, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 485554, guid: 357837b6b87e49f42b14420bbe336bbd, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 485554, guid: 357837b6b87e49f42b14420bbe336bbd, type: 2}
+      propertyPath: m_RootOrder
+      value: 13
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: 357837b6b87e49f42b14420bbe336bbd, type: 2}
+  m_IsPrefabParent: 0
 --- !u!1001 &752281214
 Prefab:
   m_ObjectHideFlags: 0
@@ -661,6 +703,7 @@ GameObject:
   - 82: {fileID: 796036344}
   - 114: {fileID: 796036346}
   - 114: {fileID: 796036345}
+  - 114: {fileID: 796036347}
   m_Layer: 0
   m_Name: player2
   m_TagString: Player
@@ -2478,6 +2521,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   homingMissile: {fileID: 11472636, guid: 453e49979ba6be5479ca3969baef5231, type: 2}
+  ammunition: 0
+  fireRate: 1
 --- !u!114 &796036346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2491,6 +2536,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
   fireRate: 0.5
+  ammunition: -1
+--- !u!114 &796036347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 796036330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be6a24fa00a83614281dfd572dc0954b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grenade: {fileID: 11425522, guid: 357837b6b87e49f42b14420bbe336bbd, type: 2}
+  speed: 20
+  explosionRadius: 4
+  explosionPower: 200
+  maxDamage: 20
+  minDamage: 5
+  fireRate: 1
+  ammunition: 20
 --- !u!1 &831618167
 GameObject:
   m_ObjectHideFlags: 0
@@ -3010,6 +3075,7 @@ GameObject:
   - 114: {fileID: 1208294701}
   - 114: {fileID: 1208294700}
   - 82: {fileID: 1208294699}
+  - 114: {fileID: 1208294702}
   m_Layer: 0
   m_Name: player1
   m_TagString: Player
@@ -4833,6 +4899,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
   fireRate: 0.5
+  ammunition: -1
 --- !u!114 &1208294701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4845,6 +4912,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   homingMissile: {fileID: 11472636, guid: 453e49979ba6be5479ca3969baef5231, type: 2}
+  ammunition: 0
+  fireRate: 1
+--- !u!114 &1208294702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1208294685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be6a24fa00a83614281dfd572dc0954b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grenade: {fileID: 11425522, guid: 357837b6b87e49f42b14420bbe336bbd, type: 2}
+  speed: 20
+  explosionRadius: 4
+  explosionPower: 200
+  maxDamage: 20
+  minDamage: 5
+  fireRate: 1
+  ammunition: 20
 --- !u!1001 &1518568258
 Prefab:
   m_ObjectHideFlags: 0
@@ -5723,7 +5811,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_Materials:
-  - {fileID: 2100000, guid: ec8e8d474d5e94ed6ae40588a614ed32, type: 3}
+  - {fileID: 2100000, guid: d14474147c2c2ca49bb4c729659bef83, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 1

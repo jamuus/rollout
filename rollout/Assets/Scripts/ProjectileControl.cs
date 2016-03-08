@@ -15,14 +15,15 @@ public class ProjectileControl : MonoBehaviour
     //4) Include the weapon firing and ammo reduction in the switch statement in Update
 
     //intialise the weapon structures
-    enum Weapons : int { basicGun, homingLauncher };
-    private int[] ammunition = new int[2];
+    enum Weapons : int { basicGun, homingLauncher, grenadeThrower };
+    private int[] ammunition = new int[3];
     private ArrayList fireRates = new ArrayList();
     private int activeWeapon;
 
     //weapon variables
     private BasicGun basicGun;
     private HomingLauncher homingLauncher;
+    private GrenadeThrower grenadeThrower;
 
     //variables to aid firing
     private Vector3 projectilePosition;
@@ -44,6 +45,7 @@ public class ProjectileControl : MonoBehaviour
         activeWeapon = (int)Weapons.homingLauncher;
         ammunition[(int)Weapons.basicGun] = -1;
         ammunition[(int)Weapons.homingLauncher] = 20;
+        ammunition[(int)Weapons.grenadeThrower] = 20;
 
         //access the weapons
         basicGun = GetComponent<BasicGun>();
@@ -52,6 +54,8 @@ public class ProjectileControl : MonoBehaviour
         homingLauncher = GetComponent<HomingLauncher>();
         fireRates.Add(homingLauncher.fireRate);
 
+        grenadeThrower = GetComponent<GrenadeThrower>();
+        fireRates.Add(grenadeThrower.fireRate);
     }
 
     public void Update()
@@ -72,6 +76,10 @@ public class ProjectileControl : MonoBehaviour
         {
             ChangeActiveWeapon("homingLauncher");
         }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            ChangeActiveWeapon("grenadeThrower");
+        }
     }
 
     //For shooting in game
@@ -90,12 +98,16 @@ public class ProjectileControl : MonoBehaviour
             switch (activeWeapon)
             {
                 case (int)Weapons.basicGun:
-                        basicGun.Fire();
+                    basicGun.Fire();
                     break;
 
                 case (int)Weapons.homingLauncher:
-                        homingLauncher.Fire(otherPlayer);
-                        ammunition[(int)Weapons.homingLauncher] -= 1;
+                    homingLauncher.Fire(otherPlayer);
+                    ammunition[(int)Weapons.homingLauncher] -= 1;
+                    break;
+
+                case (int)Weapons.grenadeThrower:
+                    grenadeThrower.Fire();
                     break;
             }
 
@@ -104,30 +116,33 @@ public class ProjectileControl : MonoBehaviour
     }
 
     //For shooting from the app
-    //public void Shoot(Vector3 velocity)
-    //{
-    //    if (ammunition[activeWeapon] != 0)
-    //    {
+    public void Shoot(Vector3 velocity)
+    {
+        float sinceLastShot = Time.time - shootTime;
+        //Checks if the weapon has ammunition and shoots according to fire rate
+        if (ammunition[activeWeapon] != 0 && sinceLastShot >= (float)fireRates[activeWeapon])
+        {
+            //play the shooting sound
+            music = GameObject.Find("Music");
+            SoundManager manager = (SoundManager)music.GetComponent(typeof(SoundManager));
+            manager.Shoot(gameObject);
 
-    //        //play the shooting sound
-    //        music = GameObject.Find("Music");
-    //        SoundManager manager = (SoundManager)music.GetComponent(typeof(SoundManager));
-    //        manager.Shoot(gameObject);
+            //fire the weapon and reduce ammunition as needed
+            switch (activeWeapon)
+            {
+                case (int)Weapons.basicGun:
+                    basicGun.Fire(velocity);
+                    break;
 
-    //        //fire the weapon and reduce ammunition as needed
-    //        switch (activeWeapon)
-    //        {
-    //            case (int)Weapons.basicGun:
-    //                basicGun.Fire();
-    //                break;
+                case (int)Weapons.homingLauncher:
+                    homingLauncher.Fire(otherPlayer);
+                    ammunition[(int)Weapons.homingLauncher] -= 1;
+                    break;
+            }
 
-    //            case (int)Weapons.homingLauncher:
-    //                homingLauncher.Fire(otherPlayer);
-    //                ammunition[(int)Weapons.homingLauncher] -= 1;
-    //                break;
-    //        }
-    //    }
-    //}
+            shootTime = Time.time;
+        }
+    }
 
 
     public void FixedUpdate()

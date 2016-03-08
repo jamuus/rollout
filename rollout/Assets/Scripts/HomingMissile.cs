@@ -11,7 +11,6 @@ public class HomingMissile : MonoBehaviour
     public int damage;
     public Explosion explosion;
     private Rigidbody homingMissile;
-    private UniversalHealth health;
     private GameObject otherPlayer;
 
     public void Initialise(Vector3 givenVelocity, GameObject givenOtherPlayer)
