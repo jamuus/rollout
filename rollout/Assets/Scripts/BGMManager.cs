@@ -2,17 +2,13 @@
 using System.Collections;
 
 public class BGMManager : MonoBehaviour {
+
 	public enum FadeState { None = 0, FadingOut = 1, FadingIn = 2}
-	private float _fadeSpeed = 0.05f;
-	private float _inVolume = 1.00f;
-	private float _outVolume = 0.00f;
-	private bool _loop = false;
+
+	private AudioSource[] sources;
 	public AudioClip basetrack;
 	public AudioClip earthquake;
-	public AudioClip lava;
-	public AudioClip enemy;
-	public AudioSource[] sources;
-
+	public Track[] tracks = new Track[2];
 
 	public struct Track
 	{
@@ -21,17 +17,41 @@ public class BGMManager : MonoBehaviour {
 		public FadeState fadeState;
 		public float fadeSpeed;
 		public bool loop;
+		public AudioSource output;
+		public AudioClip clip;
 
+		public Track(int newId, string newName, FadeState newFadeState, float newFadeSpeed, bool newLoop, AudioSource newOutput, AudioClip newClip){
+			newOutput.clip=newClip;
+			newOutput.loop = newLoop;
+			id = newId;
+			name = newName;
+			fadeState = newFadeState;
+			fadeSpeed = newFadeSpeed;
+			loop = newLoop;
+			output = newOutput;
+			clip = newClip;
+		}
 	}
-//	public Track[] tracks = new Track[3];
-//
-//	private void AddClip(int track)
-//	{
-//		tracks[track].fadeState = FadeState.FadingIn;
-//		tracks [track].fadeSpeed = _fadeSpeed;
-//		tracks [track].loop = _loop;
-//
-//	}
+
+	private void init()
+	{
+		sources = this.GetComponents<AudioSource>();
+		sources [0].clip = basetrack;
+		sources [1].clip = earthquake;
+		tracks [0] = new Track (0, "basetrack", FadeState.None, 0.05f, false, sources [0],basetrack);
+		tracks [1] = new Track (1, "earthquake", FadeState.None, 0.05f, false, sources [1],earthquake);
+	}
+
+	void Start () {
+		init ();
+//		tracks [0].output.Play ();
+	}
+	private void AddClip(int track)
+	{
+		tracks[track].fadeState = FadeState.FadingIn;
+		tracks [track].fadeSpeed = _fadeSpeed;
+		tracks [track].loop = _loop;
+	}
 //
 //	private void RemoveClip(int track)
 //	{
@@ -46,10 +66,7 @@ public class BGMManager : MonoBehaviour {
 ////	}
 ////		
 //
-//	void Start () {
-//		sources = this.GetComponents<AudioSource>();
-//		
-//	}
+
 //		
 //	private void Update()
 //	{
