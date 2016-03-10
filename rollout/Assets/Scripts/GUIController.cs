@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
+//using UnityEditor;
 using System;
 
 public class GUIController : MonoBehaviour
