@@ -150,6 +150,11 @@ public class PlayerControl : MonoBehaviour
         if (powerUp.name == "Stun Enemy") {
             otherPlayer.GetComponent<PlayerControl>().statuses [4] = statusList[4].time;
         }
+        if (powerUp.name == "Boost")
+        {
+            //Apply a force to the sphero
+            velocity += powerUp.value*velocity.normalized;
+        }
     }
 
     private void triggerStatusEffects()
