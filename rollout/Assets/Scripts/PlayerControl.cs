@@ -142,18 +142,14 @@ public class PlayerControl : MonoBehaviour
             otherPlayer.GetComponent<PlayerControl>().statuses [2] = statusList[2].time;
             statuses [3] = 0;
         }
-        if (powerUp.name == "Boost") {
-            statuses [3] = statusList[3].time;
-            statuses [2] = 0; // When boost used it removes negative speed effects
-            statuses [4] = 0; // Removing stunn status
-        }
         if (powerUp.name == "Stun Enemy") {
             otherPlayer.GetComponent<PlayerControl>().statuses [4] = statusList[4].time;
         }
         if (powerUp.name == "Boost")
         {
             //Apply a force to the sphero
-            velocity += powerUp.value*velocity.normalized;
+            GetComponent<Rigidbody>().AddForce(powerUp.value*velocity.normalized);
+            print("Boosting");
         }
     }
 

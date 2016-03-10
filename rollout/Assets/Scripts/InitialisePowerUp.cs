@@ -23,12 +23,6 @@ public class InitialisePowerUp: MonoBehaviour
 
         powerUp.id = newID();
 
-        powerUp.name = "Boost";
-        powerUp.description = "Doubles movement speed";
-        powerUp.value = 2;
-        powerUp.instant = false;
-        powerUps.Add(powerUp);
-
         powerUp.id = newID ();
         powerUp.name = "Damage Enemy";
         powerUp.description = "Deals damage to enemy player";
@@ -59,7 +53,7 @@ public class InitialisePowerUp: MonoBehaviour
 
         powerUp.name = "Boost";
         powerUp.description = "Gives you a speed boost";
-        powerUp.value = 1;
+        powerUp.value = 500;
         powerUp.instant = true;
         powerUps.Add(powerUp);
 
