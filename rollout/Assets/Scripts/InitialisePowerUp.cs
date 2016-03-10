@@ -57,6 +57,12 @@ public class InitialisePowerUp: MonoBehaviour
         powerUp.instant = false;
         powerUps.Add(powerUp);
 
+        powerUp.name = "Boost";
+        powerUp.description = "Gives you a speed boost";
+        powerUp.value = 1;
+        powerUp.instant = true;
+        powerUps.Add(powerUp);
+
     }
 
     int newID()
