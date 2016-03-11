@@ -43,10 +43,10 @@ public class HomingMissile : MonoBehaviour
     //when the missile hits something, spawn an explosion
     void OnCollisionEnter(Collision col)
     {
+        Destroy(gameObject);
         var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
         spawnedExplosion.Initialise(4, explosionPower, 30, 10);
         print("Explosion Successful");
-        Destroy(this.gameObject);
 
         //GameObject collidedObject = col.gameObject;
         //if (collidedObject.name == "player1" || collidedObject.name == "player2")
