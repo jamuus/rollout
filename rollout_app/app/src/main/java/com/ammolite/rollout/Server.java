@@ -130,6 +130,8 @@ public final class Server {
         } catch (IOException ex) {
             Log.d(TAG, "Exception closing TCP socket.", ex);
         }
+
+        Sphero.setName(null);
     }
 
     public static void leaveServerAsync() {

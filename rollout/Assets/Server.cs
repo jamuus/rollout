@@ -299,6 +299,7 @@ public static class Server
                 message.Target = NodeServerTarget;
                 message.AddContent(BitConverter.IsLittleEndian);
                 Send(message);
+                Debug.LogFormat("[Server] Node component connected from {0}.", receivedFrom.ToString());
                 break;
             case ServerMessageType.AppInit:
                 // Assume that as join is coming over UDP app is a spectator.
