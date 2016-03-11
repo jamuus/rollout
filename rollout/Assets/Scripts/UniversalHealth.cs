@@ -26,11 +26,12 @@ public class UniversalHealth : MonoBehaviour
         Sphero sphero = ((PlayerControl)gameObject.GetComponent<PlayerControl>()).sphero;
 
         //Set properties
-        sphero.Health = currentHealth; 
+        if(sphero != null) sphero.Health = currentHealth; 
     }
 
     public void damagePlayer(int damage)
     {
+        print("Health = " + currentHealth + " and min health = " + minHealth);
         if (damage > 0)
         {
             currentHealth -= damage;
@@ -40,12 +41,13 @@ public class UniversalHealth : MonoBehaviour
 
             //DEBUG
             print(gameObject.name + " takes " + damage + " damage");
-        } 
+        }
 
         //Destroy the player if their health drops too low
         if (currentHealth < minHealth)
         {
-            Destroy(this.gameObject);
+            print("Destroying Sphero");
+            Destroy(gameObject);
         }
     }
     public void healPlayer(int healValue)
