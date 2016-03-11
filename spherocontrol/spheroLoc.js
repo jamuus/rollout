@@ -1,6 +1,50 @@
+var sylvester = require('sylvester');
+var Matrix = sylvester.Matrix;
+
+var KalmanModel = (function() {
+
+    function KalmanModel(x_0, P_0, F_k, Q_k) {
+        this.x_k = x_0;
+        this.P_k = P_0;
+        this.F_k = F_k;
+        this.Q_k = Q_k;
+    }
+
+    KalmanModel.prototype.update = function(o) {
+        this.I = Matrix.I(this.P_k.rows());
+        //init
+        this.x_k_ = this.x_k;
+        this.P_k_ = this.P_k;
+
+        //Predict
+        this.x_k_k_ = this.F_k.x(this.x_k_);
+        this.P_k_k_ = this.F_k.x(this.P_k_.x(this.F_k.transpose())).add(this.Q_k);
+
+        //update
+        this.y_k = o.z_k.subtract(o.H_k.x(this.x_k_k_)); //observation residual
+        this.S_k = o.H_k.x(this.P_k_k_.x(o.H_k.transpose())).add(o.R_k); //residual covariance
+        this.K_k = this.P_k_k_.x(o.H_k.transpose().x(this.S_k.inverse())); //Optimal Kalman gain
+        this.x_k = this.x_k_k_.add(this.K_k.x(this.y_k));
+        this.P_k = this.I.subtract(this.K_k.x(o.H_k)).x(this.P_k_k_);
+    }
+
+    return KalmanModel;
+})();
+
+KalmanObservation = (function() {
+
+    function KalmanObservation(z_k, H_k, R_k) {
+        this.z_k = z_k; //observation
+        this.H_k = H_k; //observation model
+        this.R_k = R_k; //observation noise covariance
+    }
+
+    return KalmanObservation;
+})();
+
 var spheroIds = [
-    'ybr',
     'boo',
+    'ybr',
 ];
 
 var spheros = {
@@ -13,8 +57,60 @@ function nothing() {
 }
 
 function initSphero() {
+
+    // initial state
+    var x_0 = $V([0, 0, 0, 0]);
+
+    // initial prediction error (always 1)
+    var P_0 = $M([
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1],
+    ]);
+
+    // the input model
+    // to add the velocity to position
+    var F_k = $M([
+        [1, 0, 1, 0],
+        [0, 1, 0, 1],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1],
+    ]);
+
+    // process noise (wadafaq)
+    var Q_k = $M([
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1],
+    ]);
+    var KM = new KalmanModel(x_0, P_0, F_k, Q_k);
+
+
+    // observation value
+    var z_k = $V([0, 0, 0, 0]);
+
+    // observation model
+    var H_k = $M([
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1],
+    ]);
+
+    // noise
+    var R_k = $M([
+        [10, 0, 0, 0],
+        [0, 10, 0, 0],
+        [0, 0, 10, 0],
+        [0, 0, 0, 10],
+    ]);
+
+    var KO = new KalmanObservation(z_k, H_k, R_k);
+
     return {
-        ipPos: vec2log(10),
+        ipPos: vec2log(4),
         spheroVel: vec2log(10),
         batteryVoltage: -1,
         force: nothing,
@@ -28,7 +124,9 @@ function initSphero() {
             y: -1
         },
         dx: 0,
-        dy: 0
+        dy: 0,
+        kalmanModel: KM,
+        kalmanObservation: KO
     }
 }
 
@@ -78,7 +176,7 @@ function Filter(size) {
             }
         },
         value: function() {
-            return log.reduce((e, i) => e + i, 0) / size;
+            return log.reduce((e, i) => e + i, 0) / log.length;
         }
     }
 }
@@ -105,8 +203,8 @@ function XYFilter(size) {
             });
 
             return {
-                x: sum.x / size,
-                y: sum.y / size
+                x: sum.x / log.length,
+                y: sum.y / log.length
             }
         }
     }
@@ -140,7 +238,7 @@ module.exports = function(spheroManager, fn) {
         newSphero.newDataCallback((data, type) => {
             // data is only velocity data so far
             if (type === 'velocity') {
-                newSpheroData(data, spheroState);
+                dataOut(newSpheroData(spheroName, data, spheroState));
             }
         });
     });
@@ -161,7 +259,7 @@ function setupIp(dataOut) {
         var address = server.address();
         debugLog('Listening for image processing data on', address.address + ":" + address.port);
     });
-
+    var i = 0;
     server.on('message', function(message, remote) {
         var data = {};
         var parts = message.toString().split(',');
@@ -173,15 +271,16 @@ function setupIp(dataOut) {
         var sphName = spheroIds[data.id];
         var spheroState = spheros[sphName];
         if (spheroState) {
-            dataOut(newIpData(sphName, spheroState, data));
+            i++;
+            if (i % 5 === 0)
+                dataOut(newIpData(sphName, spheroState, data));
         }
     });
-
 
     server.bind(PORT);
 }
 
-var angleLog = Filter(30);
+var angleLog = Filter(500);
 var lastPos = [{
     x: 0,
     y: 0
@@ -193,16 +292,18 @@ var lastPos = [{
 var bef = new Date().getTime();
 
 
-function newSpheroData(data, spheroState) {
+function newSpheroData(name, data, spheroState) {
+    var dx = data.dx;
+    var dy = data.dy;
     spheroState.spheroVel.add({
-        x: data.dx / 1000.0,
-        y: data.dy / 1000.0
+        x: dx / 1000.0,
+        y: dy / 1000.0,
     });
 
-    var absVelX = data.dx * Math.cos(spheroState.driftAngle) -
-        data.dy * Math.sin(spheroState.driftAngle);
-    var absVelY = data.dx * Math.sin(spheroState.driftAngle) +
-        data.dy * Math.cos(spheroState.driftAngle);
+    var absVelX = dx * Math.cos(-spheroState.driftAngle) -
+        dy * Math.sin(-spheroState.driftAngle);
+    var absVelY = dx * Math.sin(-spheroState.driftAngle) +
+        dy * Math.cos(-spheroState.driftAngle);
 
     spheroState.absSpheroVel = {
         x: absVelX,
@@ -215,9 +316,48 @@ function newSpheroData(data, spheroState) {
     bef = aft;
 
     // update pos in meters
-    spheroState.pos.x += (absVelX * diff);
-    spheroState.pos.y += (absVelY * diff);
+    // spheroState.pos.x += (absVelX * diff);
+    // spheroState.pos.y += (absVelY * diff);
     // console.log(spheroState.pos);
+
+    spheroState.kalmanObservation.z_k = $V([0, 0, absVelX / (1000 * 15), absVelY / (1000 * 15)]);
+    spheroState.kalmanObservation.H_k =
+        $M([
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1],
+        ]);
+
+
+    // $M([
+    //     [0, 0, 0, 0],
+    //     [0, 0, 0, 0],
+    //     [0, 0, 0, 0],
+    //     [0, 0, 0, 0],
+    // ]);
+
+    spheroState.kalmanModel.update(spheroState.kalmanObservation);
+
+    var pos = {
+        x: spheroState.kalmanModel.x_k.elements[0],
+        y: spheroState.kalmanModel.x_k.elements[1]
+    };
+    spheroState.pos = pos;
+
+    // console.log(name);
+
+    return {
+        spheroData: {
+            name: name,
+            data: spheroState.spheroVel.average(),
+        },
+        kalmanData: {
+            name: name,
+            d: spheroState.kalmanModel.x_k.elements
+        }
+
+    }
 }
 
 function newIpData(name, sphero, data) {
@@ -236,10 +376,35 @@ function newIpData(name, sphero, data) {
 
     var ipData = {
         x: data.x,
-        y: -data.y
+        y: data.y,
     }
 
     var transformedPosition = pixelToPosition(ipData);
+    // console.log(transformedPosition);
+
+    sphero.kalmanObservation.z_k = $V([transformedPosition.x, transformedPosition.y, 0, 0]);
+    sphero.kalmanObservation.H_k =
+        $M([
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ]);
+
+    // $M([
+    //     [0, 0, 0, 0],
+    //     [0, 0, 0, 0],
+    //     [0, 0, 0, 0],
+    //     [0, 0, 0, 0],
+    // ]);
+
+    sphero.kalmanModel.update(sphero.kalmanObservation);
+
+    var pos = {
+        x: sphero.kalmanModel.x_k.elements[0],
+        y: sphero.kalmanModel.x_k.elements[1]
+    };
+    sphero.pos = pos;
 
     sphero.ipPos.add(transformedPosition);
 
@@ -255,6 +420,7 @@ function newIpData(name, sphero, data) {
     };
 
     var avgSpheroData = sphero.spheroVel.average();
+
     var spheroDirVec = {
         x: avgSpheroData.x,
         y: avgSpheroData.y
@@ -269,93 +435,52 @@ function newIpData(name, sphero, data) {
         spheroDirVec.y * spheroDirVec.y
     );
 
-    ipDirAngle = Math.atan2(ipDirVec.y, ipDirVec.x);
+    var ipDirAngle = Math.atan2(ipDirVec.y, ipDirVec.x);
     spheroDirAngle = Math.atan2(spheroDirVec.y, spheroDirVec.x);
     angle = spheroDirAngle - ipDirAngle;
+
     angle = angle > Math.PI ? angle - 2 * Math.PI : angle;
     angle = angle < -Math.PI ? angle + 2 * Math.PI : angle;
 
     if (!isNaN(angle) &&
-        spheroDirMag > 0.1) {
+        ipDirMag > 0.1) {
         angleLog.add(angle);
+        var filteredAngle = angleLog.value();
+
+        sphero.driftAngle = filteredAngle;
     }
 
-    var filteredAngle = angleLog.value();
-    // console.log(spheroDirMag, ipDirMag);
-
-    sphero.driftAngle = filteredAngle;
-
     return {
-        spheroData: {
-            name: name,
-            data: sphero.absSpheroVel,
-        },
         ipData: {
             name: name,
-            pos: filteredPos,
-            drift: filteredAngle ? filteredAngle : 0.0,
-            angle: Math.atan2(ipDy, ipDx),
-        }
+            pos: pos,
+            drift: sphero.driftAngle ? sphero.driftAngle : 0.0,
+            angle: ipDirAngle,
+        },
+        kalmanData: {
+            name: name,
+            d: sphero.kalmanModel.x_k.elements
+        },
     }
 }
 
-var arenaSize = {
-    x: 2.0,
-    y: 2.0,
-};
+// var arenaSize = {
+//     x: 1.0,
+//     y: 1.0,
+// };
 var imageSize = {
-    x: 1280,
-    y: 720,
+    x: 1280.0,
+    y: 720.0,
 };
 
 function pixelToPosition(pos) {
     return {
-        x: pos.x / imageSize.x * arenaSize.x,
-        y: pos.y / imageSize.y * arenaSize.y,
+        x: pos.x / (imageSize.x * 0.5) - 1.0,
+        y: (imageSize.y - pos.y) / (imageSize.y * 0.5) - 1.0,
     }
 }
 
 
-KalmanModel = (function() {
-
-    function KalmanModel(x_0, P_0, F_k, Q_k) {
-        this.x_k = x_0;
-        this.P_k = P_0;
-        this.F_k = F_k;
-        this.Q_k = Q_k;
-    }
-
-    KalmanModel.prototype.update = function(o) {
-        this.I = Matrix.I(this.P_k.rows());
-        //init
-        this.x_k_ = this.x_k;
-        this.P_k_ = this.P_k;
-
-        //Predict
-        this.x_k_k_ = this.F_k.x(this.x_k_);
-        this.P_k_k_ = this.F_k.x(this.P_k_.x(this.F_k.transpose())).add(this.Q_k);
-
-        //update
-        this.y_k = o.z_k.subtract(o.H_k.x(this.x_k_k_)); //observation residual
-        this.S_k = o.H_k.x(this.P_k_k_.x(o.H_k.transpose())).add(o.R_k); //residual covariance
-        this.K_k = this.P_k_k_.x(o.H_k.transpose().x(this.S_k.inverse())); //Optimal Kalman gain
-        this.x_k = this.x_k_k_.add(this.K_k.x(this.y_k));
-        this.P_k = this.I.subtract(this.K_k.x(o.H_k)).x(this.P_k_k_);
-    }
-
-    return KalmanModel;
-})();
-
-KalmanObservation = (function() {
-
-    function KalmanObservation(z_k, H_k, R_k) {
-        this.z_k = z_k; //observation
-        this.H_k = H_k; //observation model
-        this.R_k = R_k; //observation noise covariance
-    }
-
-    return KalmanObservation;
-})();
 
 /*
 

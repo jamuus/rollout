@@ -53,6 +53,7 @@ module.exports = function(opts) {
                     setTimeout(updateSpheros, 2000);
                 });
             } else {
+                // console.log('[SPHERO] No spheros found');
                 setTimeout(updateSpheros, 2000);
             }
         });
@@ -68,19 +69,16 @@ module.exports = function(opts) {
             direction: 0,
             power: 0
         };
+        var connected = true;
 
         function doRoll() {
             var newpower = Math.round(spheroForce.power * 255);
             var newangle = (((spheroForce.direction / (2 * Math.PI)) * 360) + 360) % 360;
             // if (newpower !== 0) {
             // log('rolling', newpower, newangle);
-            sphero.roll(newpower, newangle, function() {
-                doRoll();
-            });
-            // } else {
-            // log(newpower);
-            // setTimeout(doRoll, 100);
-            // }
+            if (connected) {
+                sphero.roll(newpower, newangle, doRoll);
+            }
         }
         doRoll();
         var inst = {
@@ -117,6 +115,7 @@ module.exports = function(opts) {
         sphero.on('close', function() {
             log('Connection to', deviceName, 'closed');
             removeSphero(sphero, deviceName);
+            connected = false;
         });
 
         sphero.setRgbLed({

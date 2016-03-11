@@ -5,17 +5,22 @@
 
 <body>
     <center>
-        <canvas id="absoluteCvs" width="600" height="400" style="border:1px solid #000000;">
+        <canvas id="absoluteCvs" width="800" height="600" style="border:1px solid #000000;">
         </canvas>
+        <br />
         <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;">
         </canvas>
-        <canvas id="mycanvas" width="400" height="100"></canvas>
+        <br />
+        <canvas id="spheroAngles" width="600" height="100"></canvas>
+        <br />
+        <canvas id="kalmanData" width="600" height="200"></canvas>
     </center>
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="smoothie.js"></script>
     <script>
     var smoothie = new SmoothieChart();
-    smoothie.streamTo(document.getElementById("mycanvas"));
+    smoothie.streamTo(document.getElementById("spheroAngles"));
+
     var spheroIPAngle = new TimeSeries();
     var spheroDataAngle = new TimeSeries();
     var spheroDrift = new TimeSeries();
@@ -33,6 +38,17 @@
         lineWidth: 1
     });
 
+    var smoothieKalman = new SmoothieChart();
+    smoothieKalman.streamTo(document.getElementById("kalmanData"));
+    var kalmanXData = new TimeSeries();
+    smoothieKalman.addTimeSeries(kalmanXData, {
+        strokeStyle: 'rgb(255, 255, 255)',
+    });
+    var kalmanYData = new TimeSeries();
+    smoothieKalman.addTimeSeries(kalmanYData, {
+        strokeStyle: 'rgb(125, 0, 125)',
+    });
+
     var socket = io();
     socket.on('data', function(msg) {
         for (var dtype in msg) {
@@ -42,6 +58,9 @@
                     break;
                 case 'ipData':
                     updateIpData(msg[dtype]);
+                    break;
+                case 'kalmanData':
+                    updateKalmanData(msg[dtype]);
                     break;
                 default:
                     console.log('rip');
@@ -107,10 +126,11 @@
     var ctx2 = canvas2.getContext('2d');
 
     var spheroState = {
-        abs: {},
+        absIp: {},
         rel: {},
         drift: {},
-        angle: {}
+        angle: {},
+        abs: {}
     };
 
     var anglef = 0;
@@ -125,22 +145,21 @@
     // setInterval(circles, 1000 / 20);
 
     function updateIpData(data) {
-        if (!spheroState.abs[data.name])
-            spheroState.abs[data.name] = {};
+        if (!spheroState.absIp[data.name])
+            spheroState.absIp[data.name] = {};
         if (!spheroState.drift[data.name])
             spheroState.drift[data.name] = {};
         if (!spheroState.angle[data.name])
             spheroState.angle[data.name] = {};
 
-        spheroState.abs[data.name].x = data.pos.x;
-        spheroState.abs[data.name].y = data.pos.y;
+        spheroState.absIp[data.name].x = data.pos.x;
+        spheroState.absIp[data.name].y = data.pos.y;
+
 
         spheroState.drift[data.name] = data.drift;
         spheroState.angle[data.name] = data.angle;
 
-
         // var drift = spheroState.angle.boo + Math.atan2(spheroState.rel.boo.y, spheroState.rel.boo.x)
-
 
         spheroDrift.append(new Date().getTime(), data.drift);
         spheroIPAngle.append(new Date().getTime(), data.angle);
@@ -156,24 +175,53 @@
 
         var spheroAngle = Math.atan2(dy, dx);
 
-
         spheroDataAngle.append(new Date().getTime(), spheroAngle);
+    }
+
+    function updateKalmanData(data) {
+        if (!spheroState.abs[data.name])
+            spheroState.abs[data.name] = {};
+        var x = data.d[0];
+        var y = data.d[1];
+        kalmanXData.append(new Date().getTime(), x);
+        kalmanYData.append(new Date().getTime(), y);
+
+        spheroState.abs[data.name] = {
+            x: x,
+            y: y
+        };
     }
 
     function drawCircle(pos, r) {
         ctx1.beginPath();
-        ctx1.arc(pos.x / 2 * 600, pos.y / 2 * 400, r, 0, 2 * Math.PI);
+        ctx1.arc(
+            (pos.x + 1) / 2 * 300 + 250,
+            (-pos.y + 1) / 2 * 200 + 200,
+            r,
+            0, 2 * Math.PI
+        );
         ctx1.stroke();
     }
 
     function drawAbs(dt) {
         ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+
+        ctx1.rect(250, 200, 300, 200);
+        ctx1.stroke();
         for (var sphAbs in spheroState.abs) {
             var sph = spheroState.abs[sphAbs];
             drawCircle({
                 x: sph.x,
-                y: -sph.y
+                y: sph.y
             }, 5);
+        }
+        for (var sphAbs in spheroState.absIp) {
+            var sph = spheroState.absIp[sphAbs];
+
+            drawCircle({
+                x: sph.x,
+                y: sph.y
+            }, 2);
         }
     }
 
@@ -181,13 +229,11 @@
         ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
         for (var name in spheroState.rel) {
             var sphdata = spheroState.rel[name];
-
-
+            // console.log(sphdata);
             drawLine(ctx2,
                 100,
                 100,
-                sphdata.x / 10 + 100,
-                sphdata.y / 10 + 100
+                sphdata.x * 100 + 100, -sphdata.y * 100 + 100
             );
 
         }
@@ -208,8 +254,8 @@
             drawLine(ctx2,
                 100,
                 100,
-                Math.cos(angle) * 250 + 100,
-                Math.sin(angle) * 250 + 100,
+                Math.cos(-angle) * 250 + 100,
+                Math.sin(-angle) * 250 + 100,
                 2
             );
         }

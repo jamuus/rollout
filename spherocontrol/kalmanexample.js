@@ -44,7 +44,7 @@ KalmanObservation = (function() {
 })();
 
 // initial state
-var x_0 = $V([1, 2]);
+var x_0 = $V([0, 0]);
 
 // initial prediciton error (always 1)
 var P_0 = $M([
@@ -53,39 +53,77 @@ var P_0 = $M([
 ]);
 
 // the input model
+// to add the velocity to position
 var F_k = $M([
-    [1, 0],
+    [1, 1],
     [0, 1]
 ]);
 
-// not sure - something about nonlinearity
+// process noise (wadafaq)
 var Q_k = $M([
-    [1, 0],
-    [0, 1]
+    [0.0001, 0],
+    [0, 0.0001]
 ]);
 var KM = new KalmanModel(x_0, P_0, F_k, Q_k);
 
 
 // observation value
-var z_k = $V([1, 2]);
+var z_k = $V([0, 0]);
 
 // observation model
 var H_k = $M([
     [1, 0],
-    [0, 1]
+    [0, 10],
+
 ]);
 
-// noise value
+// noise
 var R_k = $M([
-    [1, 0],
-    [0, 1],
+    [0.1, 0],
+    [0, 0.1],
 ]);
 
 var KO = new KalmanObservation(z_k, H_k, R_k);
 
-for (var i = 0; i < 200; i++) {
-    z_k = $V([0.5 + Math.random(), 1.5 + Math.random()]);
+for (var i = 0; i < 1000; i++) {
+    var x = Math.cos(i / 20.0) * 2;
+    var dx = -Math.sin(i / 20.0);
+    // var absI = i + (Math.random() - 0.5) * 20;
+    // if (i > 500) {
+    //     KO.H_k = $M([
+    //         [0, 0],
+    //         [0, 10],
+    //     ]);
+    //     noiseX = 0;
+    // } else {
+    //     
+    // }
+    var noiseX = x + (Math.random() - 0.5) * 0.1;
+    var noiseDx = dx;
+    var printNoiseX;
+    if (Math.random() < 0.9) {
+        KO.H_k = $M([
+            [0, 0],
+            [0, 10],
+        ]);
+        printNoiseX = 0;
+    } else {
+        KO.H_k = $M([
+            [1, 0],
+            [0, 10],
+        ]);
+        printNoiseX = noiseX;
+    }
+
+    z_k = $V([noiseX, noiseDx]);
     KO.z_k = z_k;
     KM.update(KO);
-    console.log(JSON.stringify(KM.x_k.elements));
+    console.log(
+        KM.x_k.elements[0] + '\t' +
+        x + '\t' +
+        printNoiseX + '\t' +
+        KM.x_k.elements[1] + '\t' +
+        dx + '\t' +
+        noiseDx
+    );
 }
