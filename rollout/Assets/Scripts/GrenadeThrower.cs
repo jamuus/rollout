@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GrenadeThrower : MonoBehaviour {
-
+public class GrenadeThrower : MonoBehaviour
+{
+    private int id = 102;
     public Grenade grenade;
     private Vector3 velocity;
     private Vector3 projectilePosition;

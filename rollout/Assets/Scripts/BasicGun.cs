@@ -1,12 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BasicGun : MonoBehaviour {
+public class BasicGun : MonoBehaviour
+{
     public Projectile projectile;
     private Vector3 velocity;
     private Vector3 projectilePosition;
     public float fireRate;
     public int ammunition = -1;
+
+    public new int ID()
+    {
+        return 100;
+    }
 
     public void Fire ()
     {

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class HomingLauncher : MonoBehaviour
 {
-
+    private int id = 101;
     public HomingMissile homingMissile;
     private GameObject otherPlayer;
     private Vector3 velocity;

@@ -11,7 +11,8 @@ public class ProjectileControl : MonoBehaviour
     //***TO ADD WEAPONS***
     //1) Write the weapon behaviour in a separate script
     //2) Add the weapon script as a component to each player, using projectile prefabs as needed
-    //3) Add the weapon to the enum and ammo array below and create a variable
+        //Remember to set the fire rates (the delay between each shot in seconds)
+    //3) Add the weapon to the enum, ammo and fire rate arrays below and create a variable
     //4) Include the weapon firing and ammo reduction in the switch statement in Update
 
     //intialise the weapon structures
@@ -111,6 +112,7 @@ public class ProjectileControl : MonoBehaviour
                     break;
             }
 
+            //set the time since last shot
             shootTime = Time.time;
         }
     }
