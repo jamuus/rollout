@@ -5,13 +5,17 @@
 
 <body>
     <center>
+        Sphero positions
+        <br />
         <canvas id="absoluteCvs" width="800" height="600" style="border:1px solid #000000;">
         </canvas>
+        <br /> Drift data
         <br />
         <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;">
         </canvas>
         <br />
         <canvas id="spheroAngles" width="600" height="100"></canvas>
+        <br /> Kalman filtered position
         <br />
         <canvas id="kalmanData" width="600" height="200"></canvas>
     </center>
@@ -34,7 +38,7 @@
         lineWidth: 1
     });
     smoothie.addTimeSeries(spheroDrift, {
-        strokeStyle: 'rgb(0, 0, 255)',
+        strokeStyle: 'rgb(0, 191, 255)',
         lineWidth: 1
     });
 
@@ -125,6 +129,55 @@
     var canvas2 = document.getElementById('spheroAngleCvs');
     var ctx2 = canvas2.getContext('2d');
 
+    var corners = [{
+        x: 0,
+        y: 0
+    }, {
+        x: 1280,
+        y: 0
+    }, {
+        x: 1280,
+        y: 720
+    }, {
+        x: 0,
+        y: 720
+    }];
+
+    var selected = -1;
+
+    canvas1.addEventListener('mousedown', function(event) {
+        var mousePos = getMousePos(canvas1, event);
+        // console.log('mousedown', mousePos);
+        for (var i in corners) {
+            var corner = coordToIpPos(corners[i]);
+            var xdiff = (mousePos.x - corner.x);
+            var ydiff = (mousePos.y - corner.y);
+            if (xdiff * xdiff + ydiff * ydiff < 100) {
+                selected = i;
+            }
+        }
+    });
+    canvas1.addEventListener('mousemove', function(event) {
+        var mousePos = getMousePos(canvas1, event);
+        if (selected !== -1) {
+            corners[selected] = IpPosToCoord(mousePos);
+            socket.emit('transform', {
+                corners: corners
+            });
+        }
+    });
+    canvas1.addEventListener('mouseup', function(event) {
+        selected = -1;
+    });
+
+    function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    }
+
     var spheroState = {
         absIp: {},
         rel: {},
@@ -192,15 +245,42 @@
         };
     }
 
-    function drawCircle(pos, r) {
+    function drawCircle(pos, r, fill) {
+        fill = fill || false;
         ctx1.beginPath();
         ctx1.arc(
-            (pos.x + 1) / 2 * 300 + 250,
-            (-pos.y + 1) / 2 * 200 + 200,
+            pos.x,
+            pos.y,
             r,
             0, 2 * Math.PI
         );
-        ctx1.stroke();
+        if (fill)
+            ctx1.fill();
+        else
+            ctx1.stroke();
+    }
+
+    function orthoToIpPos(point) {
+        return {
+            x: (point.x + 1) / 2 * 300 + 250,
+            y: (-point.y + 1) / 2 * 200 + 200
+        }
+    }
+
+    function coordToIpPos(point) {
+        return {
+            x: point.x / 1280 * 300 + 250,
+            y: point.y / 720 * 200 + 200
+        }
+    }
+
+    function IpPosToCoord(point) {
+        return {
+            // x: point.x / 1280 * 300 + 250,
+            // y: point.y / 720 * 200 + 200
+            x: (point.x - 250) / 300 * 1280,
+            y: (point.y - 200) / 200 * 720
+        }
     }
 
     function drawAbs(dt) {
@@ -210,18 +290,17 @@
         ctx1.stroke();
         for (var sphAbs in spheroState.abs) {
             var sph = spheroState.abs[sphAbs];
-            drawCircle({
-                x: sph.x,
-                y: sph.y
-            }, 5);
+            drawCircle(orthoToIpPos(sph), 5);
         }
         for (var sphAbs in spheroState.absIp) {
             var sph = spheroState.absIp[sphAbs];
 
-            drawCircle({
-                x: sph.x,
-                y: sph.y
-            }, 2);
+            drawCircle(orthoToIpPos(sph), 2);
+        }
+        for (var i in corners) {
+            var point = corners[i];
+
+            drawCircle(coordToIpPos(point), 4, true);
         }
     }
 

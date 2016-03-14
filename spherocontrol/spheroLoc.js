@@ -43,8 +43,8 @@ KalmanObservation = (function() {
 })();
 
 var spheroIds = [
-    'boo',
     'ybr',
+    'boo',
 ];
 
 var spheros = {
@@ -80,10 +80,10 @@ function initSphero() {
 
     // process noise (wadafaq)
     var Q_k = $M([
-        [1, 0, 0, 0],
-        [0, 1, 0, 0],
-        [0, 0, 1, 0],
-        [0, 0, 0, 1],
+        [10, 0, 0, 0],
+        [0, 10, 0, 0],
+        [0, 0, 10, 0],
+        [0, 0, 0, 10],
     ]);
     var KM = new KalmanModel(x_0, P_0, F_k, Q_k);
 
@@ -101,10 +101,10 @@ function initSphero() {
 
     // noise
     var R_k = $M([
-        [10, 0, 0, 0],
-        [0, 10, 0, 0],
-        [0, 0, 10, 0],
-        [0, 0, 0, 10],
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1],
     ]);
 
     var KO = new KalmanObservation(z_k, H_k, R_k);
@@ -210,6 +210,8 @@ function XYFilter(size) {
     }
 }
 
+var imageTransform;
+
 var debugLog = console.log;
 
 module.exports = function(spheroManager, fn) {
@@ -219,6 +221,10 @@ module.exports = function(spheroManager, fn) {
     fn.forceCallback(function(data) {
         spheros.ybr.force(data.direction, data.force);
         spheros.boo.force(data.direction, data.force);
+    });
+
+    fn.transformCallback(function(data) {
+        imageTransform = data.corners;
     });
 
     // when a sphero is connected we need to setup some shtuff
@@ -272,8 +278,8 @@ function setupIp(dataOut) {
         var spheroState = spheros[sphName];
         if (spheroState) {
             i++;
-            if (i % 5 === 0)
-                dataOut(newIpData(sphName, spheroState, data));
+            // if (i % 5 === 0)
+            dataOut(newIpData(sphName, spheroState, data));
         }
     });
 
@@ -356,7 +362,6 @@ function newSpheroData(name, data, spheroState) {
             name: name,
             d: spheroState.kalmanModel.x_k.elements
         }
-
     }
 }
 
@@ -443,7 +448,7 @@ function newIpData(name, sphero, data) {
     angle = angle < -Math.PI ? angle + 2 * Math.PI : angle;
 
     if (!isNaN(angle) &&
-        ipDirMag > 0.1) {
+        ipDirMag > 0.05) {
         angleLog.add(angle);
         var filteredAngle = angleLog.value();
 
