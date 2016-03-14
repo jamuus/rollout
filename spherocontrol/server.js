@@ -161,15 +161,16 @@ function startVisServer() {
     io.on('connection', function(socket) {
         console.log('socket.io connection');
         socket.on('force', force);
+        socket.on('transform', transform);
     });
 
     http.listen(3000, function() {
         console.log('http listening on *:3000');
     });
 
-    function force() {
+    function force() {}
 
-    }
+    function transform() {}
 
     return {
         dataOut: function(data) {
@@ -177,6 +178,9 @@ function startVisServer() {
         },
         forceCallback: function(callback) {
             force = callback;
+        },
+        transformCallback: function(callback) {
+            transform = callback;
         }
     }
 }
