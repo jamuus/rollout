@@ -162,6 +162,7 @@ function startVisServer() {
         console.log('socket.io connection');
         socket.on('force', force);
         socket.on('transform', transform);
+        socket.on('spheroScale', spheroScale);
     });
 
     http.listen(3000, function() {
@@ -172,6 +173,8 @@ function startVisServer() {
 
     function transform() {}
 
+    function spheroScale() {}
+
     return {
         dataOut: function(data) {
             io.emit('data', data);
@@ -181,6 +184,9 @@ function startVisServer() {
         },
         transformCallback: function(callback) {
             transform = callback;
+        },
+        spheroScaleCallback: function(callback) {
+            spheroScale = callback;
         }
     }
 }

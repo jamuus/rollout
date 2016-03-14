@@ -100,10 +100,10 @@ function initSphero() {
 
     // process noise (wadafaq)
     var Q_k = $M([
-        [10, 0, 0, 0],
-        [0, 10, 0, 0],
-        [0, 0, 10, 0],
-        [0, 0, 0, 10],
+        [1, 0.1, 0.1, 0.1],
+        [0.1, 1, 0.1, 0.1],
+        [0.1, 0.1, 1, 0.1],
+        [0.1, 0.1, 0.1, 1],
     ]);
     var KM = new KalmanModel(x_0, P_0, F_k, Q_k);
 
@@ -231,6 +231,7 @@ function XYFilter(size) {
 }
 
 var imageTransform;
+var spheroScale = 1;
 
 var debugLog = console.log;
 
@@ -245,6 +246,10 @@ module.exports = function(spheroManager, fn) {
 
     fn.transformCallback(function(data) {
         imageTransform = data.corners;
+    });
+
+    fn.spheroScaleCallback(function(data) {
+        spheroScale = data.value;
     });
 
     // when a sphero is connected we need to setup some shtuff
@@ -346,7 +351,7 @@ function newSpheroData(name, data, spheroState) {
     // spheroState.pos.y += (absVelY * diff);
     // console.log(spheroState.pos);
 
-    spheroState.kalmanObservation.z_k = $V([0, 0, absVelX / (1000 * 15), absVelY / (1000 * 15)]);
+    spheroState.kalmanObservation.z_k = $V([0, 0, absVelX / (1000 * spheroScale), absVelY / (1000 * spheroScale)]);
     spheroState.kalmanObservation.H_k =
         $M([
             [0, 0, 0, 0],
@@ -354,7 +359,12 @@ function newSpheroData(name, data, spheroState) {
             [0, 0, 1, 0],
             [0, 0, 0, 1],
         ]);
-
+    spheroState.kalmanObservation.F_k = $M([
+        [1, 0, diff, 0],
+        [0, 1, 0, diff],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1],
+    ]);
 
     // $M([
     //     [0, 0, 0, 0],

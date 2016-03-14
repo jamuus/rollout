@@ -9,7 +9,9 @@
         <br />
         <canvas id="absoluteCvs" width="800" height="600" style="border:1px solid #000000;">
         </canvas>
-        <input type="range" min="0" max="10" step="0.001" style="width: 800px" />
+        <br/> Sphero scale: <span id="spheroScale">1</span>
+        <br/>
+        <input oninput="spheroScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="1" style="width: 800px" />
         <br /> Drift data
         <br />
         <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;">
@@ -209,7 +211,6 @@
         spheroState.absIp[data.name].x = data.pos.x;
         spheroState.absIp[data.name].y = data.pos.y;
 
-
         spheroState.drift[data.name] = data.drift;
         spheroState.angle[data.name] = data.angle;
 
@@ -217,7 +218,15 @@
 
         spheroDrift.append(new Date().getTime(), data.drift);
         spheroIPAngle.append(new Date().getTime(), data.angle);
+    }
 
+    function spheroScaleChange(value) {
+        var spheroScaleOutput = document.querySelector("#spheroScale");
+        spheroScaleOutput.innerHTML = value;
+
+        socket.emit('spheroScale', {
+            value: parseFloat(value)
+        });
     }
 
     function updateSpheroData(data) {
@@ -290,8 +299,6 @@
 
     function IpPosToCoord(point) {
         return {
-            // x: point.x / 1280 * 300 + 250,
-            // y: point.y / 720 * 200 + 200
             x: (point.x - 250) / 300 * 1280,
             y: (point.y - 200) / 200 * 720
         }
