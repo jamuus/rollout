@@ -44,6 +44,9 @@ public class Projectile : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
+        //Destroy the game object
+        Destroy(gameObject, 0.05f);
+
         //print("collision player : " + col.gameObject.name + " player who spawned is : " + gameObject.name );
         if (col.gameObject.GetComponent<UniversalHealth> () && col.gameObject != playerShooting) {
             //Damage whatever collided with the projectile
@@ -56,7 +59,6 @@ public class Projectile : MonoBehaviour
             SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
             manager.CollideProjectile (collidedObject);
 
-            Destroy (gameObject, 0.5f);
         } else {
             music = GameObject.Find("Music");
             SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
