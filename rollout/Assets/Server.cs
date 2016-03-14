@@ -318,10 +318,7 @@ public static class Server
                     }).Start();
                 }
             }
-            catch
-            {
-                Debug.LogFormat("Yaaassss");
-            }
+            catch { }
         });
 
         tcpServer = new TcpServerModule(port);
