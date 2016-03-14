@@ -8,6 +8,7 @@ using System.Collections.Generic;
 public class PlayerControl : MonoBehaviour
 {
     public float baseSpeed;
+    public float maxSpeed;
     public float speed;
     public Vector3 velocity;
     public List<PowerUp> powerUps = new List<PowerUp>();
@@ -99,6 +100,13 @@ public class PlayerControl : MonoBehaviour
             rb.AddForce(baseSpeed * (radius - rb.position.magnitude) * rb.position.normalized);
         } else {
             rb.AddForce(speed * movement);
+        }
+
+        //Cap the max speed
+        if (rb.velocity.magnitude > maxSpeed)
+        {
+            print("Capping speed: " + rb.velocity.magnitude + " max speed = " + maxSpeed);
+            rb.velocity = rb.velocity.normalized * maxSpeed;
         }
     }
 
