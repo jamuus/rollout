@@ -22,6 +22,8 @@ public class PlayerControl : MonoBehaviour
     private Player player;
     public string powerUpButton;
     private List<PowerUp> allPowerUps;
+    private float levelRadius;
+    private int boundaryHardness;
 
     public Sphero sphero;
 
@@ -33,6 +35,8 @@ public class PlayerControl : MonoBehaviour
         container = GameObject.Find("Container");
         statusList = container.GetComponent<InitialiseStatus>().statuses;
         allPowerUps = container.GetComponent<InitialisePowerUp>().powerUps;
+        levelRadius = container.GetComponent<GenerateLevel>().levelRadius;
+        boundaryHardness = container.GetComponent<GenerateLevel>().boundaryHardness * 2 + 1;
     }
 
     void Awake()
@@ -85,8 +89,7 @@ public class PlayerControl : MonoBehaviour
     {
 
         Rigidbody rb = GetComponent<Rigidbody>();
-        float radius = 11f;
-        bool outOfBounds = radius < rb.position.magnitude; // check if left arena
+        float distanceFromEdge = levelRadius - (rb.position.magnitude * 1.1f); // check if left arena
 
         float moveHorizontal = Input.GetAxis(horizontalAxis);
         float moveVertical = Input.GetAxis(verticalAxis);
@@ -100,10 +103,13 @@ public class PlayerControl : MonoBehaviour
 
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
-        if (outOfBounds) {
+        if (distanceFromEdge < 0)
+        {
             // accelerate in opposite direction
-            rb.AddForce(baseSpeed * (radius - rb.position.magnitude) * rb.position.normalized);
-        } else {
+            rb.AddForce(speed * 2 * (float)Math.Pow(distanceFromEdge, boundaryHardness) * rb.position.normalized);
+        }
+        else
+        {
             rb.AddForce(speed * movement);
         }
 

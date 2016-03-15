@@ -496,12 +496,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 301d5b63bab844c4bb8b16e2815612e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelRadius: 12
+  boundaryHardness: 1
+  levelRadius: 18
   specialFieldN: 1
   upgradeN: 2
   obstacleN: 2
-  clustersN: 4
-  clusterSize: 4
+  clustersN: 6
+  clusterSize: 5
   obstacle: {fileID: 110254, guid: 4617080205d8e814690d8b931df3cbc1, type: 2}
   smallObstacle: {fileID: 110254, guid: 62665331008c076429e552f4239fb76e, type: 2}
   largeObstacle: {fileID: 110254, guid: de23a93a8ea9e0f4e908fe2cf088bf15, type: 2}
@@ -675,7 +676,7 @@ Rigidbody:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 796036330}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 0.5
   m_Drag: 0.2
   m_AngularDrag: 0.05
   m_UseGravity: 1
@@ -735,7 +736,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 796036330}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8, y: 1, z: 8}
+  m_LocalPosition: {x: 14, y: 1, z: 0}
   m_LocalScale: {x: 1.6, y: 1.6, z: 1.6}
   m_Children: []
   m_Father: {fileID: 0}
@@ -776,7 +777,7 @@ TrailRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 796036330}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_Materials:
@@ -2983,7 +2984,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1198940673}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071067}
-  m_LocalPosition: {x: 0, y: 22.61, z: 0}
+  m_LocalPosition: {x: 0, y: 33.29, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -3055,7 +3056,7 @@ Rigidbody:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1208294685}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 0.8
   m_Drag: 0.2
   m_AngularDrag: 0.05
   m_UseGravity: 1
@@ -3115,7 +3116,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1208294685}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8, y: 1, z: -8}
+  m_LocalPosition: {x: -14, y: 1, z: 0}
   m_LocalScale: {x: 1.6, y: 1.6, z: 1.6}
   m_Children: []
   m_Father: {fileID: 0}
@@ -3126,7 +3127,7 @@ TrailRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1208294685}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_Materials:
@@ -4898,16 +4899,20 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 896ff842e67e06447957384178e83dc1, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1200
+      value: 1800
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 896ff842e67e06447957384178e83dc1, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1200
+      value: 1800
       objectReference: {fileID: 0}
     - target: {fileID: 2300002, guid: 896ff842e67e06447957384178e83dc1, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: e4d7f96fc90a6de4caeaa077a079cf38, type: 2}
+    - target: {fileID: 400000, guid: 896ff842e67e06447957384178e83dc1, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 896ff842e67e06447957384178e83dc1, type: 3}
   m_IsPrefabParent: 0

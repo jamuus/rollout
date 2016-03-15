@@ -12,7 +12,10 @@ public class GUIController : MonoBehaviour
     private LineRenderer lineRenderer;
     private UniversalHealth playerHealth;
     private PlayerControl playerStatus;
+    private GameObject playerActiveStatuses;
+    private GameObject playerInactiveStatuses;
     private List<Status> statuses = new List<Status>();
+    private GameObject container;
 
     // Use this for initialization
     void Start()
@@ -20,6 +23,9 @@ public class GUIController : MonoBehaviour
         playerHealth = player.GetComponent<UniversalHealth> ();
         playerStatus = player.GetComponent<PlayerControl> ();
         initialiseHealthBar ();
+        container = GameObject.Find("Container");
+        playerActiveStatuses = GameObject.Find(player.name + "activeStatuses");
+        playerInactiveStatuses = GameObject.Find(player.name + "inactiveStatuses");
     }
 
     void initialiseHealthBar()
@@ -81,9 +87,18 @@ public class GUIController : MonoBehaviour
             activeStatusString += " "; //decorative
             inactiveStatusString += " "; //decorative
         }
-        GameObject.Find (player.name + "activeStatuses").GetComponent<TextMesh> ().text = activeStatusString;
-        GameObject.Find (player.name + "inactiveStatuses").GetComponent<TextMesh> ().text = inactiveStatusString;
 
+        //Set the status'
+        if (playerActiveStatuses != null)
+        {
+            TextMesh activeStatuses = playerActiveStatuses.GetComponent<TextMesh>();
+            if (activeStatuses != null) activeStatuses.text = activeStatusString;
+        }
+        if (playerInactiveStatuses != null)
+        {
+            TextMesh inactiveStatuses = playerInactiveStatuses.GetComponent<TextMesh>();
+            if (inactiveStatuses != null) inactiveStatuses.text = inactiveStatusString;
+        }
     }
 
     string decodeStatusSymbol(int n)
@@ -105,7 +120,7 @@ public class GUIController : MonoBehaviour
 
         int i = 0;
         float x, y;
-        float r = 12.3f;
+        float r = container.GetComponent<GenerateLevel>().levelRadius + 0.3f;
         for (float theta = 0; theta < (int)(1f * 3f * healthPercentage) && i < size; theta += theta_scale) {
             x = (float)(r * Math.Cos (theta * 0.5f));
             y = (float)(r * Math.Sin (theta * 0.5f));
