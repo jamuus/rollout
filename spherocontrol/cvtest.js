@@ -16,20 +16,32 @@ console.log(transform.row(1));
 console.log(transform.row(2));
 console.log();
 
-var point = [3.5, 1.765];
+var points = [3.5, 1.765, 0.34, 2.25];
 
-console.log(warpPerspective(point, transform));
+console.log(warpPerspectiveList(points, transform));
 
-function warpPerspective(p, m) {
+function warpPerspectiveList(p, m) {
+    var q = [];
+    for (var i = 0; i < p.length; i += 2) {
+        q.push(warpPerspective(p, m, i));
+    }
+    return q;
+}
+
+function warpPerspective(p, m, i) {
+    if (typeof(i) === "undefined") {
+        i = 0;
+    }
+
     var q = [
-        p[0] * m.get(0, 0) + p[1] * m.get(0, 1) + m.get(0, 2),
-        p[0] * m.get(1, 0) + p[1] * m.get(1, 1) + m.get(1, 2)
+        p[i + 0] * m.get(0, 0) + p[i + 1] * m.get(0, 1) + m.get(0, 2),
+        p[i + 0] * m.get(1, 0) + p[i + 1] * m.get(1, 1) + m.get(1, 2)
     ];
 
-    var f = p[0] * m.get(2, 0) + p[1] * m.get(2, 1) + m.get(2, 2);
+    var f = p[i + 0] * m.get(2, 0) + p[i + 1] * m.get(2, 1) + m.get(2, 2);
 
-    q[0] /= f;
-    q[1] /= f;
+    q[i + 0] /= f;
+    q[i + 1] /= f;
 
     return q;
 }
