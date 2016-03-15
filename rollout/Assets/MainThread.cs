@@ -26,8 +26,10 @@ public class MainThread : MonoBehaviour
         // This must be called before server is started.
         SpheroManager.Initialise();
 
+        SpectatorManager.Initialise();
+
         // Initialise server and start listening for controllers & node.
-        Server.Name = "Iman";
+        Server.Name = "Rollout Server";
         Server.StartListening(7777);
 
 #if SOFTWARE_MODE
@@ -59,13 +61,26 @@ public class MainThread : MonoBehaviour
 
         SpheroManager.ybr.sphero = ybr;
 #endif
+
+        // Testing events.
+        SpectatorManager.VoteWinnerDetermined += OnEventWinnerDetermined;
+    }
+
+    private void OnEventWinnerDetermined(object sender, VoteEventArgs args)
+    {
+        Debug.LogFormat("VOTE WINNER: {0}, VOTES: {1}.", args.Id, args.Votes);
+        MainThread.EnqueueAction(() =>
+        {
+            SpectatorManager.EventManager.triggerEvent(args.Id);
+        });
     }
 
     // Each tick, check if there are any actions that have been queued, and if
     // so perform them.
     void Update()
     {
-        lock (lockObject) {
+        lock (lockObject)
+        {
             foreach (Action action in actionQueue)
                 action();
             actionQueue.Clear();
@@ -88,7 +103,8 @@ public class MainThread : MonoBehaviour
     // Add an action to complete on the main thread in the next tick.
     public static void EnqueueAction(Action action)
     {
-        lock (lockObject) {
+        lock (lockObject)
+        {
             actionQueue.Enqueue(action);
         }
     }

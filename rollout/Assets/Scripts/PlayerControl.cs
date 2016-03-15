@@ -54,6 +54,7 @@ public class PlayerControl : MonoBehaviour
         triggerStatusEffects();
 
         // move ingame sphero
+        #if !SOFTWARE_MODE
         if (sphero != null) {
             float moveHorizontal = sphero.Position.x;
             float moveVertical = -sphero.Position.y;
@@ -66,6 +67,7 @@ public class PlayerControl : MonoBehaviour
             // float X = player.GetAxis("Horizontalx");
             // float Y = player.GetAxis("Verticalx");
         }
+        #endif
     }
 
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
@@ -89,8 +91,11 @@ public class PlayerControl : MonoBehaviour
         float moveHorizontal = Input.GetAxis(horizontalAxis);
         float moveVertical = Input.GetAxis(verticalAxis);
 #if SOFTWARE_MODE
-        moveHorizontal += sphero.Force.x;
-        moveVertical   += sphero.Force.y;
+        if (sphero != null)
+        {
+            moveHorizontal += sphero.Force.x;
+            moveVertical   += sphero.Force.y;
+        }
 #endif
 
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);

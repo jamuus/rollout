@@ -38,8 +38,6 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sphero_controller);
 
-        Server.setSpheroControllerActivity(this);
-
         // Thumbstick control.
         thumbstick = new ThumbstickControl(this);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -161,20 +159,9 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
     public void onBackPressed() {
         super.onBackPressed();
 
-        Log.d("TEST", "Back pressed.");
-
         sensorManager.unregisterListener(this);
         Sphero.stopUpdateThread();
         Server.leaveServerAsync();
-    }
-
-    public void kill() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                onBackPressed();
-            }
-        });
     }
 
     @Override
@@ -182,7 +169,6 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
         super.onPause();
         sensorManager.unregisterListener(this);
         Sphero.stopUpdateThread();
-        //Server.leaveServerAsync();
     }
 
     @Override

@@ -21,12 +21,12 @@ public final class Server {
     private static final int    PORT_INCOMING   = 8889;
     private static final int    BUFFER_SIZE     = 2048;
 
-    private static DatagramSocket       udpIncoming;
-    private static DatagramSocket       udpOutgoing;
-    private static Thread               listeningThread;
-    private static boolean              serverListening;
-    private static ServerListActivity   serverListActivity;
-    private static SpheroControllerActivity spheroControllerActivity;
+    private static DatagramSocket               udpIncoming;
+    private static DatagramSocket               udpOutgoing;
+    private static Thread                       listeningThread;
+    private static boolean                      serverListening;
+    private static ServerListActivity           serverListActivity;
+    private static SpectatorControllerActivity  spectatorControllerActivity;
 
     private static boolean              tcpServerListen;
     private static Socket               tcpSocket;
@@ -124,13 +124,14 @@ public final class Server {
         tcpServerListen = false;
         try {
             tcpThread.join();
+            tcpSocket.close();
         } catch (InterruptedException ex) {
-            Log.d(TAG, "Exception stopping TCP thread.");
+            Log.d(TAG, "Exception stopping TCP thread.", ex);
+        } catch (IOException ex) {
+            Log.d(TAG, "Exception closing TCP socket.", ex);
         }
-    }
 
-    public static void setSpheroControllerActivity(SpheroControllerActivity activity) {
-        spheroControllerActivity = activity;
+        Sphero.setName(null);
     }
 
     public static void leaveServerAsync() {
@@ -142,44 +143,66 @@ public final class Server {
         }).start();
     }
 
+    public static boolean isTcpActive() {
+        return tcpServerListen;
+    }
+
+    public static void stopTcpThread() {
+        tcpServerListen = false;
+        try {
+            tcpSocket.close();
+            tcpThread.join();
+        } catch (InterruptedException ex) {
+            Log.d(TAG, "Exception stopping TCP thread.", ex);
+        } catch (IOException ex) {
+            Log.d(TAG, "Exception closing TCP socket.", ex);
+        }
+    }
+
     public static void connectTo(ServerHandle server, boolean asPlayer) {
         ServerMessage.setDefaultTarget(server.getTarget());
         ServerMessage message = new ServerMessage(ServerMessageType.APP_INIT);
         message.addContent(asPlayer);
 
-        try {
-            tcpSocket = new Socket(server.getTarget(), UNITY_PORT);
-            toServerStream = new DataOutputStream(tcpSocket.getOutputStream());
-            fromServerStream = new DataInputStream(tcpSocket.getInputStream());
+        if (asPlayer) {
+            try {
+                tcpSocket = new Socket(server.getTarget(), UNITY_PORT);
+                toServerStream = new DataOutputStream(tcpSocket.getOutputStream());
+                fromServerStream = new DataInputStream(tcpSocket.getInputStream());
 
-            tcpServerListen = true;
+                tcpServerListen = true;
 
-            tcpThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (tcpServerListen) {
-                        try {
-                            processReceivedBytesTCP(fromServerStream.read());
-                        } catch (IOException ex) {
-                            Log.d(TAG, "Exception receiving on TCP connection.", ex);
+                tcpThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (tcpServerListen) {
+                            try {
+                                processReceivedBytesTCP(fromServerStream.read());
+                            } catch (IOException ex) {
+                                Log.d(TAG, "Exception receiving on TCP connection.", ex);
+                            }
+                        }
+
+                        if (Sphero.getName() != null) {
+                            Sphero.leaveGame();
                         }
                     }
+                });
+                tcpThread.start();
 
-                    Sphero.leaveGame();
-
-                    /*try {
-                        tcpSocket.close();
-                    } catch (IOException ex) {
-                        Log.d(TAG, "Exception closing TCP socket.", ex);
-                    }*/
-                }
-            });
-            tcpThread.start();
-
-            sendTCP(message);
-        } catch (IOException ex) {
-            Log.d(TAG, "Exception opening TCP connection.", ex);
+                sendTCP(message);
+            } catch (IOException ex) {
+                Log.d(TAG, "Exception opening TCP connection.", ex);
+            }
+        } else {
+            send(message);
         }
+    }
+
+    public static void voteEvent(int eventId) {
+        ServerMessage message = new ServerMessage(ServerMessageType.VOTE_EVENT);
+        message.addContent((byte)(eventId & 0xff));
+        sendAsync(message);
     }
 
     public static void sendTCP(ServerMessage message) {
@@ -256,7 +279,7 @@ public final class Server {
         }
     }
 
-    private static void processReceivedBytes(byte[] bytes, InetAddress receivedFrom) {
+    private static void processReceivedBytes(final byte[] bytes, InetAddress receivedFrom) {
         if (bytes.length <= 1) {
             Log.d(TAG, "Received invalid message (too short).");
             return;
@@ -273,6 +296,15 @@ public final class Server {
                 break;
             case ServerMessageType.UPDATE_STATE:
                 Sphero.parseState(bytes);
+                break;
+            case ServerMessageType.SET_EVENTS:
+                spectatorControllerActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        spectatorControllerActivity.setEvents(bytes[1], bytes[2]);
+                        spectatorControllerActivity.startCountdown(BitConverter.toInt(bytes, 3));
+                    }
+                });
                 break;
             default:
                 Log.d(TAG, "Unknown message type \"" + type + "\".");
@@ -296,5 +328,9 @@ public final class Server {
                 connectTo(server, asPlayer);
             }
         }).start();
+    }
+
+    public static void setSpectatorControllerActivity(SpectatorControllerActivity activity) {
+        spectatorControllerActivity = activity;
     }
 }

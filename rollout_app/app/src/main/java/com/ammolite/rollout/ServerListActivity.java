@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -92,7 +93,14 @@ public class ServerListActivity extends ActionBarActivity {
             @Override
             public void run() {
                 if (name.equals(SPECTATOR_NAME)) {
-                    startActivity(new Intent(ServerListActivity.this, SpectatorControllerActivity.class));
+                    // If the request was made over TCP, the server must be full. Tell the user
+                    // and make them connect using UDP so we get a proper endpoint in Unity.
+                    if (Server.isTcpActive()) {
+                        Server.stopTcpThread();
+                        Toast.makeText(ServerListActivity.this, "Server is full. Please connect as a spectator.", Toast.LENGTH_LONG).show();
+                    } else {
+                        startActivity(new Intent(ServerListActivity.this, SpectatorControllerActivity.class));
+                    }
                 } else {
                     Sphero.setName(name);
                     startActivity(new Intent(ServerListActivity.this, SpheroControllerActivity.class));
