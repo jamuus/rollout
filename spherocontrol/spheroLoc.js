@@ -43,8 +43,8 @@ KalmanObservation = (function() {
 })();
 
 var spheroIds = [
-    'ybr',
     'boo',
+    'ybr',
 ];
 
 var spheros = {
@@ -100,10 +100,10 @@ function initSphero() {
 
     // process noise (wadafaq)
     var Q_k = $M([
-        [1, 0.1, 0.1, 0.1],
-        [0.1, 1, 0.1, 0.1],
-        [0.1, 0.1, 1, 0.1],
-        [0.1, 0.1, 0.1, 1],
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1],
     ]);
     var KM = new KalmanModel(x_0, P_0, F_k, Q_k);
 
@@ -376,8 +376,8 @@ function newSpheroData(name, data, spheroState) {
     spheroState.kalmanModel.update(spheroState.kalmanObservation);
 
     var pos = {
-        x: spheroState.kalmanModel.x_k.elements[0],
-        y: spheroState.kalmanModel.x_k.elements[1]
+        x: -spheroState.kalmanModel.x_k.elements[0] * 30,
+        y: -spheroState.kalmanModel.x_k.elements[1] * 30
     };
     spheroState.pos = pos;
 
@@ -394,6 +394,8 @@ function newSpheroData(name, data, spheroState) {
         }
     }
 }
+
+var ipScale = 40;
 
 function newIpData(name, sphero, data) {
     // data.x, data.y, data.id
@@ -439,7 +441,7 @@ function newIpData(name, sphero, data) {
         x: sphero.kalmanModel.x_k.elements[0],
         y: sphero.kalmanModel.x_k.elements[1]
     };
-    sphero.pos = pos;
+    // sphero.pos = pos;
 
     sphero.ipPos.add(transformedPosition);
 
@@ -478,7 +480,7 @@ function newIpData(name, sphero, data) {
     angle = angle < -Math.PI ? angle + 2 * Math.PI : angle;
 
     if (!isNaN(angle) &&
-        ipDirMag > 0.05) {
+        spheroDirMag > 0.05) {
         angleLog.add(angle);
         var filteredAngle = angleLog.value();
 

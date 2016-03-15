@@ -274,8 +274,6 @@ int main( int, char** argv )
     setupServerConnection(&serverAddress, &socketDescriptor);
 
     while (true) {
-
-
         if (capture.read(frame) == NULL) {
             printf("!!! cvQueryFrame failed: no frame\n");
             capture.set(CV_CAP_PROP_POS_AVI_RATIO , 0);
@@ -294,7 +292,7 @@ int main( int, char** argv )
             cvtColor(frame, HSV, COLOR_BGR2HSV);
             inRange(HSV, boo.getHSVmin(), boo.getHSVmax(), threshold);
             morphOps(threshold);
-            trackFilteredObject(boo, threshold, HSV, frame);
+            // trackFilteredObject(boo, threshold, HSV, frame);
 
             // imshow(window_name, threshold);
 
@@ -302,7 +300,7 @@ int main( int, char** argv )
             cvtColor(frame, HSV, COLOR_BGR2HSV);
             inRange(HSV, ybr.getHSVmin(), ybr.getHSVmax(), threshold);
             morphOps(threshold);
-            trackFilteredObject(ybr, threshold, HSV, frame);
+            // trackFilteredObject(ybr, threshold, HSV, frame);
 
             sendToServer(&socketDescriptor, &serverAddress, ybr, 0);
             sendToServer(&socketDescriptor, &serverAddress, boo, 1);
