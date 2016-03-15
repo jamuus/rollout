@@ -1,23 +1,50 @@
 "use strict";
 
 var cv = require("opencv");
-var Matrix = cv.Matrix;
-var width = 5;
-var height = 5.7;
 
-var corners = [0, 0, 4, 1, 3.4, 15, -0.5, 13.7];
+var width = 5;
+var height = 5.0;
+
+//var corners = [0, 0, 4, 1, 3.4, 15, -0.5, 13.7];
+var corners = [0, 0, 4, 0, 4, 4, 0, 4];
 var target = [0, 0, width, 0, width, height, 0, height];
 
-var transform = new Matrix.Eye(3, 3).getPerspectiveTransform(corners, target);
+var transform = new cv.Matrix.Zeros(3, 3).getPerspectiveTransform(corners, target);
 
 console.log(transform.row(0));
 console.log(transform.row(1));
 console.log(transform.row(2));
 console.log();
 
-var points = [3.5, 1.765, 1];
-// var out = Matrix.Multiply(transform, points); //transform.Multiply(points);
-console.log(JSON.stringify(transform, null, '    '));
+var points = [3.5, 1.765, 0.34, 2.25];
+
+console.log(warpPerspectiveList(points, transform));
+
+function warpPerspectiveList(p, m) {
+    var q = [];
+    for (var i = 0; i < p.length; i += 2) {
+        q.push(warpPerspective(p, m, i));
+    }
+    return q;
+}
+
+function warpPerspective(p, m, i) {
+    if (typeof(i) === "undefined") {
+        i = 0;
+    }
+
+    var q = [
+        p[i + 0] * m.get(0, 0) + p[i + 1] * m.get(0, 1) + m.get(0, 2),
+        p[i + 0] * m.get(1, 0) + p[i + 1] * m.get(1, 1) + m.get(1, 2)
+    ];
+
+    var f = p[i + 0] * m.get(2, 0) + p[i + 1] * m.get(2, 1) + m.get(2, 2);
+
+    q[i + 0] /= f;
+    q[i + 1] /= f;
+
+    return q;
+}
 
 // var cv = require('opencv');
 //
