@@ -139,10 +139,16 @@ public class ProjectileControl : MonoBehaviour
 
                 case (int)Weapons.homingLauncher:
                     homingLauncher.Fire(otherPlayer);
-                    ammunition[(int)Weapons.homingLauncher] -= 1;
+                    ReduceAmmo(101, 1);
+                    break;
+
+                case (int)Weapons.grenadeThrower:
+                    grenadeThrower.Fire(velocity);
+                    ReduceAmmo(102, 1);
                     break;
             }
 
+            //set the time since last shot
             shootTime = Time.time;
         }
     }
