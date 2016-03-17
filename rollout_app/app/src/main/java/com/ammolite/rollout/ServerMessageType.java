@@ -14,4 +14,6 @@ public final class ServerMessageType {
     public static final int PAUSE_GAME      = 0x80;
     public static final int NODE_INIT       = 0x11;
     public static final int APP_INIT        = 0x21;
+    public static final int SET_EVENTS      = 0x22;
+    public static final int VOTE_EVENT      = 0x23;
 }

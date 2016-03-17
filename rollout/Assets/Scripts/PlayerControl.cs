@@ -8,6 +8,7 @@ using System.Collections.Generic;
 public class PlayerControl : MonoBehaviour
 {
     public float baseSpeed;
+    public float maxSpeed;
     public float speed;
     public Vector3 velocity;
     public List<PowerUp> powerUps = new List<PowerUp>();
@@ -20,6 +21,9 @@ public class PlayerControl : MonoBehaviour
 
     private Player player;
     public string powerUpButton;
+    private List<PowerUp> allPowerUps;
+    private float levelRadius;
+    private int boundaryHardness;
 
     public Sphero sphero;
 
@@ -30,7 +34,9 @@ public class PlayerControl : MonoBehaviour
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
         statusList = container.GetComponent<InitialiseStatus>().statuses;
-
+        allPowerUps = container.GetComponent<InitialisePowerUp>().powerUps;
+        levelRadius = container.GetComponent<GenerateLevel>().levelRadius;
+        boundaryHardness = container.GetComponent<GenerateLevel>().boundaryHardness * 2 + 1;
     }
 
     void Awake()
@@ -52,6 +58,7 @@ public class PlayerControl : MonoBehaviour
         triggerStatusEffects();
 
         // move ingame sphero
+        #if !SOFTWARE_MODE
         if (sphero != null) {
             float moveHorizontal = sphero.Position.x;
             float moveVertical = -sphero.Position.y;
@@ -64,6 +71,7 @@ public class PlayerControl : MonoBehaviour
             // float X = player.GetAxis("Horizontalx");
             // float Y = player.GetAxis("Verticalx");
         }
+        #endif
     }
 
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
@@ -81,31 +89,51 @@ public class PlayerControl : MonoBehaviour
     {
 
         Rigidbody rb = GetComponent<Rigidbody>();
-        float radius = 11f;
-        bool outOfBounds = radius < rb.position.magnitude; // check if left arena
+        float distanceFromEdge = levelRadius - (rb.position.magnitude * 1.1f); // check if left arena
 
         float moveHorizontal = Input.GetAxis(horizontalAxis);
         float moveVertical = Input.GetAxis(verticalAxis);
+#if SOFTWARE_MODE
+        if (sphero != null)
+        {
+            moveHorizontal += sphero.Force.x;
+            moveVertical   += sphero.Force.y;
+        }
+#endif
 
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         velocity = rb.velocity;
-        if (outOfBounds) {
+        if (distanceFromEdge < 0)
+        {
             // accelerate in opposite direction
-            rb.AddForce(baseSpeed * (radius - rb.position.magnitude) * rb.position.normalized);
-        } else {
+            rb.AddForce(speed * 2 * (float)Math.Pow(distanceFromEdge, boundaryHardness) * rb.position.normalized);
+        }
+        else
+        {
             rb.AddForce(speed * movement);
+        }
+
+        //Cap the max speed
+        if (rb.velocity.magnitude > maxSpeed)
+        {
+            print("Capping speed: " + rb.velocity.magnitude + " max speed = " + maxSpeed);
+            rb.velocity = rb.velocity.normalized * maxSpeed;
         }
     }
 
 
-    void UsePowerUp(int powerUpID)
+    public void UsePowerUp(int powerUpID)
     {
         PowerUp usedPowerUp;
         try {
-            usedPowerUp = powerUps[0];
+            // usedPowerUp = powerUps[0];
+            // powerUpEffect(usedPowerUp);
+            // powerUps.RemoveAt(0);
+            usedPowerUp = allPowerUps[powerUpID];
             powerUpEffect(usedPowerUp);
-            powerUps.RemoveAt(0);
             print("PowerUp " + usedPowerUp.name + " used by player");
+
+            //sphero.PowerUps.RemoveAt(0);
         } catch (Exception e) {
             print("No powerups left");
         }
@@ -114,6 +142,8 @@ public class PlayerControl : MonoBehaviour
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
+        sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)powerUp.id));//allPowerUps.IndexOf(powerUp)));
+
         music = GameObject.Find("Music");
         SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
         manager.PickPowerUp (gameObject);
@@ -141,6 +171,11 @@ public class PlayerControl : MonoBehaviour
         }
         if (powerUp.name == "Stun Enemy") {
             otherPlayer.GetComponent<PlayerControl>().statuses [4] = statusList[4].time;
+        }
+        if (powerUp.name == "Boost")
+        {
+            //Apply a force to the sphero
+            velocity += powerUp.value*velocity.normalized;
         }
     }
 
