@@ -124,7 +124,7 @@ public static class SpheroManager
         //Shoot from the relevant sphero
         Instances[name].Shoot(SpheroWeaponType.Default, direction);
 
-        //Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
+        Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
     }
 
     public static void UsePowerUp(byte[] data)

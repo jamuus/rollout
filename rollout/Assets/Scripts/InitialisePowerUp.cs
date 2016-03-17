@@ -24,9 +24,9 @@ public class InitialisePowerUp: MonoBehaviour
         powerUp.id = newID();
 
         powerUp.name = "Boost";
-        powerUp.description = "Doubles movement speed";
-        powerUp.value = 2;
-        powerUp.instant = false;
+        powerUp.description = "Gives you a speed boost";
+        powerUp.value = 1;
+        powerUp.instant = true;
         powerUps.Add(powerUp);
 
         powerUp.id = newID ();
@@ -57,21 +57,20 @@ public class InitialisePowerUp: MonoBehaviour
         powerUp.instant = false;
         powerUps.Add(powerUp);
 
-        powerUp.name = "Boost";
-        powerUp.description = "Gives you a speed boost";
-        powerUp.value = 1;
-        powerUp.instant = true;
-        powerUps.Add(powerUp);
+        foreach (PowerUp p in powerUps)
+            Debug.LogFormat("POWERUP: {0} -> {1}.", p.id, p.name);
 
     }
 
     int newID()
     {
-        if (id == null) {
-            id = 0;
-        } else {
-            id++;
-        }
-        return id;
+        // if (id == null) {
+        //     id = 0;
+        // } else {
+        //     id++;
+        // }
+        // return id;
+
+        return id++;
     }
 }
