@@ -115,6 +115,7 @@ public static class Server
     private static TcpListener          tcpListener;
     private static Thread               udpListenThread;
     private static TcpServerModule      tcpServer;
+    private static bool                 udpListening;
 
     public static List<TcpServerModule.Connection>  Connections      { get { return tcpServer.Connections; } }
     public static IPEndPoint                        NodeServerTarget { get; private set; }
@@ -123,6 +124,7 @@ public static class Server
     static Server()
     {
         Name = "Default Server Name";
+        udpListening = false;
     }
 
     public static void StartListening(int port)
@@ -136,19 +138,27 @@ public static class Server
         udpOutgoing.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
         udpOutgoing.Client.Bind(new IPEndPoint(IPAddress.Any, port + 1));
 
+        udpListening = true;
         udpListenThread = new Thread(() =>
         {
-            Thread.CurrentThread.IsBackground = true;
-            while (true)
+            try
             {
-                IPEndPoint senderEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                byte[] data = udpIncoming.Receive(ref senderEndPoint);
-
-                new Thread(() =>
+                Thread.CurrentThread.IsBackground = true;
+                while (udpListening)
                 {
-                    Thread.CurrentThread.IsBackground = true;
-                    ProcessReceivedBytes(data, senderEndPoint);
-                }).Start();
+                    IPEndPoint senderEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                    byte[] data = udpIncoming.Receive(ref senderEndPoint);
+
+                    new Thread(() =>
+                    {
+                        Thread.CurrentThread.IsBackground = true;
+                        ProcessReceivedBytes(data, senderEndPoint);
+                    }).Start();
+                }
+            }
+            catch
+            {
+                Debug.LogFormat("[Server] UDP Listen exception.");
             }
         });
 
@@ -165,7 +175,11 @@ public static class Server
     {
         tcpServer.Stop();
 
-        udpListenThread.Abort();
+        udpIncoming.Close();
+        udpListening = false;
+        udpListenThread.Join();
+
+        //udpListenThread.Abort();
 
         Debug.LogFormat("[Server] Stopped successfully.");
     }
