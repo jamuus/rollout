@@ -21,7 +21,7 @@ public class MainThread : MonoBehaviour
 #endif
 
         // Load PowerUps from file.
-        PowerUpManager.Initialise();
+        //PowerUpManager.Initialise();
 
         // This must be called before server is started.
         SpheroManager.Initialise();
