@@ -18,7 +18,7 @@ public class ProjectileControl : MonoBehaviour
     //intialise the weapon structures
     enum Weapons : int { basicGun, homingLauncher, grenadeThrower };
     private int[] ammunition = new int[3];
-    private ArrayList fireRates = new ArrayList();
+    private float[] fireRates = new float[3];
     private int activeWeapon;
 
     //weapon variables
@@ -50,13 +50,13 @@ public class ProjectileControl : MonoBehaviour
 
         //access the weapons
         basicGun = GetComponent<BasicGun>();
-        fireRates.Add(basicGun.fireRate);
+        fireRates[ConvertID(100)] = basicGun.fireRate;
 
         homingLauncher = GetComponent<HomingLauncher>();
-        fireRates.Add(homingLauncher.fireRate);
+        fireRates[ConvertID(101)] = homingLauncher.fireRate;
 
         grenadeThrower = GetComponent<GrenadeThrower>();
-        fireRates.Add(grenadeThrower.fireRate);
+        fireRates[ConvertID(102)] = grenadeThrower.fireRate;
     }
 
     public void Update()
