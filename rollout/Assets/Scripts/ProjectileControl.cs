@@ -104,11 +104,12 @@ public class ProjectileControl : MonoBehaviour
 
                 case (int)Weapons.homingLauncher:
                     homingLauncher.Fire(otherPlayer);
-                    ammunition[(int)Weapons.homingLauncher] -= 1;
+                    ReduceAmmo(101, 1);
                     break;
 
                 case (int)Weapons.grenadeThrower:
                     grenadeThrower.Fire();
+                    ReduceAmmo(102, 1);
                     break;
             }
 
@@ -157,9 +158,16 @@ public class ProjectileControl : MonoBehaviour
         ammunition[ConvertID(ID)] += amount;
     }
 
+    public void ReduceAmmo(int ID, int amount)
+    {
+        ammunition[ConvertID(ID)] -= amount;
+    }
+
     public void ChangeActiveWeapon(int ID)
     {
-        activeWeapon = ConvertID(ID);
+        //toggle between basic gun and other weapons
+        if(activeWeapon == 0) { activeWeapon = ConvertID(ID); }
+        else { activeWeapon = 0; }       
     }
 
     public void ChangeActiveWeapon(string weaponString)
