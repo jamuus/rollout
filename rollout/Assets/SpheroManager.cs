@@ -82,9 +82,11 @@ public static class SpheroManager
                 sphero = Instances[deviceName];
                 if (deviceName.ToUpper().Contains("YBR")) {
                     ybr.sphero = sphero;
+                    ybr.sphero.UnityProjectileControl = ybr.GetComponent<ProjectileControl>();
                     Debug.LogFormat("ybr - {0}", deviceName);
                 } else {
                     boo.sphero = sphero;
+                    boo.sphero.UnityProjectileControl = boo.GetComponent<ProjectileControl>();
                     Debug.LogFormat("boo - {0}", deviceName);
                 }
             }
@@ -228,7 +230,7 @@ public class Sphero
         MainThread.EnqueueAction(() => {
             UnityObject.UsePowerUp((int)powerUp.Type);
         });
-        
+
         PowerUps.Remove(powerUp);
     }
 
