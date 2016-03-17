@@ -3007,7 +3007,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   squash: 0.3
-  stretch: 1
+  stretch: 0.7
   theta: 0
   verticalMove: -0.5
 --- !u!1 &1208294685
