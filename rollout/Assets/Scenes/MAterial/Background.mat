@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Background
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: 2bfa69f61cc264b14b1c85bbc21b1b0f, type: 3}
   m_ShaderKeywords: _ALPHABLEND_ON _EMISSION
   m_LightmapFlags: 1
   m_CustomRenderQueue: 3000
@@ -20,7 +20,7 @@ Material:
         first:
           name: _MainTex
         second:
-          m_Texture: {fileID: 0}
+          m_Texture: {fileID: 2800000, guid: eaa2f03a38f8d424793c827236366c62, type: 3}
           m_Scale: {x: 1, y: 1}
           m_Offset: {x: 0, y: 0}
       data:
@@ -95,7 +95,7 @@ Material:
       data:
         first:
           name: _Parallax
-        second: .0199999996
+        second: 0.02
       data:
         first:
           name: _ZWrite
@@ -103,7 +103,7 @@ Material:
       data:
         first:
           name: _Glossiness
-        second: .200000003
+        second: 0.2
       data:
         first:
           name: _BumpScale
@@ -130,23 +130,23 @@ Material:
         second: 0
       data:
         first:
-          name: _StencilComp
-        second: 8
-      data:
-        first:
           name: _Stencil
         second: 0
+      data:
+        first:
+          name: _StencilComp
+        second: 8
       data:
         first:
           name: _StencilOp
         second: 0
       data:
         first:
-          name: _StencilWriteMask
+          name: _StencilReadMask
         second: 255
       data:
         first:
-          name: _StencilReadMask
+          name: _StencilWriteMask
         second: 255
       data:
         first:
@@ -156,12 +156,24 @@ Material:
         first:
           name: _UseUIAlphaClip
         second: 0
+      data:
+        first:
+          name: _Blink
+        second: 1
+      data:
+        first:
+          name: _StartBlinkValue
+        second: 2
     m_Colors:
       data:
         first:
           name: _EmissionColor
-        second: {r: .253027707, g: .764705896, b: .404766738, a: 1}
+        second: {r: 0.2530277, g: 0.7647059, b: 0.40476674, a: 1}
       data:
         first:
           name: _Color
-        second: {r: .290196091, g: .0274509825, b: .290196091, a: .233999997}
+        second: {r: 0.2901961, g: 0.027450982, b: 0.2901961, a: 0.234}
+      data:
+        first:
+          name: _Emission
+        second: {r: 0, g: 0, b: 0, a: 0}

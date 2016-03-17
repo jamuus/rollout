@@ -120,8 +120,10 @@ public class GUIController : MonoBehaviour
 
         int i = 0;
         float x, y;
+
         float r = container.GetComponent<GenerateLevel>().levelRadius + 0.3f;
         for (float theta = 0; theta < (int)(1f * 3f * healthPercentage) && i < size; theta += theta_scale) {
+
             x = (float)(r * Math.Cos (theta * 0.5f));
             y = (float)(r * Math.Sin (theta * 0.5f));
 
