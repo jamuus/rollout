@@ -126,9 +126,11 @@ public class PlayerControl : MonoBehaviour
     {
         PowerUp usedPowerUp;
         try {
-            usedPowerUp = powerUps[0];
+            // usedPowerUp = powerUps[0];
+            // powerUpEffect(usedPowerUp);
+            // powerUps.RemoveAt(0);
+            usedPowerUp = allPowerUps[powerUpID];
             powerUpEffect(usedPowerUp);
-            powerUps.RemoveAt(0);
             print("PowerUp " + usedPowerUp.name + " used by player");
 
             //sphero.PowerUps.RemoveAt(0);

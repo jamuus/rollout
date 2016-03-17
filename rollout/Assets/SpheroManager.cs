@@ -228,7 +228,8 @@ public class Sphero
         MainThread.EnqueueAction(() => {
             UnityObject.UsePowerUp((int)powerUp.Type);
         });
-        PowerUps.Remove(powerUp);
+        Debug.LogFormat("POWERUP TYPE: {0}.", powerUp.Type);
+        Debug.LogFormat("REMOVE POWERUP: {0}.", PowerUps.Remove(powerUp));
     }
 
     public void SendStateToController()
