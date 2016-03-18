@@ -3,7 +3,7 @@ using System.Collections;
 
 public class BGMManager : MonoBehaviour {
 
-	public enum FadeState { None = 0, FadingOut = 1, FadingIn = 2}
+	public enum FadeState { None = 0, FadingOut = 1, FadingIn = 2, NextTrack = 3}
 
 	private AudioSource[] sources;
 	public AudioClip basetrack;
@@ -44,55 +44,53 @@ public class BGMManager : MonoBehaviour {
 
 	void Start () {
 		init ();
-//		tracks [0].output.Play ();
+		tracks [0].output.Play ();
 	}
-	private void AddClip(int track)
-	{
-		tracks[track].fadeState = FadeState.FadingIn;
-		tracks [track].fadeSpeed = _fadeSpeed;
-		tracks [track].loop = _loop;
-	}
-//
-//	private void RemoveClip(int track)
-//	{
-//		tracks[track].fadeState = FadeState.FadingOut;
-//	}
-//
-////	private void FadeToNextClip()
-////	{
-//////		this._audioSource.loop = this._nextClipLoop;
-//////		this._fadeState = FadeState.FadingIn;
-//////		this._audioSource.Play();
-////	}
-////		
-//
 
-//		
-//	private void Update()
-//	{
-//		if (this._fadeState == FadeState.FadingOut)
-//		{
-//			if (this._audioSource.volume > this.outVolume)
-//			{
-//				this._audioSource.volume -= this.FadeSpeed * Time.deltaTime;
-//			}
-//			else
-//			{
-////				this.FadeToNextClip();
-//			}
-//		}
-//		else if (this._fadeState == FadeState.FadingIn)
-//		{
-//			if (this._audioSource.volume < this.inVolume)
-//			{
-//				this._audioSource.volume += this.FadeSpeed * Time.deltaTime;
-//			}
-//			else
-//			{
-//				this._fadeState = FadeState.None;
-//				print ("transition ended");
-//			}
-//		}
-//
-//	}
+	private void RemoveClip(int track)
+	{
+		tracks[track].fadeState = FadeState.FadingOut;
+	}
+
+	private void FadeToNextClip()
+	{
+		this._audioSource.loop = this._nextClipLoop;
+		this._fadeState = FadeState.FadingIn;
+		this._audioSource.Play();
+	}
+		
+
+	private void RemoveClip(int track)
+	{
+		tracks[track].fadeState = FadeState.FadingOut;
+	}
+
+		
+	private void Update()
+	{
+		if (this._fadeState == FadeState.FadingOut)
+		{
+			if (this._audioSource.volume > this.outVolume)
+			{
+				this._audioSource.volume -= this.FadeSpeed * Time.deltaTime;
+			}
+			else
+			{
+//				this.FadeToNextClip();
+			}
+		}
+		else if (this._fadeState == FadeState.FadingIn)
+		{
+			if (this._audioSource.volume < this.inVolume)
+			{
+				this._audioSource.volume += this.FadeSpeed * Time.deltaTime;
+			}
+			else
+			{
+				this._fadeState = FadeState.None;
+				print ("transition ended");
+			}
+		}
+
+	}
 }
