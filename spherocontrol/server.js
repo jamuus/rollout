@@ -162,7 +162,7 @@ function startVisServer() {
         console.log('socket.io connection');
         socket.on('force', force);
         socket.on('transform', transform);
-        socket.on('spheroScale', spheroScale);
+        socket.on('scale', spheroScale);
     });
 
     http.listen(3000, function() {

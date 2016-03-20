@@ -43,8 +43,8 @@ KalmanObservation = (function() {
 })();
 
 var spheroIds = [
-    'boo',
     'ybr',
+    'boo',
 ];
 
 var spheros = {
@@ -76,7 +76,6 @@ if (process.argv[2]) {
 }
 
 function initSphero() {
-
     // initial state
     var x_0 = $V([0, 0, 0, 0]);
 
@@ -100,10 +99,10 @@ function initSphero() {
 
     // process noise (wadafaq)
     var Q_k = $M([
-        [1, 0, 0, 0],
-        [0, 1, 0, 0],
-        [0, 0, 1, 0],
-        [0, 0, 0, 1],
+        [0.001, 0, 0, 0],
+        [0, 0.001, 0, 0],
+        [0, 0, 0.001, 0],
+        [0, 0, 0, 0.001],
     ]);
     var KM = new KalmanModel(x_0, P_0, F_k, Q_k);
 
@@ -121,10 +120,11 @@ function initSphero() {
 
     // noise
     var R_k = $M([
-        [1, 0, 0, 0],
-        [0, 1, 0, 0],
-        [0, 0, 1, 0],
-        [0, 0, 0, 1],
+        [10, 0, 0, 0],
+
+        [0, 10, 0, 0],
+        [0, 0, 0.1, 0],
+        [0, 0, 0, 0.1],
     ]);
 
     var KO = new KalmanObservation(z_k, H_k, R_k);
@@ -146,7 +146,8 @@ function initSphero() {
         dx: 0,
         dy: 0,
         kalmanModel: KM,
-        kalmanObservation: KO
+        kalmanObservation: KO,
+        angleLog: Filter(500)
     }
 }
 
@@ -230,8 +231,50 @@ function XYFilter(size) {
     }
 }
 
-var imageTransform;
-var spheroScale = 1;
+var transformCorners;
+var cv = require("opencv");
+
+var imageSize = {
+    x: 1280.0,
+    y: 720.0,
+};
+
+function objxytoarray(obj) {
+    return [obj.x, obj.y];
+}
+
+function objlistxytoarray(list) {
+    return list.map(e => objxytoarray(e));
+}
+
+function warpPerspectiveList(p, m) {
+    var q = [];
+    for (var i = 0; i < p.length; i += 2) {
+        q.push(warpPerspective(p, m, i));
+    }
+    return q;
+}
+
+function warpPerspective(p, m, i) {
+    if (typeof(i) === "undefined") {
+        i = 0;
+    }
+
+    var q = [
+        p[i + 0] * m.get(0, 0) + p[i + 1] * m.get(0, 1) + m.get(0, 2),
+        p[i + 0] * m.get(1, 0) + p[i + 1] * m.get(1, 1) + m.get(1, 2)
+    ];
+
+    var f = p[i + 0] * m.get(2, 0) + p[i + 1] * m.get(2, 1) + m.get(2, 2);
+
+    q[i + 0] /= f;
+    q[i + 1] /= f;
+
+    return q;
+}
+
+var spheroScale = 22;
+var outputScale = 20;
 
 var debugLog = console.log;
 
@@ -245,11 +288,25 @@ module.exports = function(spheroManager, fn) {
     });
 
     fn.transformCallback(function(data) {
-        imageTransform = data.corners;
+        transformCorners = data.corners;
+        if (transformCorners) {
+            var corners = objlistxytoarray(transformCorners);
+            var target = [0, 0, imageSize.x, 0, imageSize.x, imageSize.y, 0, imageSize.y];
+
+            var transform = new cv.Matrix.Zeros(3, 3).getPerspectiveTransform(corners, target);
+
+            console.log(transform.row(0));
+            console.log(transform.row(1));
+            console.log(transform.row(2));
+            console.log();
+        }
     });
 
     fn.spheroScaleCallback(function(data) {
-        spheroScale = data.value;
+        if (data.spheroScale)
+            spheroScale = data.spheroScale;
+        if (data.outputScale)
+            outputScale = data.outputScale;
     });
 
     // when a sphero is connected we need to setup some shtuff
@@ -278,6 +335,8 @@ module.exports = function(spheroManager, fn) {
 
     return spheros;
 }
+
+
 
 function setupIp(dataOut) {
     var PORT = 1337;
@@ -311,7 +370,7 @@ function setupIp(dataOut) {
     server.bind(PORT);
 }
 
-var angleLog = Filter(500);
+
 var lastPos = [{
     x: 0,
     y: 0
@@ -351,7 +410,12 @@ function newSpheroData(name, data, spheroState) {
     // spheroState.pos.y += (absVelY * diff);
     // console.log(spheroState.pos);
 
-    spheroState.kalmanObservation.z_k = $V([0, 0, absVelX / (1000 * spheroScale), absVelY / (1000 * spheroScale)]);
+    spheroState.kalmanObservation.z_k = $V(
+        [0, 0,
+            absVelX / (1000 * spheroScale),
+            absVelY / (1000 * spheroScale)
+        ]
+    );
     spheroState.kalmanObservation.H_k =
         $M([
             [0, 0, 0, 0],
@@ -374,11 +438,18 @@ function newSpheroData(name, data, spheroState) {
     // ]);
 
     spheroState.kalmanModel.update(spheroState.kalmanObservation);
+    // console.log(spheroState.kalmanModel.P_k);
+    // console.log();
+
+    // var expFilterVal = 3;
+    // spheroState.pos.x = spheroState.pos.x - spheroState.pos.x / expFilterVal + (-spheroState.kalmanModel.x_k.elements[0] * outputScale) / expFilterVal
+    // spheroState.pos.y = spheroState.pos.y - spheroState.pos.y / expFilterVal + (-spheroState.kalmanModel.x_k.elements[1] * outputScale) / expFilterVal
 
     var pos = {
-        x: -spheroState.kalmanModel.x_k.elements[0] * 30,
-        y: -spheroState.kalmanModel.x_k.elements[1] * 30
+        x: -spheroState.kalmanModel.x_k.elements[0] * outputScale,
+        y: -spheroState.kalmanModel.x_k.elements[1] * outputScale + 1
     };
+
     spheroState.pos = pos;
 
     // console.log(name);
@@ -391,6 +462,7 @@ function newSpheroData(name, data, spheroState) {
         kalmanData: {
             name: name,
             d: spheroState.kalmanModel.x_k.elements
+                // d: [-spheroState.pos.x / outputScale, -spheroState.pos.y / outputScale]
         }
     }
 }
@@ -481,8 +553,8 @@ function newIpData(name, sphero, data) {
 
     if (!isNaN(angle) &&
         spheroDirMag > 0.05) {
-        angleLog.add(angle);
-        var filteredAngle = angleLog.value();
+        sphero.angleLog.add(angle);
+        var filteredAngle = sphero.angleLog.value();
 
         sphero.driftAngle = filteredAngle;
     }
@@ -493,26 +565,44 @@ function newIpData(name, sphero, data) {
             pos: pos,
             drift: sphero.driftAngle ? sphero.driftAngle : 0.0,
             angle: ipDirAngle,
+            pos3d: transformedPosition
         },
-        kalmanData: {
-            name: name,
-            d: sphero.kalmanModel.x_k.elements
-        },
+        // kalmanData: {
+        //     name: name,
+        //     d: sphero.kalmanModel.x_k.elements
+        // },
     }
 }
 
-// var arenaSize = {
-//     x: 1.0,
-//     y: 1.0,
-// };
-var imageSize = {
-    x: 1280.0,
-    y: 720.0,
-};
+var angleOffset = 0; // camera angle offset
+var h = 2; // 2 meters high
+var verticalFov = 60 / 360 * Math.PI * 2; // 60 degrees in radiuns
+var radiunsPerYPixel = verticalFov / imageSize.y;
+var focalLength = 0.01; // 10 mm?
+
+var resetAngle = angleOffset + verticalFov / 2;
+
+var rotatu = $M([
+    [1, 0, 0],
+    [0, Math.cos(resetAngle), -Math.sin(resetAngle)],
+    [0, Math.sin(resetAngle), Math.cos(resetAngle)]
+]);
 
 function pixelToPosition(pos) {
+    var y = imageSize.y - pos.y;
+
+    var Z = h / Math.cos(angleOffset + radiunsPerYPixel * y);
+    var X = focalLength * pos.x / Z;
+    var Y = focalLength * y / Z;
+    var res = rotatu.x($V([X, Y, Z]));
     return {
         x: pos.x / (imageSize.x * 0.5) - 1.0,
         y: (imageSize.y - pos.y) / (imageSize.y * 0.5) - 1.0,
     }
+    // return {
+    //     x: res.elements[0],
+    //     y: res.elements[1],
+    //     z: res.elements[2]
+    // }
+
 }

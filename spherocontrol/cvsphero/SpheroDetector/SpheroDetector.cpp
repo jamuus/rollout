@@ -292,7 +292,7 @@ int main( int, char** argv )
             cvtColor(frame, HSV, COLOR_BGR2HSV);
             inRange(HSV, boo.getHSVmin(), boo.getHSVmax(), threshold);
             morphOps(threshold);
-            // trackFilteredObject(boo, threshold, HSV, frame);
+            trackFilteredObject(boo, threshold, HSV, frame);
 
             // imshow(window_name, threshold);
 
@@ -300,7 +300,7 @@ int main( int, char** argv )
             cvtColor(frame, HSV, COLOR_BGR2HSV);
             inRange(HSV, ybr.getHSVmin(), ybr.getHSVmax(), threshold);
             morphOps(threshold);
-            // trackFilteredObject(ybr, threshold, HSV, frame);
+            trackFilteredObject(ybr, threshold, HSV, frame);
 
             sendToServer(&socketDescriptor, &serverAddress, ybr, 0);
             sendToServer(&socketDescriptor, &serverAddress, boo, 1);

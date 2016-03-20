@@ -11,7 +11,10 @@
         </canvas>
         <br/> Sphero scale: <span id="spheroScale">1</span>
         <br/>
-        <input oninput="spheroScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="1" style="width: 800px" />
+        <input oninput="spheroScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="30" style="width: 800px" />
+        <br/> Output scale: <span id="outputScale">1</span>
+        <br/>
+        <input oninput="outputScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="20" style="width: 800px" />
         <br /> Drift data
         <br />
         <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;">
@@ -78,6 +81,18 @@
         force: 0,
         direction: 0
     };
+    var angle = 0;
+
+    function circles() {
+        angle += 2 * Math.PI / 100;
+        socket.emit('force', {
+            force: 0.1,
+            direction: angle
+        })
+    }
+
+
+
     var pressedKeys = {
         w: false,
         a: false,
@@ -191,7 +206,8 @@
         rel: {},
         drift: {},
         angle: {},
-        abs: {}
+        abs: {},
+        pos3d: {}
     };
 
     var anglef = 0;
@@ -219,6 +235,8 @@
         spheroState.drift[data.name] = data.drift;
         spheroState.angle[data.name] = data.angle;
 
+        spheroState.pos3d[data.name] = data.pos3d;
+
         // var drift = spheroState.angle.boo + Math.atan2(spheroState.rel.boo.y, spheroState.rel.boo.x)
 
         spheroDrift.append(new Date().getTime(), data.drift);
@@ -229,8 +247,17 @@
         var spheroScaleOutput = document.querySelector("#spheroScale");
         spheroScaleOutput.innerHTML = value;
 
-        socket.emit('spheroScale', {
-            value: parseFloat(value)
+        socket.emit('scale', {
+            spheroScale: parseFloat(value)
+        });
+    }
+
+    function outputScaleChange(value) {
+        var outputScale = document.querySelector("#outputScale");
+        outputScale.innerHTML = value;
+
+        socket.emit('scale', {
+            outputScale: parseFloat(value)
         });
     }
 
@@ -323,6 +350,13 @@
 
             drawCircle(orthoToIpPos(sph), 2);
         }
+        // for (var sphpos3d in spheroState.pos3d) {
+        //     var sph = spheroState.pos3d[sphAbs];
+        //     drawCircle({
+        //         x: sph.x * 20,
+        //         y: sph.y * 20
+        //     }, 10);
+        // }
         for (var i in corners) {
             var point = corners[i];
             drawCircle(coordToIpPos(point), 4, true);
