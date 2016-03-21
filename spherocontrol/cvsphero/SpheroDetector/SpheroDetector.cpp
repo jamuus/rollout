@@ -256,7 +256,7 @@ int main( int, char** argv )
     bool calibrationMode = false;
 
     //open capture object at location zero (default location for webcam)
-    capture.open(1);
+    capture.open(0);
     // capture.open("/Users/jamus/dev/rollout/spherocontrol/cvsphero/SpheroDetector/test5.mov");
 
     if (!capture.isOpened())

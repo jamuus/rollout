@@ -4,6 +4,12 @@ var debug = true;
 
 module.exports = function(opts) {
     opts = opts || {};
+
+    var ipc = require('node-ipc');
+
+    ipc.config.id = 'world';
+    ipc.config.silent = true;
+
     var _onSpheroConnect = function _onSpheroConnect() {};
     var api = {
         instances: [],
@@ -20,12 +26,45 @@ module.exports = function(opts) {
     var log = function log() {
         if (debug) console.log.apply(this, arguments);
     };
-
     var connectedSpheros = {
         deviceNames: [],
     };
     var spheroDeviceRegex = /tty\.Sphero.*/;
+    var sockets = [];
+    ipc.serve(_ => {
+        ipc.server.on('init', (data, socket) => {
+            sockets.push(socket);
+            var response = connectedSpheros.deviceNames;
+            ipc.server.emit(socket,
+                'spheroList', JSON.stringify(response)
+            );
+        });
 
+        ipc.server.on('force', (data, socket) => {
+            var val = JSON.parse(data);
+
+            // console.log('got force', val);
+            // val.name,
+            // val.power,
+            // val.direction
+
+            for (let sphero of api.instances) {
+                if (sphero.name === val.name) {
+                    sphero.force(val.direction, val.power);
+                }
+            }
+        });
+    });
+
+    function sendToAllSockets(type, data) {
+        for (let socket of sockets) {
+            ipc.server.emit(socket,
+                type, JSON.stringify(data)
+            );
+        }
+    }
+
+    ipc.server.start();
     // Searches and connects to unconnected spheros
     function updateSpheros() {
         fs.readdir('/dev/', function(err, files) {
@@ -49,6 +88,8 @@ module.exports = function(opts) {
                         log("[SPHERO] Connected", sphDevName);
                         setupSpheroInstance(sph, sphDevName);
                         connectedSpheros.deviceNames.push(sphDevName);
+                        var response = connectedSpheros.deviceNames;
+                        sendToAllSockets('spheroList', response);
                     }
                     setTimeout(updateSpheros, 2000);
                 });
@@ -74,8 +115,7 @@ module.exports = function(opts) {
         function doRoll() {
             var newpower = Math.round(spheroForce.power * 255);
             var newangle = (((spheroForce.direction / (2 * Math.PI)) * 360) + 360) % 360;
-            // if (newpower !== 0) {
-            // log('rolling', newpower, newangle);
+
             if (connected) {
                 sphero.roll(newpower, newangle, doRoll);
             }
@@ -83,7 +123,7 @@ module.exports = function(opts) {
         doRoll();
         var inst = {
             name: deviceName,
-            newDataCallback: function newDataCallback(callback) {
+            newDataCallback: function(callback) {
                 _newDataCallback = callback;
             },
             force: function force(direction, power) {
@@ -95,15 +135,23 @@ module.exports = function(opts) {
         };
         api.instances.push(inst);
 
-
-
         sphero.streamVelocity(dataPerSecond);
         sphero.on('velocity', function(_data) {
             var data = {
+                type: 'velocity',
                 dx: _data.xVelocity.value[0],
                 dy: _data.yVelocity.value[0]
             };
-            _newDataCallback(data, 'velocity');
+            var response = {
+                name: deviceName,
+                data
+            };
+            // ipc.server.emit(socket,
+            //     'newSpheroData', JSON.stringify(response)
+            // );
+            sendToAllSockets('newSpheroData', response)
+
+            // _newDataCallback(data, 'velocity');
         });
 
         sphero.on('error', function(err) {
@@ -124,17 +172,12 @@ module.exports = function(opts) {
             blue: 0
         });
 
-        // var angle = 0;
-        // setInterval(() => {
-        //     angle += (Math.PI / 30) / 2;
-        //     inst.force(angle, 0.2);
-        // }, 1000 / 60);
-
-
-        _onSpheroConnect(api.instances[api.instances.length - 1]);
+        // _onSpheroConnect(api.instances[api.instances.length - 1]);
     }
 
     updateSpheros();
 
     return api;
 };
+
+module.exports();

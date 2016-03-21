@@ -194,8 +194,8 @@ function startVisServer() {
 function spheroState(dataOut) {
     var api = {};
 
-    var manager = require('./spheroManager')();
-    var spheroLoc = require('./spheroLoc.js')(manager, dataOut);
+    // var manager = require('./spheroManager')();
+    var spheroLoc = require('./spheroLoc.js')(dataOut);
 
     return spheroLoc;
 }

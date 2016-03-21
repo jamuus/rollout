@@ -1,3 +1,4 @@
+'use strict';
 var sylvester = require('sylvester');
 var Matrix = sylvester.Matrix;
 
@@ -31,7 +32,7 @@ var KalmanModel = (function() {
     return KalmanModel;
 })();
 
-KalmanObservation = (function() {
+var KalmanObservation = (function() {
 
     function KalmanObservation(z_k, H_k, R_k) {
         this.z_k = z_k; //observation
@@ -278,7 +279,7 @@ var outputScale = 20;
 
 var debugLog = console.log;
 
-module.exports = function(spheroManager, fn) {
+module.exports = function(fn) {
     var dataOut = fn.dataOut;
 
     // called by web client to test forces
@@ -309,8 +310,16 @@ module.exports = function(spheroManager, fn) {
             outputScale = data.outputScale;
     });
 
+    // setupOldManager(spheroManager, dataOut);
+    setupSpheroManager(dataOut);
+    setupIp(dataOut);
+
+    return spheros;
+}
+
+function setupOldManager(spheroManager, dataOut) {
     // when a sphero is connected we need to setup some shtuff
-    spheroManager.onSpheroConnect(function(newSphero) {
+    spheroManager.onSpheroConnect(function(anewSphero) {
         debugLog('Sphero', newSphero.name, 'connected.');
 
         var spheroName = newSphero.name.toLowerCase().indexOf("ybr") !== -1 ? "ybr" : "boo";
@@ -330,12 +339,60 @@ module.exports = function(spheroManager, fn) {
             }
         });
     });
-
-    setupIp(dataOut);
-
-    return spheros;
 }
 
+function setupSpheroManager(dataOut) {
+    var ipc = require('node-ipc');
+
+    ipc.config.id = 'hello';
+    ipc.config.silent = true;
+
+    var id = 'world';
+
+    ipc.connectTo(id, _ => {
+        ipc.of[id].on('connect', _ => {
+            ipc.log('Connected to sphero manager'.rainbow);
+            ipc.of[id].emit('init', '');
+        });
+
+        ipc.of[id].on('disconnect', () => {
+            ipc.log('disconnected from'.notice);
+        });
+
+        ipc.of[id].on('newSpheroData', (data) => {
+            // console.log('newSpheroData', data);
+            // ipc.log('got a message from world : '.debug, data);
+            var val = JSON.parse(data);
+            var name = deviceNameTofriendly(val.name);
+            if (val.data.type === 'velocity') {
+                newSpheroData(name, val.data, spheros[name]);
+            } else {
+                ipc.log('Unknown data type'.debug);
+            }
+        });
+        ipc.of[id].on('spheroList', (data) => {
+            // console.log('got sphero list', JSON.parse(data));
+            var val = JSON.parse(data);
+            for (let deviceName of val) {
+                var name = deviceNameTofriendly(deviceName);
+                spheros[name].force = (direction, force) => {
+                    let send = {
+                        name: deviceName,
+                        direction,
+                        force
+                    };
+                    ipc.of[id].emit('force', JSON.stringify(send));
+                };
+                // console.log(device);
+            }
+            // ipc.log('got a message from world : '.debug, data);
+        });
+    });
+}
+
+function deviceNameTofriendly(name) {
+    return name.toLowerCase().indexOf("ybr") !== -1 ? "ybr" : "boo";
+}
 
 
 function setupIp(dataOut) {
@@ -423,12 +480,13 @@ function newSpheroData(name, data, spheroState) {
             [0, 0, 1, 0],
             [0, 0, 0, 1],
         ]);
-    spheroState.kalmanObservation.F_k = $M([
-        [1, 0, diff, 0],
-        [0, 1, 0, diff],
-        [0, 0, 1, 0],
-        [0, 0, 0, 1],
-    ]);
+    spheroState.kalmanObservation.F_k =
+        $M([
+            [1, 0, diff, 0],
+            [0, 1, 0, diff],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1],
+        ]);
 
     // $M([
     //     [0, 0, 0, 0],
@@ -519,8 +577,8 @@ function newIpData(name, sphero, data) {
 
     var filteredPos = sphero.ipPos.average();
 
-    ipDx = filteredPos.x - lastPos[data.id].x;
-    ipDy = filteredPos.y - lastPos[data.id].y;
+    var ipDx = filteredPos.x - lastPos[data.id].x;
+    var ipDy = filteredPos.y - lastPos[data.id].y;
     lastPos[data.id] = filteredPos;
 
     var ipDirVec = {
@@ -545,7 +603,7 @@ function newIpData(name, sphero, data) {
     );
 
     var ipDirAngle = Math.atan2(ipDirVec.y, ipDirVec.x);
-    spheroDirAngle = Math.atan2(spheroDirVec.y, spheroDirVec.x);
+    var spheroDirAngle = Math.atan2(spheroDirVec.y, spheroDirVec.x);
     angle = spheroDirAngle - ipDirAngle;
 
     angle = angle > Math.PI ? angle - 2 * Math.PI : angle;
@@ -604,5 +662,4 @@ function pixelToPosition(pos) {
     //     y: res.elements[1],
     //     z: res.elements[2]
     // }
-
 }
