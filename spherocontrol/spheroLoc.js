@@ -44,8 +44,8 @@ var KalmanObservation = (function() {
 })();
 
 var spheroIds = [
-    'ybr',
     'boo',
+    'ybr',
 ];
 
 var spheros = {
@@ -365,7 +365,7 @@ function setupSpheroManager(dataOut) {
             var val = JSON.parse(data);
             var name = deviceNameTofriendly(val.name);
             if (val.data.type === 'velocity') {
-                newSpheroData(name, val.data, spheros[name]);
+                dataOut(newSpheroData(name, val.data, spheros[name]));
             } else {
                 ipc.log('Unknown data type'.debug);
             }
@@ -375,10 +375,12 @@ function setupSpheroManager(dataOut) {
             var val = JSON.parse(data);
             for (let deviceName of val) {
                 var name = deviceNameTofriendly(deviceName);
-                spheros[name].force = (direction, force) => {
+                var sphero = spheros[name];
+                sphero.force = (direction, force) => {
+                    let offsetDirection = direction - sphero.driftAngle;
                     let send = {
                         name: deviceName,
-                        direction,
+                        direction: offsetDirection,
                         force
                     };
                     ipc.of[id].emit('force', JSON.stringify(send));
@@ -442,6 +444,8 @@ var bef = new Date().getTime();
 function newSpheroData(name, data, spheroState) {
     var dx = data.dx;
     var dy = data.dy;
+    // console.log('spheroName', data);
+
     spheroState.spheroVel.add({
         x: dx / 1000.0,
         y: dy / 1000.0,

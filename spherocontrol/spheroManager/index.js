@@ -50,7 +50,7 @@ module.exports = function(opts) {
 
             for (let sphero of api.instances) {
                 if (sphero.name === val.name) {
-                    sphero.force(val.direction, val.power);
+                    sphero.force(val.direction, val.force);
                 }
             }
         });
@@ -126,7 +126,7 @@ module.exports = function(opts) {
             newDataCallback: function(callback) {
                 _newDataCallback = callback;
             },
-            force: function force(direction, power) {
+            force: function(direction, power) {
                 if (power > 1) power = 1;
                 if (power < 0) power = 0;
                 spheroForce.direction = direction;
