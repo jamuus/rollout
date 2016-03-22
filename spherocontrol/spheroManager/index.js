@@ -48,6 +48,7 @@ module.exports = function(opts) {
             // val.power,
             // val.direction
 
+            // todo make fasterer
             for (let sphero of api.instances) {
                 if (sphero.name === val.name) {
                     sphero.force(val.direction, val.force);

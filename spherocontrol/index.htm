@@ -59,23 +59,29 @@
         strokeStyle: 'rgb(125, 0, 125)',
     });
 
+    var state = {};
+
     var socket = io();
     socket.on('data', function(msg) {
         for (var dtype in msg) {
-            switch (dtype) {
-                case 'spheroData':
-                    updateSpheroData(msg[dtype]);
-                    break;
-                case 'ipData':
-                    updateIpData(msg[dtype]);
-                    break;
-                case 'kalmanData':
-                    updateKalmanData(msg[dtype]);
-                    break;
-                default:
-                    console.log('rip');
-            }
+            state[dtype] = msg[dtype];
+            // switch (dtype) {
+            //     case 'spheroData':
+            //         // console.log(msg[dtype])
+            //         state
+            //         updateSpheroData(msg[dtype]);
+            //         break;
+            //     case 'ipData':
+            //         updateIpData(msg[dtype]);
+            //         break;
+            //     case 'kalmanData':
+            //         updateKalmanData(msg[dtype]);
+            //         break;
+            //     default:
+            //         console.log('rip');
+            // }
         }
+        console.log(JSON.stringify(state, null, '    '));
     });
     var control = {
         force: 0,
