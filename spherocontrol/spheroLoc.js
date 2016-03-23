@@ -222,12 +222,13 @@ function setupSpheroManager(dataOut) {
         });
 
         ipc.of[id].on('newSpheroData', (data) => {
-            // console.log('newSpheroData', data);
-            // ipc.log('got a message from world : '.debug, data);
             var val = JSON.parse(data);
             var name = deviceNameTofriendly(val.name);
             if (val.data.type === 'velocity') {
-                dataOut(newSpheroData(name, val.data, spheros[name]));
+                dataOut({
+                    name,
+                    data: newSpheroData('name', val.data, spheros[name])
+                });
             } else {
                 ipc.log('Unknown data type'.debug);
             }
@@ -247,14 +248,13 @@ function setupSpheroManager(dataOut) {
                     };
                     ipc.of[id].emit('force', JSON.stringify(send));
                 };
-                // console.log(device);
             }
-            // ipc.log('got a message from world : '.debug, data);
         });
     });
 }
 
 function deviceNameTofriendly(name) {
+    // ew
     return name.toLowerCase().indexOf("ybr") !== -1 ? "ybr" : "boo";
 }
 
@@ -284,7 +284,10 @@ function setupIp(dataOut) {
         if (spheroState) {
             i++;
             // if (i % 5 === 0)
-            dataOut(newIpData(sphName, spheroState, data));
+            dataOut({
+                name: sphName,
+                data: newIpData(sphName, spheroState, data)
+            });
         }
     });
 
@@ -376,17 +379,12 @@ function newSpheroData(name, data, spheroState) {
 
     spheroState.pos = pos;
 
-    // console.log(name);
-
     return {
-        spheroData: {
-            name: name,
-            data: spheroState.spheroVel.average(),
-        },
-        kalmanData: {
-            name: name,
-            d: spheroState.kalmanModel.x_k.elements
-                // d: [-spheroState.pos.x / outputScale, -spheroState.pos.y / outputScale]
+        relSpheroVec: spheroState.spheroVel.average(),
+        absSpheroVec: spheroState.absSpheroVel,
+        kalmanPos: {
+            x: spheroState.kalmanModel.x_k.elements[0],
+            y: spheroState.kalmanModel.x_k.elements[1]
         }
     }
 }
@@ -399,12 +397,13 @@ function newIpData(name, sphero, data) {
 
     // lost sphero
     if (data.x === -1 || data.y === -1) {
-        return data.id === 1 ? {
-            spheroData: {
-                name: name,
-                data: sphero.absSpheroVel,
-            }
-        } : {};
+        return {};
+        // return data.id === 1 ? {
+        //     spheroData: {
+        //         name: name,
+        //         data: sphero.absSpheroVel,
+        //     }
+        // } : {};
     }
 
     var ipData = {
@@ -484,17 +483,11 @@ function newIpData(name, sphero, data) {
     }
 
     return {
-        ipData: {
-            name: name,
-            pos: pos,
-            drift: sphero.driftAngle ? sphero.driftAngle : 0.0,
-            angle: ipDirAngle,
-            pos3d: transformedPosition
-        },
-        // kalmanData: {
-        //     name: name,
-        //     d: sphero.kalmanModel.x_k.elements
-        // },
+        kalmanPos: pos,
+        driftAngle: sphero.driftAngle ? sphero.driftAngle : 0.0,
+        ipAngle: ipDirAngle,
+        ipPosTransformed: transformedPosition,
+        spheroAngle: spheroDirAngle
     }
 }
 

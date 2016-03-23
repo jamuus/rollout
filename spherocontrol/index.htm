@@ -1,88 +1,150 @@
 <html>
 
 <head>
+    <style type="text/css">
+div {
+        box-sizing: border-box;
+    }
+    
+    .spheroData {
+        outline: 1px solid;
+        width: 400px;
+        position: relative;
+        margin-top: 40px;
+    }
+    
+    #spheroData1 {
+        float: left;
+    }
+    
+    #spheroData2 {
+        float: right;
+    }
+    
+    .container {
+        width: 900px;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        /*outline: green 1px solid;*/
+    }
+    
+    #absoluteCvs {
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    
+    .name {
+        font-size: 20px;
+    }
+    
+    .driftGraph {
+        outline: 1px solid;
+    }
+}
+    </style>
 </head>
 
 <body>
-    <center>
-        Sphero positions
-        <br />
-        <canvas id="absoluteCvs" width="800" height="600" style="border:1px solid #000000;">
-        </canvas>
-        <br/> Sphero scale: <span id="spheroScale">1</span>
-        <br/>
-        <input oninput="spheroScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="30" style="width: 800px" />
-        <br/> Output scale: <span id="outputScale">1</span>
-        <br/>
-        <input oninput="outputScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="20" style="width: 800px" />
-        <br /> Drift data
-        <br />
-        <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;">
-        </canvas>
-        <br />
-        <canvas id="spheroAngles" width="600" height="100"></canvas>
-        <br /> Kalman filtered position
-        <br />
-        <canvas id="kalmanData" width="600" height="200"></canvas>
-    </center>
+    <div class="container">
+        <canvas id="absoluteCvs" width="800" height="600" style="border:1px solid #000000;"></canvas>
+        <div class="spheroData" id="spheroData1"></div>
+        <div class="spheroData" id="spheroData2"></div>
+        <!-- <input oninput="spheroScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="30" style="width: 800px" /> -->
+        <!-- <input oninput="outputScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="20" style="width: 800px" /> -->
+        <!-- <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;"></canvas> -->
+        <!-- <canvas id="spheroAngles" width="600" height="100"></canvas> -->
+        <!-- <canvas id="kalmanData" width="600" height="200"></canvas> -->
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="smoothie.js"></script>
     <script>
-    var smoothie = new SmoothieChart();
-    smoothie.streamTo(document.getElementById("spheroAngles"));
+    // var boo = document.querySelector('#spheroData1');
+    // var ybr = document.querySelector('#spheroData2');
 
-    var spheroIPAngle = new TimeSeries();
-    var spheroDataAngle = new TimeSeries();
-    var spheroDrift = new TimeSeries();
+    function createSpheroLayout(name, id) {
+        var container = document.querySelector(id);
+        var nameSpan = document.createElement('span');
+        nameSpan.className = 'name';
+        nameSpan.innerHTML = name;
 
-    smoothie.addTimeSeries(spheroIPAngle, {
-        strokeStyle: 'rgb(0, 255, 0)',
-        lineWidth: 1
-    });
-    smoothie.addTimeSeries(spheroDataAngle, {
-        strokeStyle: 'rgb(255, 0, 0)',
-        lineWidth: 1
-    });
-    smoothie.addTimeSeries(spheroDrift, {
-        strokeStyle: 'rgb(0, 191, 255)',
-        lineWidth: 1
-    });
 
-    var smoothieKalman = new SmoothieChart();
-    smoothieKalman.streamTo(document.getElementById("kalmanData"));
-    var kalmanXData = new TimeSeries();
-    smoothieKalman.addTimeSeries(kalmanXData, {
-        strokeStyle: 'rgb(255, 255, 255)',
-    });
-    var kalmanYData = new TimeSeries();
-    smoothieKalman.addTimeSeries(kalmanYData, {
-        strokeStyle: 'rgb(125, 0, 125)',
-    });
+        var driftGraph = document.createElement('canvas');
+        driftGraph.width = "400";
+        driftGraph.height = "200";
+        driftGraph.className = "driftGraph";
+
+        var smoothie = new SmoothieChart();
+        smoothie.streamTo(driftGraph);
+
+        var spheroIPAngle = new TimeSeries();
+        var spheroDataAngle = new TimeSeries();
+        var spheroDrift = new TimeSeries();
+
+        smoothie.addTimeSeries(spheroIPAngle, {
+            strokeStyle: 'rgb(0, 255, 0)',
+            lineWidth: 1
+        });
+        smoothie.addTimeSeries(spheroDataAngle, {
+            strokeStyle: 'rgb(255, 0, 0)',
+            lineWidth: 1
+        });
+        smoothie.addTimeSeries(spheroDrift, {
+            strokeStyle: 'rgb(0, 191, 255)',
+            lineWidth: 1
+        });
+
+
+
+        container.appendChild(nameSpan);
+        container.appendChild(driftGraph);
+
+        return {
+            spheroIPAngle,
+            spheroDataAngle,
+            spheroDrift
+        }
+    }
+
+    var booVis = createSpheroLayout('boo', '#spheroData1');
+    var ybrVis = createSpheroLayout('ybr', '#spheroData2');
+
+    var vis = {
+        boo: booVis,
+        ybr: ybrVis
+    }
 
     var state = {};
 
     var socket = io();
     socket.on('data', function(msg) {
-        for (var dtype in msg) {
-            state[dtype] = msg[dtype];
-            // switch (dtype) {
-            //     case 'spheroData':
-            //         // console.log(msg[dtype])
-            //         state
-            //         updateSpheroData(msg[dtype]);
-            //         break;
-            //     case 'ipData':
-            //         updateIpData(msg[dtype]);
-            //         break;
-            //     case 'kalmanData':
-            //         updateKalmanData(msg[dtype]);
-            //         break;
-            //     default:
-            //         console.log('rip');
-            // }
+
+        for (var dtype in msg.data) {
+            if (!state[msg.name])
+                state[msg.name] = {};
+            state[msg.name][dtype] = msg.data[dtype];
+
+            if (dtype === 'spheroAngle') {
+                vis[msg.name].spheroDataAngle.append(new Date().getTime(), msg.data[dtype]);
+            } else if (dtype === 'ipAngle') {
+                vis[msg.name].spheroIPAngle.append(new Date().getTime(), msg.data[dtype]);
+            } else if (dtype === 'driftAngle') {
+                vis[msg.name].spheroDrift.append(new Date().getTime(), msg.data[dtype]);
+            }
         }
-        console.log(JSON.stringify(state, null, '    '));
     });
+
+
+
+
+
+
+
     var control = {
         force: 0,
         direction: 0
@@ -96,8 +158,6 @@
             direction: angle
         })
     }
-
-
 
     var pressedKeys = {
         w: false,
@@ -150,71 +210,60 @@
 
     var canvas1 = document.getElementById('absoluteCvs');
     var ctx1 = canvas1.getContext('2d');
-    var canvas2 = document.getElementById('spheroAngleCvs');
-    var ctx2 = canvas2.getContext('2d');
 
-    var corners = [{
-        x: 0,
-        y: 0
-    }, {
-        x: 1280,
-        y: 0
-    }, {
-        x: 1280,
-        y: 720
-    }, {
-        x: 0,
-        y: 720
-    }];
+    // var corners = [{
+    //     x: 0,
+    //     y: 0
+    // }, {
+    //     x: 1280,
+    //     y: 0
+    // }, {
+    //     x: 1280,
+    //     y: 720
+    // }, {
+    //     x: 0,
+    //     y: 720
+    // }];
 
-    var center = {
-        x: 1280 / 2,
-        y: 720 / 2
-    };
+    // var center = {
+    //     x: 1280 / 2,
+    //     y: 720 / 2
+    // };
 
-    var selected = -1;
+    // var selected = -1;
 
-    canvas1.addEventListener('mousedown', function(event) {
-        var mousePos = getMousePos(canvas1, event);
-        // console.log('mousedown', mousePos);
-        for (var i in corners) {
-            var corner = coordToIpPos(corners[i]);
-            var xdiff = (mousePos.x - corner.x);
-            var ydiff = (mousePos.y - corner.y);
-            if (xdiff * xdiff + ydiff * ydiff < 100) {
-                selected = i;
-            }
-        }
-    });
-    canvas1.addEventListener('mousemove', function(event) {
-        var mousePos = getMousePos(canvas1, event);
-        if (selected !== -1) {
-            corners[selected] = IpPosToCoord(mousePos);
-            socket.emit('transform', {
-                corners: corners
-            });
-        }
-    });
-    canvas1.addEventListener('mouseup', function(event) {
-        selected = -1;
-    });
+    // canvas1.addEventListener('mousedown', function(event) {
+    //     var mousePos = getMousePos(canvas1, event);
+    //     // console.log('mousedown', mousePos);
+    //     for (var i in corners) {
+    //         var corner = coordToIpPos(corners[i]);
+    //         var xdiff = (mousePos.x - corner.x);
+    //         var ydiff = (mousePos.y - corner.y);
+    //         if (xdiff * xdiff + ydiff * ydiff < 100) {
+    //             selected = i;
+    //         }
+    //     }
+    // });
+    // canvas1.addEventListener('mousemove', function(event) {
+    //     var mousePos = getMousePos(canvas1, event);
+    //     if (selected !== -1) {
+    //         corners[selected] = IpPosToCoord(mousePos);
+    //         socket.emit('transform', {
+    //             corners: corners
+    //         });
+    //     }
+    // });
+    // canvas1.addEventListener('mouseup', function(event) {
+    //     selected = -1;
+    // });
 
-    function getMousePos(canvas, evt) {
-        var rect = canvas.getBoundingClientRect();
-        return {
-            x: evt.clientX - rect.left,
-            y: evt.clientY - rect.top
-        };
-    }
-
-    var spheroState = {
-        absIp: {},
-        rel: {},
-        drift: {},
-        angle: {},
-        abs: {},
-        pos3d: {}
-    };
+    // function getMousePos(canvas, evt) {
+    //     var rect = canvas.getBoundingClientRect();
+    //     return {
+    //         x: evt.clientX - rect.left,
+    //         y: evt.clientY - rect.top
+    //     };
+    // }
 
     var anglef = 0;
 
@@ -227,71 +276,23 @@
     }
     // setInterval(circles, 1000 / 20);
 
-    function updateIpData(data) {
-        if (!spheroState.absIp[data.name])
-            spheroState.absIp[data.name] = {};
-        if (!spheroState.drift[data.name])
-            spheroState.drift[data.name] = {};
-        if (!spheroState.angle[data.name])
-            spheroState.angle[data.name] = {};
+    // function spheroScaleChange(value) {
+    //     var spheroScaleOutput = document.querySelector("#spheroScale");
+    //     spheroScaleOutput.innerHTML = value;
 
-        spheroState.absIp[data.name].x = data.pos.x;
-        spheroState.absIp[data.name].y = data.pos.y;
+    //     socket.emit('scale', {
+    //         spheroScale: parseFloat(value)
+    //     });
+    // }
 
-        spheroState.drift[data.name] = data.drift;
-        spheroState.angle[data.name] = data.angle;
+    // function outputScaleChange(value) {
+    //     var outputScale = document.querySelector("#outputScale");
+    //     outputScale.innerHTML = value;
 
-        spheroState.pos3d[data.name] = data.pos3d;
-
-        // var drift = spheroState.angle.boo + Math.atan2(spheroState.rel.boo.y, spheroState.rel.boo.x)
-
-        spheroDrift.append(new Date().getTime(), data.drift);
-        spheroIPAngle.append(new Date().getTime(), data.angle);
-    }
-
-    function spheroScaleChange(value) {
-        var spheroScaleOutput = document.querySelector("#spheroScale");
-        spheroScaleOutput.innerHTML = value;
-
-        socket.emit('scale', {
-            spheroScale: parseFloat(value)
-        });
-    }
-
-    function outputScaleChange(value) {
-        var outputScale = document.querySelector("#outputScale");
-        outputScale.innerHTML = value;
-
-        socket.emit('scale', {
-            outputScale: parseFloat(value)
-        });
-    }
-
-    function updateSpheroData(data) {
-        if (!spheroState.rel[data.name])
-            spheroState.rel[data.name] = {};
-
-        var dx = spheroState.rel[data.name].x = data.data.x;
-        var dy = spheroState.rel[data.name].y = data.data.y;
-
-        var spheroAngle = Math.atan2(dy, dx);
-
-        spheroDataAngle.append(new Date().getTime(), spheroAngle);
-    }
-
-    function updateKalmanData(data) {
-        if (!spheroState.abs[data.name])
-            spheroState.abs[data.name] = {};
-        var x = data.d[0];
-        var y = data.d[1];
-        kalmanXData.append(new Date().getTime(), x);
-        kalmanYData.append(new Date().getTime(), y);
-
-        spheroState.abs[data.name] = {
-            x: x,
-            y: y
-        };
-    }
+    //     socket.emit('scale', {
+    //         outputScale: parseFloat(value)
+    //     });
+    // }
 
     function drawPolygon(ctx, edges) {
         edges = edges.map(function(e) {
@@ -321,26 +322,26 @@
             ctx1.stroke();
     }
 
-    function orthoToIpPos(point) {
-        return {
-            x: (point.x + 1) / 2 * 300 + 250,
-            y: (-point.y + 1) / 2 * 200 + 200
-        }
-    }
+    // function orthoToIpPos(point) {
+    //     return {
+    //         x: (point.x + 1) / 2 * 300 + 250,
+    //         y: (-point.y + 1) / 2 * 200 + 200
+    //     }
+    // }
 
-    function coordToIpPos(point) {
-        return {
-            x: point.x / 1280 * 300 + 250,
-            y: point.y / 720 * 200 + 200
-        }
-    }
+    // function coordToIpPos(point) {
+    //     return {
+    //         x: point.x / 1280 * 300 + 250,
+    //         y: point.y / 720 * 200 + 200
+    //     }
+    // }
 
-    function IpPosToCoord(point) {
-        return {
-            x: (point.x - 250) / 300 * 1280,
-            y: (point.y - 200) / 200 * 720
-        }
-    }
+    // function IpPosToCoord(point) {
+    //     return {
+    //         x: (point.x - 250) / 300 * 1280,
+    //         y: (point.y - 200) / 200 * 720
+    //     }
+    // }
 
     function drawAbs(dt) {
         ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
@@ -369,48 +370,48 @@
         }
     }
 
-    function drawRel(dt) {
-        ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
-        for (var name in spheroState.rel) {
-            var sphdata = spheroState.rel[name];
-            // console.log(sphdata);
-            drawLine(ctx2,
-                100,
-                100,
-                sphdata.x * 100 + 100, -sphdata.y * 100 + 100
-            );
+    // function drawRel(dt) {
+    //     ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+    //     for (var name in spheroState.rel) {
+    //         var sphdata = spheroState.rel[name];
+    //         // console.log(sphdata);
+    //         drawLine(ctx2,
+    //             100,
+    //             100,
+    //             sphdata.x * 100 + 100, -sphdata.y * 100 + 100
+    //         );
 
-        }
-        // for (var name in spheroState.drift) {
-        //     var angle = spheroState.drift[name];
+    //     }
+    //     // for (var name in spheroState.drift) {
+    //     //     var angle = spheroState.drift[name];
 
-        //     drawLine(ctx2,
-        //         100,
-        //         100,
-        //         Math.cos(angle) * 250 + 100,
-        //         Math.sin(angle) * 250 + 100,
-        //         3
-        //     );
-        // }
-        for (var name in spheroState.angle) {
-            var angle = spheroState.angle[name];
+    //     //     drawLine(ctx2,
+    //     //         100,
+    //     //         100,
+    //     //         Math.cos(angle) * 250 + 100,
+    //     //         Math.sin(angle) * 250 + 100,
+    //     //         3
+    //     //     );
+    //     // }
+    //     for (var name in spheroState.angle) {
+    //         var angle = spheroState.angle[name];
 
-            drawLine(ctx2,
-                100,
-                100,
-                Math.cos(-angle) * 250 + 100,
-                Math.sin(-angle) * 250 + 100,
-                2
-            );
-        }
-    }
+    //         drawLine(ctx2,
+    //             100,
+    //             100,
+    //             Math.cos(-angle) * 250 + 100,
+    //             Math.sin(-angle) * 250 + 100,
+    //             2
+    //         );
+    //     }
+    // }
 
     function draw(dt) {
         drawAbs(dt);
-        drawRel(dt);
+        // drawRel(dt);
         requestAnimationFrame(draw);
     }
-    requestAnimationFrame(draw);
+    // requestAnimationFrame(draw);
 
     function drawLine(ctx, x1, y1, x2, y2, thickness) {
         ctx.lineWidth = thickness || 1;
