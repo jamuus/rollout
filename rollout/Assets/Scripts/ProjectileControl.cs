@@ -7,6 +7,7 @@ public class ProjectileControl : MonoBehaviour
     private Vector3 velocity;
     public Projectile projectile;
     private GameObject music;
+	private GameObject music2;
 
     //***TO ADD WEAPONS***
     //1) Write the weapon behaviour in a separate script
@@ -53,10 +54,12 @@ public class ProjectileControl : MonoBehaviour
         //Checks if the player is trying to fire a weapon
         if ((Input.GetButtonDown("Fire1") && gameObject.name == ("player1")) || (Input.GetButtonDown("Fire2") && gameObject.name == ("player2")))
         {
-//            music = GameObject.Find("Music");
+			music2 = GameObject.Find("BGM");
 
 			music = gameObject.transform.GetChild(0).gameObject;
 			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
+			BGMManager manager2 = (BGMManager) music2.GetComponent(typeof(BGMManager));
+			manager2.FadeToNextClip (0,1);
 			manager.Shoot ();
             //Checks if the weapon has ammunition
             if (ammunition[activeWeapon] != 0)

@@ -3,94 +3,116 @@ using System.Collections;
 
 public class BGMManager : MonoBehaviour {
 
-	public enum FadeState { None = 0, FadingOut = 1, FadingIn = 2, NextTrack = 3}
+	public enum State { Pause = 0, Play = 1, FadingOut = 2,  FadingIn = 3, Stop = 4, None = 5}
 
 	private AudioSource[] sources;
 	public AudioClip basetrack;
 	public AudioClip earthquake;
 	public Track[] tracks = new Track[2];
 
-	public struct Track
+	public class Track : MonoBehaviour
 	{
 		public int id;
 		public string name;
-		public FadeState fadeState;
+		public State State;
 		public float fadeSpeed;
 		public bool loop;
 		public AudioSource output;
 		public AudioClip clip;
+		public float volume;
+		public float nextStateVolume;
 
-		public Track(int newId, string newName, FadeState newFadeState, float newFadeSpeed, bool newLoop, AudioSource newOutput, AudioClip newClip){
+		public Track(int newId, string newName, State newState, float newFadeSpeed, bool newLoop, AudioSource newOutput, AudioClip newClip,
+					float newVolume, float newNextStateVolume ){
 			newOutput.clip=newClip;
 			newOutput.loop = newLoop;
+			newOutput.volume = newVolume;
 			id = newId;
 			name = newName;
-			fadeState = newFadeState;
+			State = newState;
 			fadeSpeed = newFadeSpeed;
 			loop = newLoop;
 			output = newOutput;
 			clip = newClip;
+			nextStateVolume = newNextStateVolume;
+
 		}
 	}
 
 	private void init()
 	{
 		sources = this.GetComponents<AudioSource>();
-		sources [0].clip = basetrack;
-		sources [1].clip = earthquake;
-		tracks [0] = new Track (0, "basetrack", FadeState.None, 0.05f, false, sources [0],basetrack);
-		tracks [1] = new Track (1, "earthquake", FadeState.None, 0.05f, false, sources [1],earthquake);
+		tracks [0] = new Track (0, "basetrack", State.Play, 1.0f, true, sources [0], basetrack, 1.0f, 0.0f);
+		tracks [1] = new Track (1, "earthquake", State.Play, 1.0f, true, sources [1], earthquake, 0.0f, 1.0f);
 	}
 
 	void Start () {
 		init ();
-		tracks [0].output.Play ();
 	}
 
-	private void RemoveClip(int track)
+	public void FadeToNextClip(int fromTrackID, int toTrackID)
 	{
-		tracks[track].fadeState = FadeState.FadingOut;
+		FadeOut (fromTrackID);
+		FadeIn (toTrackID);
 	}
 
-	private void FadeToNextClip()
+	private void FadeOut(int TrackID)
 	{
-		this._audioSource.loop = this._nextClipLoop;
-		this._fadeState = FadeState.FadingIn;
-		this._audioSource.Play();
+		tracks [TrackID].State = State.FadingOut;
 	}
-		
-
-	private void RemoveClip(int track)
+	private void FadeIn(int TrackID)
 	{
-		tracks[track].fadeState = FadeState.FadingOut;
+		tracks [TrackID].State = State.FadingIn;
 	}
 
-		
+//
+//		
 	private void Update()
 	{
-		if (this._fadeState == FadeState.FadingOut)
+		foreach (Track x in tracks) 
 		{
-			if (this._audioSource.volume > this.outVolume)
+			switch (x.State) 
 			{
-				this._audioSource.volume -= this.FadeSpeed * Time.deltaTime;
-			}
-			else
-			{
-//				this.FadeToNextClip();
-			}
-		}
-		else if (this._fadeState == FadeState.FadingIn)
-		{
-			if (this._audioSource.volume < this.inVolume)
-			{
-				this._audioSource.volume += this.FadeSpeed * Time.deltaTime;
-			}
-			else
-			{
-				this._fadeState = FadeState.None;
-				print ("transition ended");
-			}
-		}
 
+			case State.None:
+				break;
+			
+			case State.Pause:
+				x.output.Pause();
+				x.State = State.None;
+				break;
+
+
+			case State.Play:
+				x.output.Play ();
+				x.State = State.None;
+				break;
+
+			case State.FadingIn:
+				if (x.output.volume < x.nextStateVolume) {
+					x.output.volume += x.fadeSpeed * Time.deltaTime;
+				} else {
+					x.State = State.None;
+				}
+				break;
+
+			case State.FadingOut:
+				if (x.output.volume > x.nextStateVolume) {
+					x.output.volume -= x.fadeSpeed * Time.deltaTime;
+				} else {
+					if (x.nextStateVolume == 0.0f) {
+						x.State = State.Pause;
+					} else {
+						x.State = State.None;
+					}
+				}
+				break;
+
+			case State.Stop:
+				x.output.Stop();
+				break;
+
+			}
+		}
 	}
 }
