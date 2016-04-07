@@ -74,6 +74,10 @@ div {
         nameSpan.innerHTML = name;
 
 
+        var spheroPosTag = document.createElement('div');
+        spheroPosTag.innerHTML = 'init';
+
+
         var driftGraph = document.createElement('canvas');
         driftGraph.width = "400";
         driftGraph.height = "200";
@@ -102,12 +106,14 @@ div {
 
 
         container.appendChild(nameSpan);
+        container.appendChild(spheroPosTag);
         container.appendChild(driftGraph);
 
         return {
             spheroIPAngle,
             spheroDataAngle,
-            spheroDrift
+            spheroDrift,
+            spheroPosTag,
         }
     }
 
@@ -123,7 +129,6 @@ div {
 
     var socket = io();
     socket.on('data', function(msg) {
-
         for (var dtype in msg.data) {
             if (!state[msg.name])
                 state[msg.name] = {};
@@ -135,81 +140,19 @@ div {
                 vis[msg.name].spheroIPAngle.append(new Date().getTime(), msg.data[dtype]);
             } else if (dtype === 'driftAngle') {
                 vis[msg.name].spheroDrift.append(new Date().getTime(), msg.data[dtype]);
+            } else if (dtype === 'ipPosTransformed') {
+                vis[msg.name].spheroPosTag.innerHTML = 'Last detected visual pos: ' + posToString(msg.data[dtype]);
             }
         }
     });
 
 
-
-
-
-
-
-    var control = {
-        force: 0,
-        direction: 0
-    };
-    var angle = 0;
-
-    function circles() {
-        angle += 2 * Math.PI / 100;
-        socket.emit('force', {
-            force: 0.1,
-            direction: angle
-        })
+    function posToString(pos) {
+        return '(' + pos.x.toFixed(2) + ', ' + pos.y.toFixed(2) + ', ' + pos.z.toFixed(2) + ')';
     }
 
-    var pressedKeys = {
-        w: false,
-        a: false,
-        s: false,
-        d: false,
-    }
-    document.addEventListener('keydown', function(event) {
-        if (event.keyCode === 87) {
-            pressedKeys.w = true;
-        }
-        if (event.keyCode === 65) {
-            pressedKeys.a = true;
-        }
-        if (event.keyCode === 83) {
-            pressedKeys.s = true;
-        }
-        if (event.keyCode === 68) {
-            pressedKeys.d = true;
-        }
-        calcNewForce();
-    });
-    document.addEventListener('keyup', function(event) {
-        if (event.keyCode === 87) {
-            pressedKeys.w = false;
-        }
-        if (event.keyCode === 65) {
-            pressedKeys.a = false;
-        }
-        if (event.keyCode === 83) {
-            pressedKeys.s = false;
-        }
-        if (event.keyCode === 68) {
-            pressedKeys.d = false;
-        }
-        calcNewForce();
-    });
 
-    function calcNewForce() {
-        force = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 0.3 : 0.0;
-        var x = pressedKeys.w + -pressedKeys.s;
-        var y = pressedKeys.d + -pressedKeys.a;
-        var direction = Math.atan2(y, x);
-        // console.log(direction);
-        socket.emit('force', {
-            force: force,
-            direction: direction
-        });
-    }
 
-    var canvas1 = document.getElementById('absoluteCvs');
-    var ctx1 = canvas1.getContext('2d');
 
     // var corners = [{
     //     x: 0,
@@ -294,10 +237,13 @@ div {
     //     });
     // }
 
+    var canvas1 = document.getElementById('absoluteCvs');
+    var ctx1 = canvas1.getContext('2d');
+
     function drawPolygon(ctx, edges) {
-        edges = edges.map(function(e) {
-            return coordToIpPos(e);
-        });
+        // edges = edges.map(function(e) {
+        //     return coordToIpPos(e);
+        // });
         ctx.beginPath();
         ctx.moveTo(edges[0].x, edges[0].y);
         for (var i = 1; i < edges.length; i++) {
@@ -322,53 +268,95 @@ div {
             ctx1.stroke();
     }
 
-    // function orthoToIpPos(point) {
-    //     return {
-    //         x: (point.x + 1) / 2 * 300 + 250,
-    //         y: (-point.y + 1) / 2 * 200 + 200
-    //     }
-    // }
+    function drawLine(ctx, x1, y1, x2, y2, thickness) {
+        ctx.lineWidth = thickness || 1;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    }
 
-    // function coordToIpPos(point) {
-    //     return {
-    //         x: point.x / 1280 * 300 + 250,
-    //         y: point.y / 720 * 200 + 200
-    //     }
-    // }
-
-    // function IpPosToCoord(point) {
-    //     return {
-    //         x: (point.x - 250) / 300 * 1280,
-    //         y: (point.y - 200) / 200 * 720
-    //     }
-    // }
-
-    function drawAbs(dt) {
+    function draw(dt) {
         ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-        ctx1.rect(250, 200, 300, 200);
-        ctx1.stroke();
-        drawPolygon(ctx1, corners);
-        for (var sphAbs in spheroState.abs) {
-            var sph = spheroState.abs[sphAbs];
-            drawCircle(orthoToIpPos(sph), 5);
-        }
-        for (var sphAbs in spheroState.absIp) {
-            var sph = spheroState.absIp[sphAbs];
+        drawIp();
+        requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
 
-            drawCircle(orthoToIpPos(sph), 2);
-        }
-        // for (var sphpos3d in spheroState.pos3d) {
-        //     var sph = spheroState.pos3d[sphAbs];
-        //     drawCircle({
-        //         x: sph.x * 20,
-        //         y: sph.y * 20
-        //     }, 10);
-        // }
-        for (var i in corners) {
-            var point = corners[i];
-            drawCircle(coordToIpPos(point), 4, true);
+
+    var height = 600,
+        width = 800,
+        left = -12,
+        right = 12,
+        screenTop = -12,
+        bottom = 12;
+
+    function coordToScreen(pos) {
+        return {
+            x: (pos.x - left) / (right - left) * width,
+            y: (-pos.y - screenTop) / (bottom - screenTop) * height
         }
     }
+
+    function screenToCoord(pos) {
+        return {
+            // x: (pos.x + left) / (right - left) * screenWidth,
+            // y: (pos.y + top) / (bottom - top) * screenHeight;
+        }
+    }
+
+    function drawIp() {
+        for (var i in state) {
+            var sphero = state[i];
+            // console.log(sphero);
+            // var screenPos = coordToScreen({
+            //     x: 0,
+            //     y: 0
+            // });
+            if (sphero.ipPosTransformed) {
+                var pos = coordToScreen(sphero.ipPosTransformed);
+                drawCircle(pos, 5);
+            }
+
+
+            var cameraBounds = state[i].cameraBounds;
+            if (cameraBounds) {
+                var bottomLeft = coordToScreen(cameraBounds.bottomLeft);
+                var topRight = coordToScreen(cameraBounds.topRight);
+                var bottomRight = coordToScreen(cameraBounds.bottomRight);
+                var topLeft = coordToScreen(cameraBounds.topLeft);
+
+                drawPolygon(ctx1, [bottomLeft, bottomRight, topRight, topLeft]);
+            }
+        }
+    }
+
+    // function drawAbs(dt) {
+    //     ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+    //     ctx1.rect(250, 200, 300, 200);
+    //     ctx1.stroke();
+    //     drawPolygon(ctx1, corners);
+    //     for (var sphAbs in spheroState.abs) {
+    //         var sph = spheroState.abs[sphAbs];
+    //         drawCircle(orthoToIpPos(sph), 5);
+    //     }
+    //     for (var sphAbs in spheroState.absIp) {
+    //         var sph = spheroState.absIp[sphAbs];
+
+    //         drawCircle(orthoToIpPos(sph), 2);
+    //     }
+    //     // for (var sphpos3d in spheroState.pos3d) {
+    //     //     var sph = spheroState.pos3d[sphAbs];
+    //     //     drawCircle({
+    //     //         x: sph.x * 20,
+    //     //         y: sph.y * 20
+    //     //     }, 10);
+    //     // }
+    //     for (var i in corners) {
+    //         var point = corners[i];
+    //         drawCircle(coordToIpPos(point), 4, true);
+    //     }
+    // }
 
     // function drawRel(dt) {
     //     ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
@@ -406,19 +394,70 @@ div {
     //     }
     // }
 
-    function draw(dt) {
-        drawAbs(dt);
-        // drawRel(dt);
-        requestAnimationFrame(draw);
-    }
-    // requestAnimationFrame(draw);
 
-    function drawLine(ctx, x1, y1, x2, y2, thickness) {
-        ctx.lineWidth = thickness || 1;
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
+
+
+    var control = {
+        force: 0,
+        direction: 0
+    };
+    var angle = 0;
+
+    function circles() {
+        angle += 2 * Math.PI / 100;
+        socket.emit('force', {
+            force: 0.1,
+            direction: angle
+        })
+    }
+
+    var pressedKeys = {
+        w: false,
+        a: false,
+        s: false,
+        d: false,
+    }
+    document.addEventListener('keydown', function(event) {
+        if (event.keyCode === 87) {
+            pressedKeys.w = true;
+        }
+        if (event.keyCode === 65) {
+            pressedKeys.a = true;
+        }
+        if (event.keyCode === 83) {
+            pressedKeys.s = true;
+        }
+        if (event.keyCode === 68) {
+            pressedKeys.d = true;
+        }
+        calcNewForce();
+    });
+    document.addEventListener('keyup', function(event) {
+        if (event.keyCode === 87) {
+            pressedKeys.w = false;
+        }
+        if (event.keyCode === 65) {
+            pressedKeys.a = false;
+        }
+        if (event.keyCode === 83) {
+            pressedKeys.s = false;
+        }
+        if (event.keyCode === 68) {
+            pressedKeys.d = false;
+        }
+        calcNewForce();
+    });
+
+    function calcNewForce() {
+        force = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 0.3 : 0.0;
+        var x = pressedKeys.w + -pressedKeys.s;
+        var y = pressedKeys.d + -pressedKeys.a;
+        var direction = Math.atan2(y, x);
+        // console.log(direction);
+        socket.emit('force', {
+            force: force,
+            direction: direction
+        });
     }
     </script>
 </body>

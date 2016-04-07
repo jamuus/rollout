@@ -11,8 +11,8 @@ var vec2log = filters.vec2log;
 var Filter = filters.Filter;
 
 var spheroIds = [
-    'boo',
     'ybr',
+    'boo',
 ];
 
 var spheros = {
@@ -482,20 +482,44 @@ function newIpData(name, sphero, data) {
         sphero.driftAngle = filteredAngle;
     }
 
+    var bottomLeft = pixelToPosition({
+            x: 0,
+            y: 0
+        }),
+        topRight = pixelToPosition({
+            x: 1280,
+            y: 720
+        }),
+        topLeft = pixelToPosition({
+            x: 0,
+            y: 720
+        }),
+        bottomRight = pixelToPosition({
+            x: 1280,
+            y: 0
+        });
+
     return {
         kalmanPos: pos,
         driftAngle: sphero.driftAngle ? sphero.driftAngle : 0.0,
         ipAngle: ipDirAngle,
         ipPosTransformed: transformedPosition,
-        spheroAngle: spheroDirAngle
+        spheroAngle: spheroDirAngle,
+        cameraBounds: {
+            bottomLeft,
+            topRight,
+            topLeft,
+            bottomRight
+        }
     }
 }
 
-var angleOffset = 0; // camera angle offset
-var h = 2; // 2 meters high
-var verticalFov = 60 / 360 * Math.PI * 2; // 60 degrees in radiuns
+var angleOffset = 0 / 360 * Math.PI * 2; // camera angle offset
+var h = 1; // meters high
+var verticalFov = 50 / 360 * Math.PI * 2; // 60 degrees in radiuns
 var radiunsPerYPixel = verticalFov / imageSize.y;
-var focalLength = 0.01; // 10 mm?
+
+var focalLength = 200; // 10 mm?
 
 var resetAngle = angleOffset + verticalFov / 2;
 
@@ -505,20 +529,25 @@ var rotatu = $M([
     [0, Math.sin(resetAngle), Math.cos(resetAngle)]
 ]);
 
+
+
 function pixelToPosition(pos) {
+    // make bottom left (0,0)
     var y = imageSize.y - pos.y;
 
+    var x = pos.x - imageSize.x / 2;
+    // console.log(1 / Math.cos(radiunsPerYPixel * y))
     var Z = h / Math.cos(angleOffset + radiunsPerYPixel * y);
-    var X = focalLength * pos.x / Z;
-    var Y = focalLength * y / Z;
+    var X = x / (focalLength / Z);
+    var Y = y / (focalLength / Z);
     var res = rotatu.x($V([X, Y, Z]));
-    return {
-        x: pos.x / (imageSize.x * 0.5) - 1.0,
-        y: (imageSize.y - pos.y) / (imageSize.y * 0.5) - 1.0,
-    }
     // return {
-    //     x: res.elements[0],
-    //     y: res.elements[1],
-    //     z: res.elements[2]
+    //     x: pos.x / (imageSize.x * 0.5) - 1.0,
+    //     y: (imageSize.y - pos.y) / (imageSize.y * 0.5) - 1.0,
     // }
+    return {
+        x: res.elements[0],
+        y: res.elements[1],
+        z: res.elements[2]
+    }
 }
