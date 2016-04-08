@@ -64,8 +64,8 @@ div {
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="smoothie.js"></script>
     <script>
-    // var boo = document.querySelector('#spheroData1');
-    // var ybr = document.querySelector('#spheroData2');
+    var canvas1 = document.getElementById('absoluteCvs');
+    var ctx1 = canvas1.getContext('2d');
 
     function createSpheroLayout(name, id) {
         var container = document.querySelector(id);
@@ -152,61 +152,50 @@ div {
     }
 
 
+    var center = {
+        x: 0,
+        y: 0
+    };
 
+    var points = [
+        center
+    ];
 
-    // var corners = [{
-    //     x: 0,
-    //     y: 0
-    // }, {
-    //     x: 1280,
-    //     y: 0
-    // }, {
-    //     x: 1280,
-    //     y: 720
-    // }, {
-    //     x: 0,
-    //     y: 720
-    // }];
+    var selected = -1;
 
-    // var center = {
-    //     x: 1280 / 2,
-    //     y: 720 / 2
-    // };
+    canvas1.addEventListener('mousedown', function(event) {
+        var mousePos = getMousePos(canvas1, event);
 
-    // var selected = -1;
+        for (var i in points) {
+            var corner = coordToScreen(points[i]);
+            var xdiff = (mousePos.x - corner.x);
+            var ydiff = (mousePos.y - corner.y);
+            if (xdiff * xdiff + ydiff * ydiff < 100) {
+                selected = i;
+            }
+        }
+    });
+    canvas1.addEventListener('mousemove', function(event) {
+        var mousePos = getMousePos(canvas1, event);
+        if (selected !== -1) {
+            points[selected] = screenToCoord(mousePos);
+            socket.emit('transform', {
+                points: points
+            });
+        }
+    });
+    canvas1.addEventListener('mouseup', function(event) {
+        selected = -1;
+    });
 
-    // canvas1.addEventListener('mousedown', function(event) {
-    //     var mousePos = getMousePos(canvas1, event);
-    //     // console.log('mousedown', mousePos);
-    //     for (var i in corners) {
-    //         var corner = coordToIpPos(corners[i]);
-    //         var xdiff = (mousePos.x - corner.x);
-    //         var ydiff = (mousePos.y - corner.y);
-    //         if (xdiff * xdiff + ydiff * ydiff < 100) {
-    //             selected = i;
-    //         }
-    //     }
-    // });
-    // canvas1.addEventListener('mousemove', function(event) {
-    //     var mousePos = getMousePos(canvas1, event);
-    //     if (selected !== -1) {
-    //         corners[selected] = IpPosToCoord(mousePos);
-    //         socket.emit('transform', {
-    //             corners: corners
-    //         });
-    //     }
-    // });
-    // canvas1.addEventListener('mouseup', function(event) {
-    //     selected = -1;
-    // });
+    function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    }
 
-    // function getMousePos(canvas, evt) {
-    //     var rect = canvas.getBoundingClientRect();
-    //     return {
-    //         x: evt.clientX - rect.left,
-    //         y: evt.clientY - rect.top
-    //     };
-    // }
 
     var anglef = 0;
 
@@ -237,13 +226,8 @@ div {
     //     });
     // }
 
-    var canvas1 = document.getElementById('absoluteCvs');
-    var ctx1 = canvas1.getContext('2d');
 
     function drawPolygon(ctx, edges) {
-        // edges = edges.map(function(e) {
-        //     return coordToIpPos(e);
-        // });
         ctx.beginPath();
         ctx.moveTo(edges[0].x, edges[0].y);
         for (var i = 1; i < edges.length; i++) {
@@ -286,10 +270,10 @@ div {
 
     var height = 600,
         width = 800,
-        left = -12,
-        right = 12,
-        screenTop = -12,
-        bottom = 12;
+        left = -16,
+        right = 16,
+        screenTop = -14,
+        bottom = 14;
 
     function coordToScreen(pos) {
         return {
@@ -300,26 +284,40 @@ div {
 
     function screenToCoord(pos) {
         return {
-            // x: (pos.x + left) / (right - left) * screenWidth,
-            // y: (pos.y + top) / (bottom - top) * screenHeight;
+            x: pos.x / width * (right - left) + left,
+            y: -(pos.y / height * (bottom - screenTop) + screenTop)
         }
     }
+
+    var gameCoords = [{
+        x: -12,
+        y: -12
+    }, {
+        x: -12,
+        y: 12
+    }, {
+        x: 12,
+        y: 12
+    }, {
+        x: 12,
+        y: -12
+    }];
 
     function drawIp() {
         for (var i in state) {
             var sphero = state[i];
-            // console.log(sphero);
-            // var screenPos = coordToScreen({
-            //     x: 0,
-            //     y: 0
-            // });
+
             if (sphero.ipPosTransformed) {
                 var pos = coordToScreen(sphero.ipPosTransformed);
                 drawCircle(pos, 5);
             }
 
+            if (sphero.kalmanPos) {
+                var pos = coordToScreen(sphero.kalmanPos);
+                drawCircle(pos, 2, true);
+            }
 
-            var cameraBounds = state[i].cameraBounds;
+            var cameraBounds = sphero.cameraBounds;
             if (cameraBounds) {
                 var bottomLeft = coordToScreen(cameraBounds.bottomLeft);
                 var topRight = coordToScreen(cameraBounds.topRight);
@@ -329,6 +327,12 @@ div {
                 drawPolygon(ctx1, [bottomLeft, bottomRight, topRight, topLeft]);
             }
         }
+        for (var i in points) {
+            var point = points[i];
+            drawCircle(coordToScreen(point), 4, true);
+        }
+
+        drawPolygon(ctx1, gameCoords.map(coordToScreen));
     }
 
     // function drawAbs(dt) {
