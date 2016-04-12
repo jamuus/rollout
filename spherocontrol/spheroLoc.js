@@ -11,11 +11,11 @@ var vec2log = filters.vec2log;
 var Filter = filters.Filter;
 
 var spheroIds = [
-    'ybr',
     'boo',
+    'ybr',
 ];
 
-var spheros = {}
+var spheros = {};
 
 function nothing() {
     // console.log('nothing b0ss');
@@ -85,8 +85,8 @@ function initSphero(dataOut) {
 
     // noise
     var R_k = $M([
-        [10, 0, 0, 0],
-        [0, 10, 0, 0],
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
         [0, 0, 0.1, 0],
         [0, 0, 0, 0.1],
     ]);
@@ -145,40 +145,6 @@ var imageSize = {
     y: 720.0,
 };
 
-// function objxytoarray(obj) {
-//     return [obj.x, obj.y];
-// }
-
-// function objlistxytoarray(list) {
-//     return list.map(e => objxytoarray(e));
-// }
-
-// function warpPerspectiveList(p, m) {
-//     var q = [];
-//     for (var i = 0; i < p.length; i += 2) {
-//         q.push(warpPerspective(p, m, i));
-//     }
-//     return q;
-// }
-
-// function warpPerspective(p, m, i) {
-//     if (typeof(i) === "undefined") {
-//         i = 0;
-//     }
-
-//     var q = [
-//         p[i + 0] * m.get(0, 0) + p[i + 1] * m.get(0, 1) + m.get(0, 2),
-//         p[i + 0] * m.get(1, 0) + p[i + 1] * m.get(1, 1) + m.get(1, 2)
-//     ];
-
-//     var f = p[i + 0] * m.get(2, 0) + p[i + 1] * m.get(2, 1) + m.get(2, 2);
-
-//     q[i + 0] /= f;
-//     q[i + 1] /= f;
-
-//     return q;
-// }
-
 var spheroScale = 22;
 var outputScale = 20;
 
@@ -218,6 +184,7 @@ module.exports = function(fn) {
     });
 
     fn.spheroScaleCallback(function(data) {
+        console.log('spheroScale', data);
         if (data.spheroScale)
             spheroScale = data.spheroScale;
         if (data.outputScale)
@@ -269,6 +236,7 @@ function setupSpheroManager(dataOut) {
                 var sphero = spheros[name];
                 sphero.force = (direction, force) => {
                     let offsetDirection = direction - sphero.driftAngle;
+                    // console.log(offsetDirection)
                     let send = {
                         name: deviceName,
                         direction: offsetDirection,
@@ -310,8 +278,6 @@ function setupIp(dataOut) {
         var sphName = spheroIds[data.id];
         var spheroState = spheros[sphName];
         if (spheroState) {
-            i++;
-            // if (i % 5 === 0)
             dataOut({
                 name: sphName,
                 data: newIpData(spheroState, data)
@@ -353,61 +319,15 @@ function newSpheroData(data, spheroState) {
         y: absVelY,
     };
 
-    // var aft = new Date().getTime();
-    // // number of seconds past
-    // var diff = (aft - bef) / 1000.0;
-    // bef = aft;
-
     spheroState.kSpheroObservation.z_k = $V(
         [0, 0,
-            absVelX / (1000), // to meters
-            absVelY / (1000)
+            absVelX * spheroScale, // to meters
+            absVelY * spheroScale
         ]
     );
-    // spheroState.kalmanObservation.H_k =
-    //     $M([
-    //         [0, 0, 0, 0],
-    //         [0, 0, 0, 0],
-    //         [0, 0, 1, 0],
-    //         [0, 0, 0, 1],
-    //     ]);
-    // spheroState.kalmanObservation.F_k =
-    //     $M([
-    //         [1, 0, 1, 0],
-    //         [0, 1, 0, 1],
-    //         [0, 0, 1, 0],
-    //         [0, 0, 0, 1],
-    //     ]);
-
-    // $M([
-    //     [0, 0, 0, 0],
-    //     [0, 0, 0, 0],
-    //     [0, 0, 0, 0],
-    //     [0, 0, 0, 0],
-    // ]);
-
-    // spheroState.kalmanModel.update(spheroState.kalmanObservation);
-    // console.log(spheroState.kalmanModel.P_k);
-    // console.log();
-
-    // var expFilterVal = 3;
-    // spheroState.pos.x = spheroState.pos.x - spheroState.pos.x / expFilterVal + (-spheroState.kalmanModel.x_k.elements[0] * outputScale) / expFilterVal
-    // spheroState.pos.y = spheroState.pos.y - spheroState.pos.y / expFilterVal + (-spheroState.kalmanModel.x_k.elements[1] * outputScale) / expFilterVal
-
-    // var pos = {
-    //     x: -spheroState.kalmanModel.x_k.elements[0] * outputScale,
-    //     y: -spheroState.kalmanModel.x_k.elements[1] * outputScale + 1
-    // };
-
-    // spheroState.pos = pos;
-
     return {
         relSpheroVec: spheroState.spheroVel.average(),
         absSpheroVec: spheroState.absSpheroVel,
-        // kalmanPos: {
-        //     x: spheroState.kalmanModel.x_k.elements[0],
-        //     y: spheroState.kalmanModel.x_k.elements[1]
-        // }
     }
 }
 
@@ -431,28 +351,6 @@ function newIpData(sphero, data) {
     // console.log(transformedPosition);
 
     sphero.kIPObservation.z_k = $V([transformedPosition.x, transformedPosition.y, 0, 0]);
-    // sphero.kIpObservation.H_k =
-    //     $M([
-    //         [1, 0, 0, 0],
-    //         [0, 1, 0, 0],
-    //         [0, 0, 0, 0],
-    //         [0, 0, 0, 0],
-    //     ]);
-
-    // $M([
-    //     [0, 0, 0, 0],
-    //     [0, 0, 0, 0],
-    //     [0, 0, 0, 0],
-    //     [0, 0, 0, 0],
-    // ]);
-
-    // sphero.kalmanModel.update(sphero.kalmanObservation);
-
-    // var pos = {
-    //     x: sphero.kalmanModel.x_k.elements[0],
-    //     y: sphero.kalmanModel.x_k.elements[1]
-    // };
-    // sphero.pos = pos;
 
     sphero.ipPos.add(transformedPosition);
 
@@ -492,6 +390,7 @@ function newIpData(sphero, data) {
 
     if (!isNaN(angle) &&
         spheroDirMag > 0.05) {
+        console.log('spheroDirMag', spheroDirMag);
         sphero.angleLog.add(angle);
         var filteredAngle = sphero.angleLog.value();
 

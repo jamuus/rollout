@@ -53,10 +53,12 @@ div {
 <body>
     <div class="container">
         <canvas id="absoluteCvs" width="800" height="600" style="border:1px solid #000000;"></canvas>
+        <br/> Sphero scale: <span id="spheroScale">1</span>
+        <input oninput="spheroScaleChange(this.value)" type="range" min="0" max="1" step="0.001" value="30" style="width: 800px" />
+        <br/> Output scale: <span id="outputScale">1</span>
+        <input oninput="outputScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="20" style="width: 800px" />
         <div class="spheroData" id="spheroData1"></div>
         <div class="spheroData" id="spheroData2"></div>
-        <!-- <input oninput="spheroScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="30" style="width: 800px" /> -->
-        <!-- <input oninput="outputScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="20" style="width: 800px" /> -->
         <!-- <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;"></canvas> -->
         <!-- <canvas id="spheroAngles" width="600" height="100"></canvas> -->
         <!-- <canvas id="kalmanData" width="600" height="200"></canvas> -->
@@ -208,23 +210,23 @@ div {
     }
     // setInterval(circles, 1000 / 20);
 
-    // function spheroScaleChange(value) {
-    //     var spheroScaleOutput = document.querySelector("#spheroScale");
-    //     spheroScaleOutput.innerHTML = value;
+    function spheroScaleChange(value) {
+        var spheroScaleOutput = document.querySelector("#spheroScale");
+        spheroScaleOutput.innerHTML = value;
 
-    //     socket.emit('scale', {
-    //         spheroScale: parseFloat(value)
-    //     });
-    // }
+        socket.emit('scale', {
+            spheroScale: parseFloat(value)
+        });
+    }
 
-    // function outputScaleChange(value) {
-    //     var outputScale = document.querySelector("#outputScale");
-    //     outputScale.innerHTML = value;
+    function outputScaleChange(value) {
+        var outputScale = document.querySelector("#outputScale");
+        outputScale.innerHTML = value;
 
-    //     socket.emit('scale', {
-    //         outputScale: parseFloat(value)
-    //     });
-    // }
+        socket.emit('scale', {
+            outputScale: parseFloat(value)
+        });
+    }
 
 
     function drawPolygon(ctx, edges) {
