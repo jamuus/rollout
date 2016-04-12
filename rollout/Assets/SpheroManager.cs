@@ -82,12 +82,18 @@ public static class SpheroManager
                 sphero = Instances[deviceName];
                 if (deviceName.ToUpper().Contains("YBR")) {
                     ybr.sphero = sphero;
-                    ybr.sphero.UnityProjectileControl = ybr.GetComponent<ProjectileControl>();
-                    Debug.LogFormat("ybr - {0}", deviceName);
+                    MainThread.EnqueueAction(() =>
+                    {
+                        ybr.sphero.UnityProjectileControl = ybr.GetComponent<ProjectileControl>();
+                        Debug.LogFormat("[SpheroManager] Added Sphero \"{0}\".", deviceName);
+                    });
                 } else {
                     boo.sphero = sphero;
-                    boo.sphero.UnityProjectileControl = boo.GetComponent<ProjectileControl>();
-                    Debug.LogFormat("boo - {0}", deviceName);
+                    MainThread.EnqueueAction(() =>
+                    {
+                        boo.sphero.UnityProjectileControl = boo.GetComponent<ProjectileControl>();
+                        Debug.LogFormat("[SpheroManager] Added Sphero \"{0}\".", deviceName);
+                    });
                 }
             }
 
@@ -126,7 +132,7 @@ public static class SpheroManager
         //Shoot from the relevant sphero
         Instances[name].Shoot(SpheroWeaponType.Default, direction);
 
-        Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
+        //Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
     }
 
     public static void UsePowerUp(byte[] data)
@@ -221,7 +227,7 @@ public class Sphero
 
     public void Leave()
     {
-        Connection = null;
+        Connection.Socket = null;
         HasController = false;
     }
 
