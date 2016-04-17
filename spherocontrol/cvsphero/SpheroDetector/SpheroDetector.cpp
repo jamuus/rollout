@@ -51,14 +51,18 @@ void createTrackbars()
     char TrackbarName[50];
     namedWindow(trackbar_name, 0);
 
-
-
     createTrackbar( "H_MIN", trackbar_name, &H_MIN, H_MAX, on_trackbar );
     createTrackbar( "H_MAX", trackbar_name, &H_MAX, H_MAX, on_trackbar );
     createTrackbar( "S_MIN", trackbar_name, &S_MIN, S_MAX, on_trackbar );
     createTrackbar( "S_MAX", trackbar_name, &S_MAX, S_MAX, on_trackbar );
     createTrackbar( "V_MIN", trackbar_name, &V_MIN, V_MAX, on_trackbar );
     createTrackbar( "V_MAX", trackbar_name, &V_MAX, V_MAX, on_trackbar );
+    // createTrackbar( "H_MIN", trackbar_name, &H_MIN, 163, on_trackbar );
+    // createTrackbar( "H_MAX", trackbar_name, &H_MAX, 242, on_trackbar );
+    // createTrackbar( "S_MIN", trackbar_name, &S_MIN, 94, on_trackbar );
+    // createTrackbar( "S_MAX", trackbar_name, &S_MAX, 256, on_trackbar );
+    // createTrackbar( "V_MIN", trackbar_name, &V_MIN, 0, on_trackbar );
+    // createTrackbar( "V_MAX", trackbar_name, &V_MAX, 252, on_trackbar );
 
 
 }
@@ -280,12 +284,12 @@ int main( int, char** argv )
             continue;
         }
 
-        if (calibrationMode == true) {
-            createTrackbars();
+        if (calibrationMode) {
             cvtColor(frame, HSV, COLOR_BGR2HSV);
             inRange(HSV, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), threshold);
             morphOps(threshold);
             imshow(window_name_2, threshold);
+            createTrackbars();
             trackFilteredObject(threshold, HSV, frame);
         } else {
             Sphero boo("boo");
@@ -304,8 +308,9 @@ int main( int, char** argv )
 
             sendToServer(&socketDescriptor, &serverAddress, ybr, 0);
             sendToServer(&socketDescriptor, &serverAddress, boo, 1);
+
+            imshow(window_name, frame);
         }
-        imshow(window_name, frame);
 
         if (waitKey(25) == 27)  break;
     }

@@ -53,6 +53,30 @@ function vec2log(size) {
         }
     }
 
+    function lastEntry(num) {
+        if (!num)
+            num = 0;
+        return log[log.length - 1 - num];
+    }
+
+    function closestEntry(time) {
+        var closest = log[0];
+        var distance = Math.abs(log[0][1] - time);
+        var j = 0;
+        for (let i = 1; i < log.length; i++) {
+            var newDist = Math.abs(log[i][1] - time);
+            if (newDist < distance) {
+                closest = log[i];
+                distance = newDist;
+                j = i;
+            }
+        }
+        return {
+            closest,
+            index: j
+        };
+    }
+
     function average() {
         var sum = log.reduce(
             (prev, cur) => {
@@ -74,25 +98,28 @@ function vec2log(size) {
 
     return {
         add,
-        average
+        average,
+        lastEntry,
+        closestEntry,
+        log
     };
 }
 
-function Filter(size) {
-    var log = [];
+// function Filter(size) {
+//     var log = [];
 
-    return {
-        add: function(item) {
-            log.push(item);
-            if (log.length > size) {
-                log.splice(0, 1);
-            }
-        },
-        value: function() {
-            return log.reduce((e, i) => e + i, 0) / log.length;
-        }
-    }
-}
+//     return {
+//         add: function(item) {
+//             log.push(item);
+//             if (log.length > size) {
+//                 log.splice(0, 1);
+//             }
+//         },
+//         value: function() {
+//             return log.reduce((e, i) => e + i, 0) / log.length;
+//         }
+//     }
+// }
 
 function XYFilter(size) {
     var log = [];
@@ -127,5 +154,5 @@ module.exports = {
     KalmanModel,
     KalmanObservation,
     vec2log,
-    Filter
+    // Filter
 }

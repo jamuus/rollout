@@ -19,7 +19,7 @@ module.exports = function(opts) {
     };
 
     var updatePerSecond = 1;
-    var dataPerSecond = opts.dataPerSecond || 20;
+    var dataPerSecond = opts.dataPerSecond || 30;
 
     var sphero = require('sphero');
     var fs = require('fs');

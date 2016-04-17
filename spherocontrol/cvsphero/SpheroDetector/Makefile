@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=`pkg-config --cflags --libs opencv`
 
-OTHERS=Sphero.cpp
+OTHERS=Sphero.cpp Sphero.h
 TARGET=SpheroDetector
 
 $(TARGET): $(TARGET).cpp

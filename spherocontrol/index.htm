@@ -272,10 +272,10 @@ div {
 
     var height = 600,
         width = 800,
-        left = -16,
-        right = 16,
-        screenTop = -14,
-        bottom = 14;
+        left = -25,
+        right = 25,
+        screenTop = -20,
+        bottom = 20;
 
     function coordToScreen(pos) {
         return {
@@ -455,7 +455,7 @@ div {
     });
 
     function calcNewForce() {
-        force = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 0.3 : 0.0;
+        force = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 0.2 : 0.0;
         var x = pressedKeys.w + -pressedKeys.s;
         var y = pressedKeys.d + -pressedKeys.a;
         var direction = Math.atan2(y, x);

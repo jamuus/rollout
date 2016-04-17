@@ -23,7 +23,6 @@ function nothing() {
 
 var fs = require('fs');
 var settings;
-
 process.on('SIGINT', function() {
     console.log('Goodbye!');
 });
@@ -101,10 +100,15 @@ function initSphero(dataOut) {
     ]);
 
     var Ksphero = new KalmanObservation(z_k, H_k, R_k);
-
+    var spheroPos = vec2log(1000);
+    spheroPos.add({
+        x: 0,
+        y: 0
+    });
     var ret = {
-        ipPos: vec2log(4),
-        spheroVel: vec2log(10),
+        ipPos: vec2log(40),
+        spheroVel: vec2log(100),
+        spheroPos,
         batteryVoltage: -1,
         force: nothing,
         driftAngle: 0,
@@ -121,16 +125,20 @@ function initSphero(dataOut) {
         kalmanModel: KM,
         kSpheroObservation: Ksphero,
         kIPObservation: Kimage,
-        angleLog: Filter(500)
+        // angleLog: Filter(500)
     }
     setInterval(() => {
         KM.update(Ksphero);
-        KM.update(Kimage);
+        // KM.update(Kimage);
         ret.pos = {
-            x: KM.x_k.elements[0],
-            y: KM.x_k.elements[1],
-        }
-        dataOut(ret.pos);
+            x: -KM.x_k.elements[0],
+            y: -KM.x_k.elements[1],
+        };
+
+        dataOut({
+            x: -ret.pos.x,
+            y: -ret.pos.y
+        });
     }, 1000 / 60);
 
     return ret;
@@ -145,7 +153,7 @@ var imageSize = {
     y: 720.0,
 };
 
-var spheroScale = 22;
+var spheroScale = 0.05;
 var outputScale = 20;
 
 var debugLog = console.log;
@@ -304,10 +312,26 @@ function newSpheroData(data, spheroState) {
     var dx = data.dx;
     var dy = data.dy;
 
-    spheroState.spheroVel.add({
+    // 
+    var posMeters = {
         x: dx / 1000.0,
         y: dy / 1000.0,
+    };
+    spheroState.spheroVel.add(posMeters);
+
+    var aft = new Date().getTime();
+    var diff = (aft - bef) / 1000;
+    bef = aft;
+    // console.log(diff * 1000);
+
+    var lastSpheroPos = spheroState.spheroPos.lastEntry();
+
+    spheroState.spheroPos.add({
+        x: lastSpheroPos[0].x + diff * posMeters.x,
+        y: lastSpheroPos[0].y + diff * posMeters.y
     });
+
+    // console.log('eh?');
 
     var absVelX = dx * Math.cos(-spheroState.driftAngle) -
         dy * Math.sin(-spheroState.driftAngle);
@@ -321,7 +345,7 @@ function newSpheroData(data, spheroState) {
 
     spheroState.kSpheroObservation.z_k = $V(
         [0, 0,
-            absVelX * spheroScale, // to meters
+            absVelX * spheroScale,
             absVelY * spheroScale
         ]
     );
@@ -331,7 +355,207 @@ function newSpheroData(data, spheroState) {
     }
 }
 
-var ipScale = 40;
+function tryFitPaths(ipPos1, ipPos2, spheroPos1, spheroPos2, ipData, spheroData) {
+    spheroPos1 = spheroPos1[0], spheroPos2 = spheroPos2[0], ipPos1 = ipPos1[0], ipPos2 = ipPos2[0];
+
+    var sphero1Diff = {
+        x: spheroPos1.x - 0,
+        y: spheroPos1.y - 0
+    };
+
+    var translateds1 = {
+        x: spheroPos1.x - sphero1Diff.x,
+        y: spheroPos1.y - sphero1Diff.y,
+    }
+    var translateds2 = {
+        x: spheroPos2.x - sphero1Diff.x,
+        y: spheroPos2.y - sphero1Diff.y,
+    };
+
+
+    var ip1Diff = {
+        x: ipPos1.x - 0,
+        y: ipPos1.y - 0
+    };
+
+    var translatedi1 = {
+        x: ipPos1.x - ip1Diff.x,
+        y: ipPos1.y - ip1Diff.y
+    };
+
+    var translatedi2 = {
+        x: ipPos2.x - ip1Diff.x,
+        y: ipPos2.y - ip1Diff.y
+    };
+
+    var ipMag = magnitude(translatedi2);
+
+    var spMag = magnitude(translateds2);
+
+    if (spMag === 0 || ipMag === 0) {
+        return;
+    }
+
+    var scale = 1 / spMag * ipMag;
+
+    var normaliseds2 = {
+        x: translateds2.x * scale,
+        y: translateds2.y * scale,
+    };
+
+    var s2angle = Math.atan2(normaliseds2.y, normaliseds2.x);
+    var i2angle = Math.atan2(translatedi2.y, translatedi2.x);
+
+    var angleDiff = s2angle - i2angle;
+
+    var t1 = {
+        x: -spheroPos1.x,
+        y: -spheroPos1.y,
+    }
+
+    var transformedSpheroData = transformPath(spheroData, scale, angleDiff, t1, ipPos1);
+    var buf = '';
+    // find matching points
+    var ipDataMatch = [];
+    var spheroDataMatch = [];
+    for (var i in ipData.log) {
+        var ipe = ipData.log[i];
+        var sphe = spheroData.closestEntry(ipe[1]);
+
+        if (Math.abs(ipe[1] - sphe.closest[1]) < 100) {
+            ipDataMatch.push(ipe);
+            var t1 = transformedSpheroData[sphe.index];
+            spheroDataMatch.push(t1);
+
+            buf += ipe[0].x + '\t' + ipe[0].y + '\t' + t1.x + '\t' + t1.y + '\n';
+        }
+    }
+    // console.log(ipDataMatch.length);
+    // calculate distance between these points)
+
+    var d = distBetweenPaths(ipDataMatch, spheroDataMatch);
+    // if (d < 1500 && spheroDataMatch.length > 18) {
+    //     console.log(buf);
+    //     console.log(d);
+    //     process.exit(1);
+    // }
+    // console.log(scale, angleDiff, translation, d);
+    return {
+        angle: angleDiff,
+        scale,
+        distance: d,
+        numMatches: spheroDataMatch.length
+    }
+}
+
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive)
+ * Using Math.round() will give you a non-uniform distribution!
+ */
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+var start = new Date().getTime();
+
+var ipDelay = 50;
+
+function calcSpheroTransform(ipData, spheroData) {
+    // console.log(ipData.lastEntry()[1] - spheroData.lastEntry()[1]);
+    var best = {
+        distance: 1e9,
+        angle: -1,
+        scale: -1
+    };
+    for (var i = 0; i < 100; i++) {
+        var numEntries = ipData.log.length;
+        var i1, i2;
+        do {
+            i1 = getRandomInt(0, numEntries - 1);
+            i2 = getRandomInt(0, numEntries - 1);
+            // console.log(ipData.log.length);
+        } while (i1 === i2 && numEntries > 1);
+
+        // console.log(i1, i2);
+
+        var ipPos1 = ipData.log[i1];
+        var ipPos2 = ipData.log[i2];
+        if (ipPos1 && ipPos2) {
+            var spheroPos1 = spheroData.closestEntry(ipPos1[1] - ipDelay); //.closest;
+            var spheroPos2 = spheroData.closestEntry(ipPos2[1] - ipDelay); //.closest;
+
+            // console.log(spheroPos1.index, spheroPos1.index, i1, i2);
+            // check if matching points dt isnt too large
+            var pdiff1 = Math.abs(ipPos1[1] - spheroPos1.closest[1]);
+            var pdiff2 = Math.abs(ipPos2[1] - spheroPos2.closest[1]);
+            if (pdiff1 > 100 || pdiff2 > 100) {
+                // i--;
+                // console.log(i1, pdiff1);
+                // console.log((ipPos1[1] - start) / 1000);
+                continue;
+            }
+
+
+            var path = tryFitPaths(ipPos1, ipPos2, spheroPos1.closest, spheroPos2.closest, ipData, spheroData);
+            if (path) {
+                var distance = path.distance,
+                    angle = path.angle,
+                    scale = path.scale;
+
+                if (distance < best.distance) {
+                    best = path;
+                }
+            }
+        }
+    }
+    // if (best.distance < 10000) {
+    if (best.angle < 0)
+        best.angle += Math.PI * 2;
+    console.log(best.distance.toFixed(2) + '\t\t' + best.angle.toFixed(2) + '\t' + best.scale.toFixed(2) + '\t' + best.numMatches);
+    // }
+}
+
+function distBetweenPaths(path1, path2) {
+    var acc = 0;
+    for (var i in path1) {
+        acc += Math.pow(distance(path1[i][0], path2[i]), 2);
+    }
+    return acc;
+}
+
+function distance(a, b) {
+    var t = {
+        x: b.x - a.x,
+        y: b.y - a.y
+    };
+    return Math.sqrt(t.x * t.x + t.y * t.y);
+}
+
+function transformPath(path, scale, angle, t1, t2) {
+    var result = [];
+    var rotate = Matrix.Rotation(angle);
+
+    for (var i in path.log) {
+        var e = path.log[i][0];
+        var transl = {
+            x: (e.x + t1.x) * scale,
+            y: (e.y + t1.y) * scale
+        };
+
+        var rotatedPoint = rotate.x($V([transl.x, transl.y]));
+        result.push({
+            x: rotatedPoint.elements[0] + t2.x,
+            y: rotatedPoint.elements[1] + t2.y
+        });
+    }
+    return result;
+}
+
+function magnitude(p) {
+    return Math.sqrt(p.x * p.x + p.y * p.y);
+}
+
+var be = new Date().getTime();
 
 function newIpData(sphero, data) {
     // data.x, data.y, data.id
@@ -354,48 +578,58 @@ function newIpData(sphero, data) {
 
     sphero.ipPos.add(transformedPosition);
 
-    var filteredPos = sphero.ipPos.average();
+    var af = new Date().getTime();
+    var dif = af - be;
+    if (dif > 1000) {
+        be = af;
+        // console.log(sphero.ipPos.log.length);
+        calcSpheroTransform(sphero.ipPos, sphero.spheroPos);
 
-    var ipDx = filteredPos.x - lastPos[data.id].x;
-    var ipDy = filteredPos.y - lastPos[data.id].y;
-    lastPos[data.id] = filteredPos;
-
-    var ipDirVec = {
-        x: ipDx,
-        y: ipDy
-    };
-
-    var avgSpheroData = sphero.spheroVel.average();
-
-    var spheroDirVec = {
-        x: avgSpheroData.x,
-        y: avgSpheroData.y
-    };
-
-    var ipDirMag = Math.sqrt(
-        ipDirVec.x * ipDirVec.x +
-        ipDirVec.y * ipDirVec.y
-    );
-    var spheroDirMag = Math.sqrt(
-        spheroDirVec.x * spheroDirVec.x +
-        spheroDirVec.y * spheroDirVec.y
-    );
-
-    var ipDirAngle = Math.atan2(ipDirVec.y, ipDirVec.x);
-    var spheroDirAngle = Math.atan2(spheroDirVec.y, spheroDirVec.x);
-    angle = spheroDirAngle - ipDirAngle;
-
-    angle = angle > Math.PI ? angle - 2 * Math.PI : angle;
-    angle = angle < -Math.PI ? angle + 2 * Math.PI : angle;
-
-    if (!isNaN(angle) &&
-        spheroDirMag > 0.05) {
-        console.log('spheroDirMag', spheroDirMag);
-        sphero.angleLog.add(angle);
-        var filteredAngle = sphero.angleLog.value();
-
-        sphero.driftAngle = filteredAngle;
+        // console.log(dif);
     }
+    // var filteredPos = sphero.ipPos.average();
+
+    // var ipDx = filteredPos.x - lastPos[data.id].x;
+    // var ipDy = filteredPos.y - lastPos[data.id].y;
+    // lastPos[data.id] = filteredPos;
+
+    // var ipDirVec = {
+    //     x: ipDx,
+    //     y: ipDy
+    // };
+
+    // var avgSpheroData = sphero.spheroVel.average();
+
+    // var spheroDirVec = {
+    //     x: avgSpheroData.x,
+    //     y: avgSpheroData.y
+    // };
+
+    // var ipDirMag = Math.sqrt(
+    //     ipDirVec.x * ipDirVec.x +
+    //     ipDirVec.y * ipDirVec.y
+    // );
+    // var spheroDirMag = Math.sqrt(
+    //     spheroDirVec.x * spheroDirVec.x +
+    //     spheroDirVec.y * spheroDirVec.y
+    // );
+
+    // var ipDirAngle = Math.atan2(ipDirVec.y, ipDirVec.x);
+    // var spheroDirAngle = Math.atan2(spheroDirVec.y, spheroDirVec.x);
+    // angle = spheroDirAngle - ipDirAngle;
+
+    // angle = angle > Math.PI ? angle - 2 * Math.PI : angle;
+    // angle = angle < -Math.PI ? angle + 2 * Math.PI : angle;
+
+    // if (!isNaN(angle) &&
+    //     spheroDirMag > 0.05) {
+    //     // console.log('spheroDirMag', spheroDirMag);
+    //     sphero.angleLog.add(angle);
+    //     var filteredAngle = sphero.angleLog.value();
+
+    //     sphero.driftAngle = filteredAngle;
+    // }
+
 
     var bottomLeft = pixelToPosition({
             x: 0,
@@ -417,9 +651,9 @@ function newIpData(sphero, data) {
     return {
         // kalmanPos: pos,
         driftAngle: sphero.driftAngle ? sphero.driftAngle : 0.0,
-        ipAngle: ipDirAngle,
+        // ipAngle: ipDirAngle,
         ipPosTransformed: transformedPosition,
-        spheroAngle: spheroDirAngle,
+        // spheroAngle: spheroDirAngle,
         cameraBounds: {
             bottomLeft,
             topRight,
@@ -430,8 +664,8 @@ function newIpData(sphero, data) {
 }
 
 var angleOffset = 0 / 360 * Math.PI * 2; // camera angle offset
-var h = 2; // meters high
-var verticalFov = 50 / 360 * Math.PI * 2; // 60 degrees in radiuns
+var h = 5; // meters high
+var verticalFov = 40 / 360 * Math.PI * 2; // 60 degrees in radiuns
 var radiunsPerYPixel = verticalFov / imageSize.y;
 
 var focalLength = 200; // 10 mm?
