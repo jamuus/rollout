@@ -13,14 +13,13 @@ public class Events : MonoBehaviour {
 		public int id;
 	}
 
+	public int gameStateId;
 	public List<GlobalEvent> globalEvents = new List<GlobalEvent>();
 	int eventTimer;
 	private List<GameObject> spawnedObjects = new List<GameObject>();
 	int recurringID = 0; // id = 0 is inactive
     private float timeUntilNextEvent;
     private float timeOfLastEvent;
-
-
     public float timeUntilFirstEvent;
     public float timeBetweenEvents;
     public GameObject enemy;
@@ -45,12 +44,13 @@ public class Events : MonoBehaviour {
 		updateTimer ();
 		applyRecurringEvent ();
 
-        if(Time.time > timeOfLastEvent + timeUntilNextEvent)
-        {
+		if (Time.time > timeOfLastEvent + timeUntilNextEvent && gameStateId == 0) {
 			timeOfLastEvent = float.MaxValue;
-			var selected = globalEvents.OrderBy(x => random.Next(0, globalEvents.Count)).Take(2).ToList();
-			SpectatorManager.SendNewEvents(selected[0].id, selected[1].id, 10000);
-        }
+			var selected = globalEvents.OrderBy (x => random.Next (0, globalEvents.Count)).Take (2).ToList ();
+			SpectatorManager.SendNewEvents (selected [0].id, selected [1].id, 10000);
+		} else if (gameStateId != 0) {
+			resetOldState ();
+		}
 	}
 
 	public void initialiseEvents()

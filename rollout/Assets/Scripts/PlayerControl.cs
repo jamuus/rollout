@@ -7,10 +7,13 @@ using System.Collections.Generic;
 
 public class PlayerControl : MonoBehaviour
 {
-    public float baseSpeed;
-    public float maxSpeed;
+	public int gameStateId;
+    public float baseSpeed = 8;
+    public float maxSpeed = 20;
     public float speed;
     public Vector3 velocity;
+	private Vector3 startingPosition;
+
     public List<PowerUp> powerUps = new List<PowerUp>();
     public List<int> statuses = new List<int>(); //storing status time remaining
     private List<Status> statusList = new List<Status>();
@@ -30,6 +33,7 @@ public class PlayerControl : MonoBehaviour
 
     void Start()
     {
+		startingPosition = gameObject.transform.position;
         speed = baseSpeed;
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
@@ -53,25 +57,37 @@ public class PlayerControl : MonoBehaviour
 
     void FixedUpdate()
     {
-        Move();
-        if (Input.GetButtonDown("Fire1")) UsePowerUp(0);
-        triggerStatusEffects();
+
+		Rigidbody rb = GetComponent<Rigidbody>();
+		Vector3 position;
+
+
+		Move ();
+		if (gameStateId == 0 || (gameStateId == 1 && gameObject.GetComponent<UniversalHealth> ().currentHealth > 0)) {
+			if ((Input.GetButtonDown ("Fire1") && gameObject.name == "player1") ||
+			    (Input.GetButtonDown ("Fire2") && gameObject.name == "player2")) {
+				UsePowerUp ();
+			}
+			triggerStatusEffects ();
+		}
 
         // move ingame sphero
         #if !SOFTWARE_MODE
         if (sphero != null) {
             float moveHorizontal = sphero.Position.x;
-            float moveVertical = -sphero.Position.y;
+			float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
 
-            Rigidbody rb = GetComponent<Rigidbody>();
-            Vector3 position = new Vector3(moveHorizontal, 0.5f, moveVertical);
+            position = new Vector3(moveHorizontal, 0.5f, moveVertical);
             rb.position = position;
 
             // float X = player.GetAxis("Horizontalx");
             // float Y = player.GetAxis("Verticalx");
         }
         #endif
+		if (gameStateId == 2) {
+			resetPlayerStatus ();
+		}
     }
 
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
@@ -110,7 +126,9 @@ public class PlayerControl : MonoBehaviour
         }
         else
         {
-            rb.AddForce(speed * movement);
+			if (gameStateId == 0 || (gameStateId == 1 && gameObject.GetComponent<UniversalHealth> ().currentHealth > 0)) {
+				rb.AddForce (speed * movement);
+			}
         }
 
         //Cap the max speed
@@ -122,15 +140,13 @@ public class PlayerControl : MonoBehaviour
     }
 
 
-    public void UsePowerUp(int powerUpID)
+    public void UsePowerUp()
     {
         PowerUp usedPowerUp;
         try {
-            // usedPowerUp = powerUps[0];
-            // powerUpEffect(usedPowerUp);
-            // powerUps.RemoveAt(0);
-            usedPowerUp = allPowerUps[powerUpID];
+            usedPowerUp = powerUps[0];
             powerUpEffect(usedPowerUp);
+            powerUps.RemoveAt(0);
             print("PowerUp " + usedPowerUp.name + " used by player");
 
             //sphero.PowerUps.RemoveAt(0);
@@ -139,11 +155,30 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+	//for the app
+	public void UsePowerUp(int powerUpId)
+	{
+		PowerUp usedPowerUp;
+		try {
+			usedPowerUp = powerUps[powerUpId];
+			powerUpEffect(usedPowerUp);
+			powerUps.RemoveAt(powerUpId);
+			print("PowerUp " + usedPowerUp.name + " used by player");
+
+			//sphero.PowerUps.RemoveAt(0);
+		} catch (Exception e) {
+			print("No powerups left");
+		}
+	}
+
     public void AddPowerUp(PowerUp powerUp)
     {
         powerUps.Add (powerUp);
-        sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)powerUp.id));//allPowerUps.IndexOf(powerUp)));
-
+        //this line breaks the powerUp behavior in game - the field doesn't time out
+		try {
+			sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)powerUp.id));//allPowerUps.IndexOf(powerUp)));
+		}
+		catch {}
         music = GameObject.Find("Music");
         SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
         manager.PickPowerUp (gameObject);
@@ -183,8 +218,10 @@ public class PlayerControl : MonoBehaviour
     {
         //regeneration
         if (statuses[0] > 0) {
-            this.GetComponent<UniversalHealth>().healPlayer((int)statusList[0].magnitude);
-            decrementStatusDuration(0);
+			if ((statuses [1] % 100) == 0) {
+				this.GetComponent<UniversalHealth> ().healPlayer ((int)statusList [0].magnitude);
+			}
+			decrementStatusDuration(0);
             if (statuses[0] <= 0) print ("End of regeneration");
         }
 
@@ -231,4 +268,12 @@ public class PlayerControl : MonoBehaviour
         statuses[statusID] -= 25;
     }
 
+	private void resetPlayerStatus()
+	{
+		statuses.Clear ();
+		powerUps.Clear ();
+		speed = baseSpeed;
+		gameObject.GetComponent<UniversalHealth> ().currentHealth = gameObject.GetComponent<UniversalHealth> ().getMaxHealth ();
+		gameObject.transform.position = startingPosition;
+	}
 }

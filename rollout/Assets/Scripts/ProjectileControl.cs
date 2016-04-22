@@ -49,31 +49,29 @@ public class ProjectileControl : MonoBehaviour
     }
 
     public void Update()
-    {
-        //Checks if the player is trying to fire a weapon
-        if ((Input.GetButtonDown("Fire1") && gameObject.name == ("player1")) || (Input.GetButtonDown("Fire2") && gameObject.name == ("player2")))
-        {
-            music = GameObject.Find("Music");
-            SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-            manager.Shoot (gameObject);
+	{	if (gameObject.GetComponent<PlayerControl> ().gameStateId == 0) {
+			//Checks if the player is trying to fire a weapon
+			if ((Input.GetButtonDown ("Fire1") && gameObject.name == ("player1")) || (Input.GetButtonDown ("Fire2") && gameObject.name == ("player2"))) {
+				music = GameObject.Find ("Music");
+				SoundManager manager = (SoundManager)music.GetComponent (typeof(SoundManager));
+				manager.Shoot (gameObject);
 
-            //Checks if the weapon has ammunition
-            if (ammunition[activeWeapon] != 0)
-            {
-                //fire the weapon and reduce ammunition as needed
-                switch (activeWeapon)
-                {
-                case (int)Weapons.basicGun:
-                    basicGun.Fire();
-                    break;
+				//Checks if the weapon has ammunition
+				if (ammunition [activeWeapon] != 0) {
+					//fire the weapon and reduce ammunition as needed
+					switch (activeWeapon) {
+					case (int)Weapons.basicGun:
+						basicGun.Fire ();
+						break;
 
-                case (int)Weapons.homingLauncher:
-                    homingLauncher.Fire(otherPlayer);
-                    ammunition[(int)Weapons.homingLauncher] -= 1;
-                    break;
-                }
-            }
-        }
+					case (int)Weapons.homingLauncher:
+						homingLauncher.Fire (otherPlayer);
+						ammunition [(int)Weapons.homingLauncher] -= 1;
+						break;
+					}
+				}
+			}
+		}
     }
 
     private void Shoot()

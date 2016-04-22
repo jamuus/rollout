@@ -260,4 +260,14 @@ public class GenerateLevel : MonoBehaviour
             if (symmetricBattleArena) Instantiate(specialFieldD, new Vector3(-pos.x, 1f, -pos.z), Quaternion.identity);
         }
     }
+
+	public void restart()
+	{
+		GameObject[] generatedObjects = GameObject.FindGameObjectsWithTag ("Generated");
+		foreach (GameObject obj in generatedObjects) {
+			Destroy (obj);
+		}
+		placedObstacles.Clear ();
+		Start ();
+	}
 }

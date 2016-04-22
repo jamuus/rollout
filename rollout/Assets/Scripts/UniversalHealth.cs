@@ -44,11 +44,11 @@ public class UniversalHealth : MonoBehaviour
         }
 
         //Destroy the player if their health drops too low
-        if (currentHealth < minHealth)
-        {
-            print("Destroying Sphero");
-            Destroy(gameObject);
-        }
+//        if (currentHealth < minHealth)
+//        {
+//            print("Destroying Sphero");
+//            Destroy(gameObject);
+//        }
     }
     public void healPlayer(int healValue)
     {
