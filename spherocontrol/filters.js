@@ -43,8 +43,9 @@ var KalmanObservation = (function() {
 })();
 
 
-function vec2log(size) {
-    var log = [];
+function vec2log(size, log) {
+    log = log || [];
+    // var log = [];
 
     function add(item) {
         log.push([item, new Date().getTime()]);
@@ -95,7 +96,10 @@ function vec2log(size) {
             y: sum.y / size
         }
     }
-
+    // api.add = add;
+    // api.average = average;
+    // api.lastEntry = lastEntry;
+    // api.closestEntry = closestEntry;
     return {
         add,
         average,
@@ -103,6 +107,7 @@ function vec2log(size) {
         closestEntry,
         log
     };
+    // return api;
 }
 
 // function Filter(size) {
@@ -121,34 +126,34 @@ function vec2log(size) {
 //     }
 // }
 
-function XYFilter(size) {
-    var log = [];
+// function XYFilter(size) {
+//     var log = [];
 
-    return {
-        add: function(item) {
-            log.push(item);
-            if (log.length > size) {
-                log.splice(0, 1);
-            }
-        },
-        value: function() {
-            var sum = log.reduce((e, i) => {
-                return {
-                    x: e.x + i.x,
-                    y: e.y + i.y
-                }
-            }, {
-                x: 0,
-                y: 0
-            });
+//     return {
+//         add: function(item) {
+//             log.push(item);
+//             if (log.length > size) {
+//                 log.splice(0, 1);
+//             }
+//         },
+//         value: function() {
+//             var sum = log.reduce((e, i) => {
+//                 return {
+//                     x: e.x + i.x,
+//                     y: e.y + i.y
+//                 }
+//             }, {
+//                 x: 0,
+//                 y: 0
+//             });
 
-            return {
-                x: sum.x / log.length,
-                y: sum.y / log.length
-            }
-        }
-    }
-}
+//             return {
+//                 x: sum.x / log.length,
+//                 y: sum.y / log.length
+//             }
+//         }
+//     }
+// }
 
 module.exports = {
     KalmanModel,

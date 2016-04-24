@@ -11,8 +11,8 @@ var vec2log = filters.vec2log;
 var Filter = filters.Filter;
 
 var spheroIds = [
-    'boo',
     'ybr',
+    'boo',
 ];
 
 var spheros = {};
@@ -126,10 +126,13 @@ function initSphero(dataOut) {
         kSpheroObservation: Ksphero,
         kIPObservation: Kimage,
         // angleLog: Filter(500)
+        angleVecLog: vec2log(40),
+        scaleLog: vec2log(40),
+        scale: 0.05
     }
     setInterval(() => {
         KM.update(Ksphero);
-        // KM.update(Kimage);
+        KM.update(Kimage);
         ret.pos = {
             x: -KM.x_k.elements[0],
             y: -KM.x_k.elements[1],
@@ -153,7 +156,7 @@ var imageSize = {
     y: 720.0,
 };
 
-var spheroScale = 0.05;
+// var spheroScale = 0.05;
 var outputScale = 20;
 
 var debugLog = console.log;
@@ -162,9 +165,20 @@ var offset = {
     y: 0
 };
 
-module.exports = function(fn) {
-    var dataOut = fn.dataOut;
+function updateSpheroDrift(sphero, result) {
+    if (result.distance < 100000) {
+        sphero.angleVecLog.add(result.angleVec);
+        sphero.scaleLog.add({
+            x: result.scale,
+            y: 0
+        });
+        sphero.driftAngle = vecAngle(sphero.angleVecLog.average())
+        sphero.scale = sphero.scaleLog.average().x;
+    }
+}
 
+module.exports = function(fn, workers) {
+    var dataOut = fn.dataOut;
 
     spheros = {
         "ybr": initSphero(pos => dataOut({
@@ -180,6 +194,15 @@ module.exports = function(fn) {
             }
         })),
     };
+
+    workers[0].on('message', result => {
+        var sphero = spheros[spheroIds[0]];
+        updateSpheroDrift(sphero, result);
+    });
+    workers[1].on('message', result => {
+        var sphero = spheros[spheroIds[1]];
+        updateSpheroDrift(sphero, result);
+    });
 
     // called by web client to test forces
     fn.forceCallback(function(data) {
@@ -200,7 +223,7 @@ module.exports = function(fn) {
     });
 
     setupSpheroManager(dataOut);
-    setupIp(dataOut);
+    setupIp(dataOut, workers);
 
     return spheros;
 }
@@ -263,7 +286,7 @@ function deviceNameTofriendly(name) {
 }
 
 
-function setupIp(dataOut) {
+function setupIp(dataOut, workers) {
     var PORT = 1337;
     var HOST = '127.0.0.1';
 
@@ -288,7 +311,7 @@ function setupIp(dataOut) {
         if (spheroState) {
             dataOut({
                 name: sphName,
-                data: newIpData(spheroState, data)
+                data: newIpData(spheroState, data, workers[data.id])
             });
         }
     });
@@ -345,8 +368,8 @@ function newSpheroData(data, spheroState) {
 
     spheroState.kSpheroObservation.z_k = $V(
         [0, 0,
-            absVelX * spheroScale,
-            absVelY * spheroScale
+            absVelX * 1 / spheroState.scale,
+            absVelY * 1 / spheroState.scale
         ]
     );
     return {
@@ -407,11 +430,15 @@ function tryFitPaths(ipPos1, ipPos2, spheroPos1, spheroPos2, ipData, spheroData)
     var i2angle = Math.atan2(translatedi2.y, translatedi2.x);
 
     var angleDiff = s2angle - i2angle;
+    var vecDiff = {
+        x: Math.cos(angleDiff),
+        y: Math.sin(angleDiff)
+    };
 
     var t1 = {
         x: -spheroPos1.x,
         y: -spheroPos1.y,
-    }
+    };
 
     var transformedSpheroData = transformPath(spheroData, scale, angleDiff, t1, ipPos1);
     var buf = '';
@@ -442,6 +469,7 @@ function tryFitPaths(ipPos1, ipPos2, spheroPos1, spheroPos2, ipData, spheroData)
     // console.log(scale, angleDiff, translation, d);
     return {
         angle: angleDiff,
+        angleVec: vecDiff,
         scale,
         distance: d,
         numMatches: spheroDataMatch.length
@@ -460,7 +488,16 @@ var start = new Date().getTime();
 
 var ipDelay = 50;
 
-function calcSpheroTransform(ipData, spheroData) {
+module.exports.calcSpheroTransform = calcSpheroTransform;
+
+function calcSpheroTransform(_ipData, _spheroData) {
+    // console.log(_ipData.log);
+    var ipData = vec2log(_ipData.log.length, _ipData.log);
+    // ipData.log = _ipData.log;
+    // console.log(ipData.log);
+    var spheroData = vec2log(_spheroData.log.length, _spheroData.log);
+    // ipData.log = _spheroData.log;
+
     // console.log(ipData.lastEntry()[1] - spheroData.lastEntry()[1]);
     var best = {
         distance: 1e9,
@@ -498,9 +535,9 @@ function calcSpheroTransform(ipData, spheroData) {
 
             var path = tryFitPaths(ipPos1, ipPos2, spheroPos1.closest, spheroPos2.closest, ipData, spheroData);
             if (path) {
-                var distance = path.distance,
-                    angle = path.angle,
-                    scale = path.scale;
+                var distance = path.distance;
+                // angle = path.angle,
+                // scale = path.scale;
 
                 if (distance < best.distance) {
                     best = path;
@@ -509,10 +546,11 @@ function calcSpheroTransform(ipData, spheroData) {
         }
     }
     // if (best.distance < 10000) {
-    if (best.angle < 0)
-        best.angle += Math.PI * 2;
-    console.log(best.distance.toFixed(2) + '\t\t' + best.angle.toFixed(2) + '\t' + best.scale.toFixed(2) + '\t' + best.numMatches);
+    // if (best.angle < 0)
+    // best.angle += Math.PI * 2;
+    // console.log(best.distance.toFixed(2) + '\t\t' + best.angleVec.x.toFixed(2) + ' ' + best.angleVec.y.toFixed(2) + '\t' + best.scale.toFixed(2) + '\t' + best.numMatches);
     // }
+    return best;
 }
 
 function distBetweenPaths(path1, path2) {
@@ -557,7 +595,11 @@ function magnitude(p) {
 
 var be = new Date().getTime();
 
-function newIpData(sphero, data) {
+function vecAngle(v) {
+    return Math.atan2(v.y, v.x);
+}
+
+function newIpData(sphero, data, worker) {
     // data.x, data.y, data.id
     var angle, dx, dy;
 
@@ -583,7 +625,19 @@ function newIpData(sphero, data) {
     if (dif > 1000) {
         be = af;
         // console.log(sphero.ipPos.log.length);
-        calcSpheroTransform(sphero.ipPos, sphero.spheroPos);
+        // var result = calcSpheroTransform(sphero.ipPos, sphero.spheroPos);
+        worker.send([sphero.ipPos, sphero.spheroPos]);
+
+        // console.log(result);
+        // if (result.distance < 100000) {
+        //     sphero.angleVecLog.add(result.angleVec);
+        //     sphero.scaleLog.add({
+        //         x: result.scale,
+        //         y: 0
+        //     });
+        //     sphero.driftAngle = vecAngle(sphero.angleVecLog.average())
+        //     sphero.scale = sphero.scaleLog.average().x;
+        // }
 
         // console.log(dif);
     }

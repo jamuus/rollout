@@ -191,15 +191,6 @@ function startVisServer() {
     }
 }
 
-function spheroState(dataOut) {
-    var api = {};
-
-    // var manager = require('./spheroManager')();
-    var spheroLoc = require('./spheroLoc.js')(dataOut);
-
-    return spheroLoc;
-}
-
 function sendState() {
     var message = new Buffer(1);
     message[0] = MessageType.UPDATE_STATE;
@@ -235,6 +226,21 @@ function sendState() {
     });
 }
 
-var dataOut = startVisServer();
-state = spheroState(dataOut);
-discover();
+
+var cluster = require('cluster');
+if (cluster.isMaster) {
+    var workers = [cluster.fork(), cluster.fork()];
+
+    var dataOut = startVisServer();
+    state = require('./spheroLoc.js')(dataOut, workers); //spheroState(dataOut, worker);
+    discover();
+} else {
+    console.log('worker spawned');
+    var calcSpheroTransform = require('./spheroLoc.js').calcSpheroTransform;
+
+    process.on('message', args => {
+        // console.log(args);
+        var res = calcSpheroTransform.apply(null, args);
+        process.send(res);
+    });
+}
