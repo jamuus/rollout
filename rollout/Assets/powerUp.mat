@@ -93,6 +93,14 @@ Material:
         second: 0.5
       data:
         first:
+          name: _Blink
+        second: 1
+      data:
+        first:
+          name: _StartBlinkValue
+        second: 0.9
+      data:
+        first:
           name: _Parallax
         second: 0.02
       data:
@@ -127,14 +135,6 @@ Material:
         first:
           name: _Metallic
         second: 0
-      data:
-        first:
-          name: _Blink
-        second: 1
-      data:
-        first:
-          name: _StartBlinkValue
-        second: 0.9
     m_Colors:
       data:
         first:
@@ -143,8 +143,8 @@ Material:
       data:
         first:
           name: _Color
-        second: {r: 0.9034482, g: 1, b: 0, a: 1}
+        second: {r: 0.1081315, g: 0.7352941, b: 0.2422145, a: 1}
       data:
         first:
           name: _Emission
-        second: {r: 0.67802584, g: 0.8862746, b: 0.20000008, a: 0}
+        second: {r: 0.22142497, g: 0.30147058, b: 0.037683822, a: 0}

@@ -88,7 +88,7 @@ public class SpecialField : MonoBehaviour
             color = new Color(.8f, .3f, .1f, 1f); // aggressive red
             break;
         case 3:
-            color = new Color(.7f, .7f, .05f, 1f); // yellow
+            color = new Color(.1f, .7f, .01f, 1f); // yellow
             break;
         }
 

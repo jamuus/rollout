@@ -113,7 +113,7 @@ public class GameStateManager : MonoBehaviour {
 		if (gameStateId == 2) {
 			removeText ();
 			addPreGameScreen ();
-			levelGenerator.restart ();
+			//levelGenerator.restart ();
 		}
 	}
 }
