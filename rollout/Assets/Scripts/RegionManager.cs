@@ -11,9 +11,9 @@ public class RegionManager : MonoBehaviour
     {
         foreach (Region region in Regions)
         {
-            if (region.Contains(Player1.transform.position))
+            if (region.Contains(Player1))
                 region.ApplyEffect(Player1);
-            if (region.Contains(Player2.transform.position))
+            if (region.Contains(Player2))
                 region.ApplyEffect(Player2);
         }
     }

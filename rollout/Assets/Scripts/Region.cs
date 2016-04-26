@@ -3,32 +3,52 @@ using System.Collections.Generic;
 
 public abstract class Region : MonoBehaviour
 {
-    public List<Vector2>    Points;
     public float            Rate;
 
     protected float lastEffectCall;
 
+    private Bounds                  bounds;
+    private HashSet<PlayerControl>  currentPlayers;
+    private HashSet<PlayerControl>  previousPlayers;
+
     void Start()
     {
-        lastEffectCall = Time.time;
+        lastEffectCall  = Time.time;
+        bounds = GetComponent<Renderer>().bounds;
+        currentPlayers = new HashSet<PlayerControl>();
+        previousPlayers = new HashSet<PlayerControl>();
     }
 
-    public bool Contains(Vector3 v)
+    public bool Contains(PlayerControl player)
     {
-        int j = Points.Count - 1;
-        bool inside = false;
+        bool previousContains = previousPlayers.Contains(player);
+        previousPlayers = currentPlayers;
 
-        for (int i = 0; i < Points.Count; j = i++)
-        {
-            if (((Points[i].y <= v.z && v.z < Points[j].y) || (Points[j].y <= v.z && v.z < Points[i].y)) &&
-                (v.x < (Points[j].x - Points[i].x) * (v.z - Points[i].y) / (Points[j].y - Points[i].y) + Points[i].x))
-            {
-                inside = !inside;
-            }
-        }
+        bool contains = bounds.Contains(player.transform.position);
 
-        return inside;
+        if (contains)
+            currentPlayers.Add(player);
+        else if (previousContains)
+            currentPlayers.Remove(player);
+
+        if (previousContains && !contains)
+            OnPlayerLeave(player);
+
+        if (!previousContains && contains)
+            OnPlayerEnter(player);
+
+        return contains;
     }
 
     public abstract void ApplyEffect(PlayerControl player);
+
+    public virtual void OnPlayerLeave(PlayerControl player)
+    {
+        // Do nothing.
+    }
+
+    public virtual void OnPlayerEnter(PlayerControl player)
+    {
+        // Do nothing.
+    }
 }
