@@ -111,9 +111,9 @@ public class GameStateManager : MonoBehaviour {
 			addVictoryScreen();
 		}
 		if (gameStateId == 2) {
-			removeText ();
-			addPreGameScreen ();
-			levelGenerator.restart ();
+			//removeText ();
+			//addPreGameScreen ();
+			//levelGenerator.restart ();
 		}
 	}
 }
