@@ -28,6 +28,8 @@ public class PlayerControl : MonoBehaviour
     private float levelRadius;
     private int boundaryHardness;
 
+	private ParticleSystem[] particles;
+
     public Sphero sphero;
 
 
@@ -41,6 +43,11 @@ public class PlayerControl : MonoBehaviour
         allPowerUps = container.GetComponent<InitialisePowerUp>().powerUps;
         levelRadius = container.GetComponent<GenerateLevel>().levelRadius;
         boundaryHardness = container.GetComponent<GenerateLevel>().boundaryHardness * 2 + 1;
+
+		particles = gameObject.GetComponentsInChildren<ParticleSystem>();
+		foreach (ParticleSystem ps in particles) {
+			//ps.Play ();
+		}
     }
 
     void Awake()
@@ -191,21 +198,26 @@ public class PlayerControl : MonoBehaviour
 
         if (powerUp.name == "Regeneration") {
             statuses [0] = statusList[0].time;
+			particles [0].Play ();
         }
         if (powerUp.name == "Damage Enemy") {
             otherPlayer.GetComponent<PlayerControl>().statuses [1] = statusList[1].time;
+			otherPlayer.GetComponent<PlayerControl>().particles [1].Play ();
         }
         if (powerUp.name == "Slow Down Enemy") {
             otherPlayer.GetComponent<PlayerControl>().statuses [2] = statusList[2].time;
             statuses [3] = 0;
+			otherPlayer.GetComponent<PlayerControl>().particles [2].Play ();
         }
         if (powerUp.name == "Boost") {
             statuses [3] = statusList[3].time;
             statuses [2] = 0; // When boost used it removes negative speed effects
             statuses [4] = 0; // Removing stunn status
+			particles [3].Play ();
         }
         if (powerUp.name == "Stun Enemy") {
             otherPlayer.GetComponent<PlayerControl>().statuses [4] = statusList[4].time;
+			otherPlayer.GetComponent<PlayerControl>().particles [4].Play ();
         }
         if (powerUp.name == "Boost")
         {
@@ -222,21 +234,28 @@ public class PlayerControl : MonoBehaviour
 				this.GetComponent<UniversalHealth> ().healPlayer ((int)statusList [0].magnitude);
 			}
 			decrementStatusDuration(0);
-            if (statuses[0] <= 0) print ("End of regeneration");
+			if (statuses [0] <= 0) {
+				print ("End of regeneration");
+				particles [0].Stop ();
+			}
         }
 
         //damage over time
-        if (statuses[1] > 0) {
-            this.GetComponent<UniversalHealth>().damagePlayer((int)statusList[0].magnitude);
-            decrementStatusDuration(1);
-            if (statuses[1] <= 0) print ("End of damage");
-        }
+		if (statuses [1] > 0) {
+			this.GetComponent<UniversalHealth> ().damagePlayer ((int)statusList [0].magnitude);
+			decrementStatusDuration (1);
+			if (statuses [1] <= 0) {
+				print ("End of damage");
+				particles [1].Stop ();
+			}
+		}
 
         // reduce speed
         if (statuses[2] > 0) {
             if (statuses[2] == statusList[2].time) speed = baseSpeed / statusList[2].magnitude;
             decrementStatusDuration(2);
             if (statuses[2] <= 0) {
+				particles [2].Stop ();
                 speed = baseSpeed;
                 print ("End of slow down");
             }
@@ -249,6 +268,8 @@ public class PlayerControl : MonoBehaviour
             if (statuses[3] <= 0) {
                 speed = baseSpeed;
                 print ("End of speed boost");
+				particles [3].Stop ();
+
             }
         }
 
@@ -258,6 +279,7 @@ public class PlayerControl : MonoBehaviour
             speed = 0;
             decrementStatusDuration(4);
             if (statuses [4] <= 0) {
+				particles [4].Stop ();
                 speed = baseSpeed;
                 print ("End of stun");
             }
@@ -270,6 +292,9 @@ public class PlayerControl : MonoBehaviour
 
 	private void resetPlayerStatus()
 	{
+		foreach (ParticleSystem ps in particles) {
+			ps.Stop ();
+		}
 		statuses.Clear ();
 		powerUps.Clear ();
 		speed = baseSpeed;
