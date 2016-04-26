@@ -36,7 +36,7 @@ public class GUIController : MonoBehaviour
         if (player.name == "player1") {
             playerColor = new Color (0.0f, 0.8f, 0.8f);
         } else {
-            playerColor = new Color (0.8f, 0.8f, 0.0f);
+            playerColor = new Color (0.1f, 0.7f, 0.1f);
         }
         lineRenderer.material.color = playerColor;
         statuses = GameObject.Find("Container").GetComponent<InitialiseStatus>().statuses;
@@ -124,8 +124,8 @@ public class GUIController : MonoBehaviour
         float r = container.GetComponent<GenerateLevel>().levelRadius + 0.3f;
         for (float theta = 0; theta < (int)(1f * 3f * healthPercentage) && i < size; theta += theta_scale) {
 
-            x = (float)(r * Math.Cos (theta * 0.5f));
-            y = (float)(r * Math.Sin (theta * 0.5f));
+			x = (float)(r * Math.Cos ((theta - Math.PI/2) * 0.5f));
+			y = (float)(r * Math.Sin ((theta - Math.PI/2) * 0.5f));
 
             Vector3 pos = new Vector3 (x * boardSide, 0f, y * boardSide);
             lineRenderer.SetPosition (i, pos);

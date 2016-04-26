@@ -97,6 +97,21 @@ public class PlayerControl : MonoBehaviour
 		}
     }
 
+    void OnCollisionEnter(Collision collision)
+    {
+        //Debug.LogFormat("COLLISION ENTER");
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        //Debug.LogFormat("IN COLLISION");
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        //Debug.LogFormat("LEFT COLLISION");
+    }
+
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
     // Debug.Log(string.Format("{0}", player));
 

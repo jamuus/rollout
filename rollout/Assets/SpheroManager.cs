@@ -168,6 +168,9 @@ public class Sphero
     public Vector2                      Force                   { get; set; }
 #endif
 
+    public Vector2                      MoveForce               { get; set; }
+    public Vector2                      EnvironmentForce        { get; set; }
+
     public Sphero()
     {
         Weapons = new List<SpheroWeapon>();
@@ -176,6 +179,9 @@ public class Sphero
         Weapons.Add(new SpheroWeapon(SpheroWeaponType.Default));
 
         HasController = false;
+
+        MoveForce           = new Vector2(0, 0);
+        EnvironmentForce    = new Vector2(0, 0);
     }
 
     // RollSphero message format:

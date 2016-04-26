@@ -3,12 +3,15 @@ using System.Collections;
 
 public class HomingLauncher : MonoBehaviour
 {
-
+    private int id = 101;
     public HomingMissile homingMissile;
     private GameObject otherPlayer;
     private Vector3 velocity;
     private Quaternion projectileRotation;
     private Vector3 projectilePosition;
+    public int ammunition = 2;
+    public int maxAmmo = 5;
+    public float fireRate = 1;
 
 
     public void Fire(GameObject givenOtherPlayer)
