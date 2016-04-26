@@ -12,6 +12,7 @@ public class GrenadeThrower : MonoBehaviour
     public float explosionRadius, explosionPower, maxDamage, minDamage;
     public float fireRate;
     public int ammunition = 20;
+    public int maxAmmo = 10;
 
     public void Fire()
     {

@@ -10,6 +10,7 @@ public class HomingLauncher : MonoBehaviour
     private Quaternion projectileRotation;
     private Vector3 projectilePosition;
     public int ammunition = 20;
+    public int maxAmmo = 5;
     public float fireRate = 1;
 
 

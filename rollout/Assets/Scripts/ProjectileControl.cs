@@ -18,6 +18,7 @@ public class ProjectileControl : MonoBehaviour
     //intialise the weapon structures
     enum Weapons : int { basicGun, homingLauncher, grenadeThrower };
     private int[] ammunition = new int[3];
+    private int[] maxAmmo = new int[3];
     private float[] fireRates = new float[3];
     private int activeWeapon;
 
@@ -45,18 +46,22 @@ public class ProjectileControl : MonoBehaviour
         //Set the initial weapon to the basic gun
         activeWeapon = (int)Weapons.homingLauncher;
         ammunition[(int)Weapons.basicGun] = -1;
-        ammunition[(int)Weapons.homingLauncher] = 20;
-        ammunition[(int)Weapons.grenadeThrower] = 20;
+        ammunition[(int)Weapons.homingLauncher] = 0;
+        ammunition[(int)Weapons.grenadeThrower] = 0;
 
         //access the weapons
         basicGun = GetComponent<BasicGun>();
         fireRates[ConvertID(100)] = basicGun.fireRate;
+        maxAmmo[ConvertID(100)] = -1;
 
         homingLauncher = GetComponent<HomingLauncher>();
         fireRates[ConvertID(101)] = homingLauncher.fireRate;
+        maxAmmo[ConvertID(101)] = homingLauncher.maxAmmo;
 
         grenadeThrower = GetComponent<GrenadeThrower>();
         fireRates[ConvertID(102)] = grenadeThrower.fireRate;
+        maxAmmo[ConvertID(100)] = grenadeThrower.maxAmmo;
+
     }
 
     public void Update()
@@ -161,7 +166,13 @@ public class ProjectileControl : MonoBehaviour
 
     public void AddAmmo(int ID, int amount)
     {
-        ammunition[ConvertID(ID)] += amount;
+        //if the ammo to add will exceed the max ammo limit, set it to the max
+        if (ammunition[ConvertID(ID)] + amount <= maxAmmo[ConvertID(ID)])
+            ammunition[ConvertID(ID)] += amount;
+        else
+            ammunition[ConvertID(ID)] = maxAmmo[ConvertID(ID)];
+
+        print("Weapon " + ID + " now has " + ammunition[ConvertID(ID)] + " ammo ");
     }
 
     public void ReduceAmmo(int ID, int amount)
