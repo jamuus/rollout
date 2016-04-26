@@ -11,7 +11,7 @@ public class GrenadeThrower : MonoBehaviour
     public float speed;
     public float explosionRadius, explosionPower, maxDamage, minDamage;
     public float fireRate;
-    public int ammunition = 20;
+    public int ammunition = 5;
     public int maxAmmo = 10;
 
     public void Fire()
@@ -25,9 +25,9 @@ public class GrenadeThrower : MonoBehaviour
         }
 
         //Spawn the projectile outside of the player in the direction you are aiming
-        projectilePosition = transform.position + velocity.normalized;
+        projectilePosition = transform.position - velocity.normalized;
         var spawnedProjectile = (Grenade)Instantiate(grenade, projectilePosition, transform.rotation);
-        spawnedProjectile.Initialise(velocity, speed, explosionRadius, explosionPower, maxDamage, minDamage);
+        spawnedProjectile.Initialise(-velocity, speed, explosionRadius, explosionPower, maxDamage, minDamage);
     }
 
     public void Fire(Vector3 velocity)

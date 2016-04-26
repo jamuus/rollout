@@ -9,7 +9,7 @@ public class HomingLauncher : MonoBehaviour
     private Vector3 velocity;
     private Quaternion projectileRotation;
     private Vector3 projectilePosition;
-    public int ammunition = 20;
+    public int ammunition = 2;
     public int maxAmmo = 5;
     public float fireRate = 1;
 

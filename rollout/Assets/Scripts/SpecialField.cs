@@ -88,11 +88,11 @@ public class SpecialField : MonoBehaviour
         {
             //homing launcher
             case 101:
-                ammoAmount = 3;
+                ammoAmount = player.GetComponent<HomingLauncher>().ammunition;
                 break;
             //grenade thrower
             case 102:
-                ammoAmount = 5;
+                ammoAmount = player.GetComponent<GrenadeThrower>().ammunition;
                 break;
         }
 
