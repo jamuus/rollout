@@ -178,13 +178,18 @@ public class ProjectileControl : MonoBehaviour
     public void ReduceAmmo(int ID, int amount)
     {
         ammunition[ConvertID(ID)] -= amount;
+
+        if (ammunition[ConvertID(ID)] <= 0)
+            ChangeActiveWeapon(100);
+
     }
 
     public void ChangeActiveWeapon(int ID)
     {
         //toggle between basic gun and other weapons
-        if(activeWeapon == 0) { activeWeapon = ConvertID(ID); }
-        else { activeWeapon = 0; }       
+        /*if(activeWeapon == 0) { activeWeapon = ConvertID(ID); }
+        else { activeWeapon = 0; }*/
+        activeWeapon = ConvertID(ID);      
     }
 
     public void ChangeActiveWeapon(string weaponString)
