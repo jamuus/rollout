@@ -23469,7 +23469,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa84cd7c5b8f8944c93df86ba0c9f4d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  player: {fileID: 317907519}
 --- !u!102 &1714384690
 TextMesh:
   serializedVersion: 3
