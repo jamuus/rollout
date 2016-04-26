@@ -18,6 +18,8 @@ public class SpecialField : MonoBehaviour
     public int powerUpID;
     private PowerUp powerUp;
 	private bool active = true;
+    private ProjectileControl projectileControl;
+    private int ammoAmount;
 
     // Use this for initialization
     void Start ()
@@ -49,9 +51,19 @@ public class SpecialField : MonoBehaviour
                 destroyPlayer(player);
                 break;
             case 3:
-                GameObject container = GameObject.Find("Container");
-                powerUp = container.GetComponent<InitialisePowerUp>().powerUps[powerUpID];
-                givePowerUp(player);
+                //50% chance to add powerup or weapon
+                if (Random.Range(0,1) == 0)
+                {
+                    GameObject container = GameObject.Find("Container");
+                    powerUp = container.GetComponent<InitialisePowerUp>().powerUps[powerUpID];
+                    givePowerUp(player);
+                    AddWeapon(player);
+                }
+                else
+                {
+                    AddWeapon(player);
+                }
+
                 break;
             default:
                 print("Wrong field ID");
@@ -66,7 +78,30 @@ public class SpecialField : MonoBehaviour
         }
     }
 
-	public void setPowerUpID(int id)
+    public void AddWeapon(GameObject player)
+    {
+        //get a random weapon ID
+        int randomWepID = Random.Range(101, 102);
+
+        //determine the right amount of ammo to add for the weapon
+        switch(randomWepID)
+        {
+            //homing launcher
+            case 101:
+                ammoAmount = player.GetComponent<HomingLauncher>().ammunition;
+                break;
+            //grenade thrower
+            case 102:
+                ammoAmount = player.GetComponent<GrenadeThrower>().ammunition;
+                break;
+        }
+
+        projectileControl = player.GetComponent<ProjectileControl>();
+        projectileControl.AddAmmo(randomWepID, ammoAmount);
+        print("Weapon " + randomWepID + " Added to " + player.name);
+    }
+
+    public void setPowerUpID(int id)
 	{
 		this.powerUpID = id;
 	}

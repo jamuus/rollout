@@ -23,9 +23,6 @@ public class Projectile : MonoBehaviour
 
         //Destroys the projectile afer 2 seconds
         Destroy(gameObject, 2.0f);
-
-        ParticleSystem particleSystem = GetComponent<ParticleSystem>();
-        if (particleSystem != null) particleSystem.Play ();
     }
 
     //In case you want to set your own speed and damage
@@ -41,6 +38,12 @@ public class Projectile : MonoBehaviour
 
         //Destroys the projectile afer 2 seconds
         Destroy(gameObject, 2.0f);
+    }
+
+    //forces the projectile to ignore a specific collider
+    public void ignoreCollider(Collider collider)
+    {
+        Physics.IgnoreCollision(gameObject.GetComponent<Collider>(), collider);
     }
 
 

@@ -1,10 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BasicGun : MonoBehaviour {
+public class BasicGun : MonoBehaviour
+{
     public Projectile projectile;
     private Vector3 velocity;
     private Vector3 projectilePosition;
+    public float fireRate;
+    public int ammunition = -1;
+
+    public new int ID()
+    {
+        return 100;
+    }
 
     public void Fire ()
     {
@@ -15,18 +23,26 @@ public class BasicGun : MonoBehaviour {
         {
             velocity = new Vector3(1f, 0f, 0f);
         }
-
-        //PROJECTILE POSIION TO BE CHANGED ONCE WE GET AIM DIRECTION INFO
+        
         //Spawn the projectile outside of the player in the direction you are aiming
         projectilePosition = transform.position + velocity.normalized;
         var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
-
+        spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
         spawnedProjectile.Initialise(velocity);
-        
     }
 
-	// Use this for initialization
-	void Start () {
+    public void Fire(Vector3 velocity)
+    {
+        //Spawn the projectile outside of the player in the direction you are aiming
+        projectilePosition = transform.position + velocity.normalized;
+        var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
+        spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
+        spawnedProjectile.Initialise(velocity);
+
+    }
+
+    // Use this for initialization
+    void Start () {
 	
 	}
 	
