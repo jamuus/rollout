@@ -57,11 +57,12 @@ public class ProjectileControl : MonoBehaviour
         homingLauncher = GetComponent<HomingLauncher>();
         fireRates[ConvertID(101)] = homingLauncher.fireRate;
         maxAmmo[ConvertID(101)] = homingLauncher.maxAmmo;
-
-        grenadeThrower = GetComponent<GrenadeThrower>();
-        fireRates[ConvertID(102)] = grenadeThrower.fireRate;
-        maxAmmo[ConvertID(100)] = grenadeThrower.maxAmmo;
-
+		try {
+	        grenadeThrower = GetComponent<GrenadeThrower>();
+	        fireRates[ConvertID(102)] = grenadeThrower.fireRate;
+	        maxAmmo[ConvertID(100)] = grenadeThrower.maxAmmo;
+		} catch(Exception e) {
+		}
     }
 
     public void Update()

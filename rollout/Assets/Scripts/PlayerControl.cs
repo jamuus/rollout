@@ -97,21 +97,6 @@ public class PlayerControl : MonoBehaviour
 		}
     }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        //Debug.LogFormat("COLLISION ENTER");
-    }
-
-    void OnCollisionStay(Collision collision)
-    {
-        //Debug.LogFormat("IN COLLISION");
-    }
-
-    void OnCollisionExit(Collision collision)
-    {
-        //Debug.LogFormat("LEFT COLLISION");
-    }
-
     // Debug.Log(string.Format("{0}, {1}", controllerHorizontal, controllerVertical));
     // Debug.Log(string.Format("{0}", player));
 
@@ -310,10 +295,18 @@ public class PlayerControl : MonoBehaviour
 		foreach (ParticleSystem ps in particles) {
 			ps.Stop ();
 		}
-		statuses.Clear ();
+		for (int i=0; i < statuses.Count; i++) {
+			statuses [i] = 0;
+		}
+
 		powerUps.Clear ();
 		speed = baseSpeed;
 		gameObject.GetComponent<UniversalHealth> ().currentHealth = gameObject.GetComponent<UniversalHealth> ().getMaxHealth ();
 		gameObject.transform.position = startingPosition;
+	}
+
+	private void onDestroy()
+	{
+		print ("destroyed");
 	}
 }
