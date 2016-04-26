@@ -23,7 +23,7 @@ public class GameStateManager : MonoBehaviour {
 		player2 = GameObject.Find ("player2");
 		player1Health = player1.GetComponent<UniversalHealth> ();
 		player2Health = player2.GetComponent<UniversalHealth> ();
-		levelGenerator = GameObject.Find ("Container").GetComponent<GenerateLevel> ();
+		//levelGenerator = GameObject.Find ("Container").GetComponent<GenerateLevel> ();
 		soundManager = GameObject.Find ("Music").GetComponent<SoundManager> ();
 		events = GameObject.Find ("Container").GetComponent<Events>();
 		setGameStates ();
@@ -111,8 +111,9 @@ public class GameStateManager : MonoBehaviour {
 			addVictoryScreen();
 		}
 		if (gameStateId == 2) {
-			//removeText ();
-			//addPreGameScreen ();
+			removeText ();
+			addPreGameScreen ();
+			//toNextState ();
 			//levelGenerator.restart ();
 		}
 	}

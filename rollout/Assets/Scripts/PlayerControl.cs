@@ -85,7 +85,7 @@ public class PlayerControl : MonoBehaviour
 			float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
 
-            position = new Vector3(moveHorizontal, 0.5f, moveVertical);
+            position = new Vector3(moveHorizontal, 0.8f, moveVertical);
             rb.position = position;
 
             // float X = player.GetAxis("Horizontalx");
@@ -301,12 +301,15 @@ public class PlayerControl : MonoBehaviour
 
 		powerUps.Clear ();
 		speed = baseSpeed;
+		gameObject.transform.rotation = Quaternion.identity;
+		gameObject.GetComponent<Rigidbody> ().velocity = new Vector3 (0f, 0f, 0f);
 		gameObject.GetComponent<UniversalHealth> ().currentHealth = gameObject.GetComponent<UniversalHealth> ().getMaxHealth ();
 		gameObject.transform.position = startingPosition;
 	}
 
-	private void onDestroy()
+	private void OnDestroy()
 	{
+		Start ();
 		print ("destroyed");
 	}
 }
