@@ -70,7 +70,7 @@ public class SpecialField : MonoBehaviour
                 break;
             }
 			StartCoroutine(fieldTimeout(10));
-            
+
 			if (isVolatile) {
 
                 Destroy(gameObject);
@@ -123,7 +123,7 @@ public class SpecialField : MonoBehaviour
             color = new Color(.8f, .3f, .1f, 1f); // aggressive red
             break;
         case 3:
-            color = new Color(.4f, .4f, .0f, 1f); // yellow
+            color = new Color(.1f, .7f, .01f, 1f); // yellow
             break;
         }
 
@@ -154,12 +154,14 @@ public class SpecialField : MonoBehaviour
     {
         UniversalHealth health = player.GetComponent<UniversalHealth> ();
         health.damagePlayer (magnitude);
+        //player.GetComponent<PlayerControl>().sphero.Health -= magnitude;
     }
 
     void healPlayer(GameObject player)
     {
         UniversalHealth health = player.GetComponent<UniversalHealth> ();
         health.healPlayer (magnitude);
+        // TODO healing sphero.
     }
 
     void destroyPlayer(GameObject player)

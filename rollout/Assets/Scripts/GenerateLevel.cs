@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class GenerateLevel : MonoBehaviour
 {
-
+    public int boundaryHardness;
     public float levelRadius;
     public int specialFieldN;
     public int upgradeN;
@@ -27,6 +27,7 @@ public class GenerateLevel : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
+        scaleScene();
 
         if (random) {
             initialiseSpecialFields ();
@@ -40,6 +41,22 @@ public class GenerateLevel : MonoBehaviour
             print ("got seed");
             spawnSeed(seed);
         }
+    }
+
+    void scaleScene()
+    {
+        //Set the size of the arena
+        GameObject circularPlane = GameObject.Find("Circular Plane");
+        if (circularPlane != null)
+            circularPlane.GetComponent<Transform>().localScale = new Vector3(levelRadius * 100, 1, levelRadius * 100);
+
+        //Set the initial player positions
+        GameObject.Find("player1").GetComponent<Transform>().position = new Vector3(-(levelRadius - 4), 1, 0);
+        GameObject.Find("player2").GetComponent<Transform>().position = new Vector3((levelRadius - 4), 1, 0);
+
+        //Set the position of the text status effects
+        GameObject.Find("player1Health").GetComponent<Transform>().position = new Vector3(-0.2f, 1, levelRadius+1);
+        GameObject.Find("player2Health").GetComponent<Transform>().position = new Vector3(0.2f, 1, levelRadius+1);
     }
 
     // Update is called once per frame
@@ -117,7 +134,7 @@ public class GenerateLevel : MonoBehaviour
         //For all clusters
         for (int i = 0; i < clustersN; i++) {
             //Generate a root position
-            Vector3 clusterCentre = randomPosition(levelRadius * 0.8f);
+            Vector3 clusterCentre = randomPosition(levelRadius * 0.9f);
 
             //Generate the cluster
             initialiseCluster(clusterCentre);
@@ -244,4 +261,14 @@ public class GenerateLevel : MonoBehaviour
             if (symmetricBattleArena) Instantiate(specialFieldD, new Vector3(-pos.x, 1f, -pos.z), Quaternion.identity);
         }
     }
+
+	public void restart()
+	{
+		GameObject[] generatedObjects = GameObject.FindGameObjectsWithTag ("Generated");
+		foreach (GameObject obj in generatedObjects) {
+			Destroy (obj);
+		}
+		placedObstacles.Clear ();
+		Start ();
+	}
 }

@@ -11,6 +11,7 @@ TagManager:
   - HealthField
   - HealField
   - Field
+  - Generated
   layers:
   - Default
   - TransparentFX

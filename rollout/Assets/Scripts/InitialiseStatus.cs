@@ -23,7 +23,7 @@ public class InitialiseStatus: MonoBehaviour
         status.name = "Regeneration";
         status.description = "Continuously regenerates health of a player every second";
         status.magnitude = 1.0f;
-        status.time = 15000;
+        status.time = 1000;
 		statuses.Add(status);
 
         status.name = "DoT";

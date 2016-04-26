@@ -1,17 +1,127 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                tools:context="com.ammolite.rollout.SpectatorControllerActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.ammolite.rollout.SpectatorControllerActivity">
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="12dp"
+        android:src="@mipmap/ic_launcher"
+        />
 
     <TextView
-        android:id="@+id/spectator_name"
-        android:text="@string/hello_world"
+        android:id="@+id/header_string"
+        android:text="@string/title_activity_spectator_controller"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="40dp"
+        android:gravity="center_vertical"
+        android:layout_alignTop="@id/logo"
+        android:layout_toRightOf="@id/logo"
+        android:textSize="20sp"
+        android:textColor="#329886"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/header_string">
+
+        <TextView
+            android:id="@+id/countdown"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:text="5"
+            android:textSize="40sp"
+            android:textColor="#329886"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="40dp"/>
+
+        <FrameLayout
+            android:id="@+id/event_1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="64dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="40dp"
+            android:layout_toLeftOf="@id/countdown"
+            android:background="@color/brown">
+
+            <Button
+                android:id="@+id/btn_event_1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tag="1"
+                android:text="Earthquake"
+                android:textColor="@color/white"
+                android:singleLine="false"
+                android:padding="20dp"
+                android:textAllCaps="true"
+                android:onClick="eventClicked"
+                android:background="?android:attr/selectableItemBackground"/>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/event_2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="64dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="40dp"
+            android:layout_toRightOf="@id/countdown"
+            android:background="@color/red">
+
+            <Button
+                android:id="@+id/btn_event_2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tag="1"
+                android:text="Lava"
+                android:textColor="@color/white"
+                android:singleLine="false"
+                android:padding="20dp"
+                android:textAllCaps="true"
+                android:onClick="eventClicked"
+                android:background="?android:attr/selectableItemBackground"/>
+
+        </FrameLayout>
+
+    </RelativeLayout>
+
+    <!--<RelativeLayout-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_below="@id/header_string"-->
+    <!--android:orientation="vertical"-->
+    <!--android:layout_marginRight="52dp"-->
+    <!--android:layout_marginLeft="30dp"-->
+    <!--android:paddingTop="20dp"-->
+    <!--android:paddingBottom="40dp">-->
+
+    <!--<FrameLayout-->
+    <!--android:id="@+id/event_4"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:background="@color/red">-->
+
+    <!--<Button-->
+    <!--android:id="@+id/btn_event_4"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:tag="1"-->
+    <!--android:text="Lava"-->
+    <!--android:textColor="@color/white"-->
+    <!--android:singleLine="false"-->
+    <!--android:padding="20dp"-->
+    <!--android:textAllCaps="true"-->
+    <!--android:background="?android:attr/selectableItemBackground"/>-->
+
+    <!--</FrameLayout>-->
+
+    <!--</RelativeLayout>-->
 
 </RelativeLayout>

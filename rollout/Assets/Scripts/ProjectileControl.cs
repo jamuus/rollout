@@ -44,7 +44,7 @@ public class ProjectileControl : MonoBehaviour
         }
 
         //Set the initial weapon to the basic gun
-        activeWeapon = (int)Weapons.homingLauncher;
+        activeWeapon = (int)Weapons.basicGun;
         ammunition[(int)Weapons.basicGun] = -1;
         ammunition[(int)Weapons.homingLauncher] = 0;
         ammunition[(int)Weapons.grenadeThrower] = 0;
@@ -66,6 +66,9 @@ public class ProjectileControl : MonoBehaviour
 
     public void Update()
     {
+        //Only update if the game is active
+        if (gameObject.GetComponent<PlayerControl>().gameStateId != 0) return;
+
         //Checks if the player is trying to fire a weapon
         if ((Input.GetButton("Fire1") && gameObject.name == ("player1")) || (Input.GetButton("Fire2") && gameObject.name == ("player2")))
         {
@@ -203,4 +206,3 @@ public class ProjectileControl : MonoBehaviour
         return convertedID;
     }
 }
-

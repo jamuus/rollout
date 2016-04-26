@@ -1,12 +1,24 @@
 ﻿using UnityEngine;
-using System.Collections;
 
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
 public class Test : MonoBehaviour
 {
+    private static Queue<Action>    actionQueue;
+    private static System.Object    lockObject = new System.Object();
+
+    public static void QueueOnMainThread(Action action)
+    {
+        lock(lockObject)
+        {
+            actionQueue.Enqueue(action);
+        }
+    }
+
 
     // Use this for initialization
     void Awake ()
@@ -21,6 +33,10 @@ public class Test : MonoBehaviour
         Server.SendEndianness();
         Server.Send(message);*/
 
+        actionQueue = new Queue<Action>();
+
+        SpheroManager.Initialise();
+
         Server.Name = "Rollout Server";
         Server.StartListening(7777);
 
@@ -30,7 +46,20 @@ public class Test : MonoBehaviour
         boo.Shield = 44.5f;
         boo.Weapons.Add(new SpheroWeapon(SpheroWeaponType.RailGun));
         boo.BatteryVoltage = 7.2f;
+        boo.UnityObject = SpheroManager.boo; // TODO This needs to be automated.
+        boo.UnityProjectileControl = SpheroManager.boo.GetComponent<ProjectileControl>();
         SpheroManager.Instances[boo.DeviceName] = boo;
+    }
+
+    void Update()
+    {
+        lock (lockObject)
+        {
+            foreach (Action action in actionQueue)
+                action();
+
+            actionQueue.Clear();
+        }
     }
 
     void LateUpdate()

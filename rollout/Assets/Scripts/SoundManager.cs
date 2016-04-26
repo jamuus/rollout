@@ -36,8 +36,8 @@ public class SoundManager : MonoBehaviour {
 	}
 
 	public void PickPowerUp(GameObject player){
-		sPlayer1.clip = pickPowerUp;
-		sPlayer2.clip = pickPowerUp;
+        if (sPlayer1 != null) sPlayer1.clip = pickPowerUp;
+        if (sPlayer2 != null) sPlayer2.clip = pickPowerUp;
 		if (player.name == "player1") {
 			sPlayer1.Play ();
 			print(player.name + " plays ");
@@ -50,8 +50,8 @@ public class SoundManager : MonoBehaviour {
 	}
 
 	public void Shoot(GameObject player){
-		sPlayer1.clip = shoot;
-		sPlayer2.clip = shoot;
+        if(sPlayer1 != null) sPlayer1.clip = shoot;
+        if (sPlayer2 != null) sPlayer2.clip = shoot;
 		if (player.name == "player1") {
 			sPlayer1.Play ();
 			print(player.name + " plays ");
@@ -63,8 +63,8 @@ public class SoundManager : MonoBehaviour {
 	}
 
 	public void CollideProjectile(GameObject player){
-		sPlayer1.clip = collideProjectile;
-		sPlayer2.clip = collideProjectile;
+        if (sPlayer1 != null) sPlayer1.clip = collideProjectile;
+        if (sPlayer2 != null) sPlayer2.clip = collideProjectile;
 		if (player.name == "player1") {
 			sPlayer1.Play ();
 			print(player.name + " plays ");
@@ -76,8 +76,8 @@ public class SoundManager : MonoBehaviour {
 	}
 
 	public void CollidePlayer(GameObject player){
-		sPlayer1.clip = collidePlayer;
-		sPlayer2.clip = collidePlayer;
+        if (sPlayer1 != null) sPlayer1.clip = collidePlayer;
+        if (sPlayer2 != null) sPlayer2.clip = collidePlayer;
 		if (player.name == "player1") {
 			sPlayer1.Play ();
 			print(player.name + " plays ");
@@ -89,8 +89,8 @@ public class SoundManager : MonoBehaviour {
 	}
 
 	public void CollideDamageField(GameObject player){
-		sPlayer1.clip = collideDamageField;
-		sPlayer2.clip = collideDamageField;
+        if (sPlayer1 != null) sPlayer1.clip = collideDamageField;
+        if (sPlayer2 != null) sPlayer2.clip = collideDamageField;
 		if (player.name == "player1") {
 			sPlayer1.Play ();
 			print(player.name + " plays ");
@@ -102,8 +102,8 @@ public class SoundManager : MonoBehaviour {
 	}
 
 	public void CollideHealthField(GameObject player){
-		sPlayer1.clip = collideDamageField;
-		sPlayer2.clip = collideDamageField;
+        if (sPlayer1 != null) sPlayer1.clip = collideDamageField;
+        if (sPlayer2 != null) sPlayer2.clip = collideDamageField;
 		if (player.name == "player1") {
 			sPlayer1.Play ();
 			print(player.name + " plays ");
@@ -114,8 +114,8 @@ public class SoundManager : MonoBehaviour {
 		}
 	}
 	public void CollideObstacle(GameObject player){
-		sPlayer1.clip = collideObstacle;
-		sPlayer2.clip = collideObstacle;
+        if (sPlayer1 != null) sPlayer1.clip = collideObstacle;
+        if (sPlayer2 != null) sPlayer2.clip = collideObstacle;
 		if (player.name == "player1") {
 			sPlayer1.Play ();
 			print(player.name + " plays ");

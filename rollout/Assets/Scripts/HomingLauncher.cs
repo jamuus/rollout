@@ -17,7 +17,6 @@ public class HomingLauncher : MonoBehaviour
     public void Fire(GameObject givenOtherPlayer)
     {
         otherPlayer = givenOtherPlayer;
-
         
         //if the other player is alive, set the direction of the missile towards it, otherwise set it in direction of movement
         if (otherPlayer != null)

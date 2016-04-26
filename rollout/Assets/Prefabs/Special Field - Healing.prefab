@@ -15,7 +15,7 @@ GameObject:
   - 122: {fileID: 12229620}
   m_Layer: 0
   m_Name: Special Field - Healing
-  m_TagString: HealField
+  m_TagString: Generated
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -85,7 +85,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 113038}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51e93e53c49d2444a858b782132cab51, type: 3}
+  m_Script: {fileID: 11500000, guid: 4f41c632275a743c3aad957474abcbf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   behaviourOption: 1
@@ -140,7 +140,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: m_TagString
-      value: HealField
+      value: Generated
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: m_LocalScale.y
