@@ -28,7 +28,7 @@ int V_MAX = 256;
 const int MAX_NUM_OBJECTS = 2;
 // minimum and maximum object area
 const int MIN_OBJECT_AREA = 10 * 10;
-const int MAX_OBJECT_AREA = 40 * 40;
+const int MAX_OBJECT_AREA = 80 * 80; // 50
 const char* trackbar_name = "Trackbars";
 const string window_name = "Original";
 const string window_name_1 = "HSV";
@@ -277,6 +277,8 @@ int main( int, char** argv )
 
     setupServerConnection(&serverAddress, &socketDescriptor);
 
+
+    int i = 0;
     while (true) {
         if (capture.read(frame) == NULL) {
             printf("!!! cvQueryFrame failed: no frame\n");
@@ -308,7 +310,6 @@ int main( int, char** argv )
 
             sendToServer(&socketDescriptor, &serverAddress, ybr, 0);
             sendToServer(&socketDescriptor, &serverAddress, boo, 1);
-
             imshow(window_name, frame);
         }
 

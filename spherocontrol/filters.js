@@ -92,8 +92,8 @@ function vec2log(size, log) {
         );
 
         return {
-            x: sum.x / size,
-            y: sum.y / size
+            x: sum.x / log.length,
+            y: sum.y / log.length
         }
     }
     // api.add = add;

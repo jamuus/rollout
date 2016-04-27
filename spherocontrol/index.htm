@@ -54,9 +54,9 @@ div {
     <div class="container">
         <canvas id="absoluteCvs" width="800" height="600" style="border:1px solid #000000;"></canvas>
         <br/> Sphero scale: <span id="spheroScale">1</span>
-        <input oninput="spheroScaleChange(this.value)" type="range" min="0" max="1" step="0.001" value="30" style="width: 800px" />
+        <input oninput="spheroScaleChange(this.value)" type="range" min="0" max="5" step="0.001" value="1" style="width: 800px" />
         <br/> Output scale: <span id="outputScale">1</span>
-        <input oninput="outputScaleChange(this.value)" type="range" min="0" max="100" step="0.001" value="20" style="width: 800px" />
+        <input oninput="outputScaleChange(this.value)" type="range" min="0" max="5" step="0.001" value="1" style="width: 800px" />
         <div class="spheroData" id="spheroData1"></div>
         <div class="spheroData" id="spheroData2"></div>
         <!-- <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;"></canvas> -->
@@ -144,15 +144,15 @@ div {
                 vis[msg.name].spheroDrift.append(new Date().getTime(), msg.data[dtype]);
             } else if (dtype === 'ipPosTransformed') {
                 vis[msg.name].spheroPosTag.innerHTML = 'Last detected visual pos: ' + posToString(msg.data[dtype]);
+            } else if (dtype === 'scale') {
+                console.log('hue');
             }
         }
     });
 
-
     function posToString(pos) {
         return '(' + pos.x.toFixed(2) + ', ' + pos.y.toFixed(2) + ', ' + pos.z.toFixed(2) + ')';
     }
-
 
     var center = {
         x: 0,
@@ -336,71 +336,6 @@ div {
 
         drawPolygon(ctx1, gameCoords.map(coordToScreen));
     }
-
-    // function drawAbs(dt) {
-    //     ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-    //     ctx1.rect(250, 200, 300, 200);
-    //     ctx1.stroke();
-    //     drawPolygon(ctx1, corners);
-    //     for (var sphAbs in spheroState.abs) {
-    //         var sph = spheroState.abs[sphAbs];
-    //         drawCircle(orthoToIpPos(sph), 5);
-    //     }
-    //     for (var sphAbs in spheroState.absIp) {
-    //         var sph = spheroState.absIp[sphAbs];
-
-    //         drawCircle(orthoToIpPos(sph), 2);
-    //     }
-    //     // for (var sphpos3d in spheroState.pos3d) {
-    //     //     var sph = spheroState.pos3d[sphAbs];
-    //     //     drawCircle({
-    //     //         x: sph.x * 20,
-    //     //         y: sph.y * 20
-    //     //     }, 10);
-    //     // }
-    //     for (var i in corners) {
-    //         var point = corners[i];
-    //         drawCircle(coordToIpPos(point), 4, true);
-    //     }
-    // }
-
-    // function drawRel(dt) {
-    //     ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
-    //     for (var name in spheroState.rel) {
-    //         var sphdata = spheroState.rel[name];
-    //         // console.log(sphdata);
-    //         drawLine(ctx2,
-    //             100,
-    //             100,
-    //             sphdata.x * 100 + 100, -sphdata.y * 100 + 100
-    //         );
-
-    //     }
-    //     // for (var name in spheroState.drift) {
-    //     //     var angle = spheroState.drift[name];
-
-    //     //     drawLine(ctx2,
-    //     //         100,
-    //     //         100,
-    //     //         Math.cos(angle) * 250 + 100,
-    //     //         Math.sin(angle) * 250 + 100,
-    //     //         3
-    //     //     );
-    //     // }
-    //     for (var name in spheroState.angle) {
-    //         var angle = spheroState.angle[name];
-
-    //         drawLine(ctx2,
-    //             100,
-    //             100,
-    //             Math.cos(-angle) * 250 + 100,
-    //             Math.sin(-angle) * 250 + 100,
-    //             2
-    //         );
-    //     }
-    // }
-
-
 
 
     var control = {

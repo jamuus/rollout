@@ -100,7 +100,7 @@ function discover() {
             console.log("No unity instance found.");
             // process.exit();
         }
-    }, 2000);
+    }, 5000);
 }
 
 function connectToUnity(server) {
@@ -220,7 +220,6 @@ function sendState() {
 
         message = Buffer.concat([message, buf]);
     }
-
     udpOutgoing.send(message, 0, message.length, UNITY_PORT, connectedServer._ip, function(err) {
         if (err) throw err;
     });
