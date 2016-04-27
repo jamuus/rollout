@@ -250,9 +250,20 @@ public class Sphero
 
     public void UsePowerUp(SpheroPowerUp powerUp)
     {
-        MainThread.EnqueueAction(() => {
-            UnityObject.UsePowerUp((int)powerUp.Type);
-        });
+        if ((int)powerUp.Type < 100)
+        {
+            MainThread.EnqueueAction(() =>
+            {
+                UnityObject.UsePowerUp((int)powerUp.Type);
+            });
+        }
+        else
+        {
+            MainThread.EnqueueAction(() =>
+            {
+                UnityProjectileControl.ChangeActiveWeapon((int)powerUp.Type);
+            });
+        }
 
         PowerUps.Remove(powerUp);
     }
@@ -310,7 +321,10 @@ public enum SpheroPowerUpType : byte {
     DamageEnemy     = 1,
     StunEnemey      = 2,
     SlowDownEnemy   = 3,
-    Regeneration    = 4
+    Regeneration    = 4,
+    Gun             = 100,
+    Homing_Launcher = 101,
+    Grenade         = 102,
 }
 
 public class SpheroPowerUp : IEquatable<SpheroPowerUp>

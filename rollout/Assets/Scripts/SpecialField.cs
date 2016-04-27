@@ -105,6 +105,9 @@ public class SpecialField : MonoBehaviour
         projectileControl = player.GetComponent<ProjectileControl>();
         projectileControl.AddAmmo(randomWepID, ammoAmount);
         print("Weapon " + randomWepID + " Added to " + player.name);
+
+        //Add the weapon to the app
+        player.GetComponent<PlayerControl>().sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)randomWepID));
     }
 
     public void setPowerUpID(int id)
