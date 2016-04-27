@@ -1,5 +1,6 @@
 package com.ammolite.rollout;
 
+import android.os.Debug;
 import android.util.Log;
 
 import java.io.DataInputStream;
@@ -268,14 +269,15 @@ public final class Server {
                 readStreamedBytes(nameLength);
                 serverListActivity.joinServerAs(Utility.extractString(tcpBuffer, 0, nameLength));
                 break;
+            case ServerMessageType.RESTART:
+                Sphero.restart();
+                break;
             case ServerMessageType.UPDATE_STATE:
                 readStreamedBytes(13);
                 readStreamedBytes(tcpBuffer[12] + 1, 13);
                 readStreamedBytes(tcpBuffer[13 + tcpBuffer[12]], 14 + tcpBuffer[12]);
                 Sphero.parseState(tcpBuffer);
                 break;
-            case ServerMessageType.RESTART:
-                Sphero.restart();
             default:
                 break;
         }

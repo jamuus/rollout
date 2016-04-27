@@ -59,8 +59,10 @@ public static class SpheroManager
         ServerMessage message = new ServerMessage(ServerMessageType.Restart);
 
         foreach (KeyValuePair<string, Sphero> sphero in Instances)
-            if (sphero.Value.HasController)
-                Server.SendTcp(sphero.Value.Connection, message);
+        {
+            sphero.Value.Health = UniversalHealth.maxHealth;
+            sphero.Value.PowerUps.Clear();
+        }
     }
 
     public static void ParseUpdatedState(byte[] bytes, int index)
