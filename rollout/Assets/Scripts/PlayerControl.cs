@@ -85,8 +85,9 @@ public class PlayerControl : MonoBehaviour
 			float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
 
-            position = new Vector3(moveHorizontal, 0.5f, moveVertical);
-            rb.position = position;
+            position = new Vector3(moveHorizontal, 0.9000168f, moveVertical);
+            //rb.position = position;
+            rb.MovePosition(position);
 
             // float X = player.GetAxis("Horizontalx");
             // float Y = player.GetAxis("Verticalx");
@@ -305,8 +306,16 @@ public class PlayerControl : MonoBehaviour
 		gameObject.transform.position = startingPosition;
 	}
 
-	private void onDestroy()
+	private void OnDestroy()
 	{
-		print ("destroyed");
+		try
+        {
+            throw new Exception();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogFormat("DESTRORED: {0}", ex.StackTrace);
+            Debug.LogFormat("!!: {0}", System.Environment.StackTrace);
+        }
 	}
 }
