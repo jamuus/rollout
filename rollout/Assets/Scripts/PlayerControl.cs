@@ -336,7 +336,6 @@ public class PlayerControl : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		Start ();
 		print ("destroyed");
 	}
 }
