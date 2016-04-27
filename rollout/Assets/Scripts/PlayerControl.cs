@@ -302,20 +302,15 @@ public class PlayerControl : MonoBehaviour
 
 		powerUps.Clear ();
 		speed = baseSpeed;
+		gameObject.transform.rotation = Quaternion.identity;
+		gameObject.GetComponent<Rigidbody> ().velocity = new Vector3 (0f, 0f, 0f);
 		gameObject.GetComponent<UniversalHealth> ().currentHealth = gameObject.GetComponent<UniversalHealth> ().getMaxHealth ();
 		gameObject.transform.position = startingPosition;
 	}
 
 	private void OnDestroy()
 	{
-		try
-        {
-            throw new Exception();
-        }
-        catch (Exception ex)
-        {
-            Debug.LogFormat("DESTRORED: {0}", ex.StackTrace);
-            Debug.LogFormat("!!: {0}", System.Environment.StackTrace);
-        }
+		Start ();
+		print ("destroyed");
 	}
 }
