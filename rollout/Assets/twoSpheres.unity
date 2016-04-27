@@ -12705,7 +12705,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameStateId: 0
-  timeUntilFirstEvent: 0
+  timeUntilFirstEvent: 9999
   timeBetweenEvents: 0
   enemy: {fileID: 168830, guid: e733536f7413944ce8794d0a7908468a, type: 2}
 --- !u!114 &528269760
