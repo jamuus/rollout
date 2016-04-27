@@ -8929,7 +8929,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameStateId: 0
-  baseSpeed: 7
+  baseSpeed: 5
   maxSpeed: 20
   speed: 0
   velocity: {x: 0, y: 0, z: 0}
@@ -14756,7 +14756,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameStateId: 0
-  baseSpeed: 7
+  baseSpeed: 5
   maxSpeed: 20
   speed: 0
   velocity: {x: 0, y: 0, z: 0}
