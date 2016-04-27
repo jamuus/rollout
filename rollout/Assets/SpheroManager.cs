@@ -54,6 +54,15 @@ public static class SpheroManager
                 sphero.Value.SendStateToController();
     }
 
+    public static void RestartGame()
+    {
+        ServerMessage message = new ServerMessage(ServerMessageType.Restart);
+
+        foreach (KeyValuePair<string, Sphero> sphero in Instances)
+            if (sphero.Value.HasController)
+                Sever.SendTcp(sphero.Value.Connection, message);
+    }
+
     public static void ParseUpdatedState(byte[] bytes, int index)
     {
         while (index < bytes.Length) {
@@ -168,8 +177,8 @@ public class Sphero
     public Vector2                      Force                   { get; set; }
 #endif
 
-    public Vector2                      MoveForce               { get; set; }
-    public Vector2                      EnvironmentForce        { get; set; }
+    public Vector3                      MoveForce               { get; set; }
+    public Vector3                      EnvironmentForce        { get; set; }
 
     public Sphero()
     {

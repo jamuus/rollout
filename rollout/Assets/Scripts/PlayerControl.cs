@@ -147,6 +147,32 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+    public void OnCollisionEnter(Collision collision)
+    {
+        // sphero.EnvironmentForce -= GetComponent<Rigidbody>().velocity;
+        sphero.EnvironmentForce += collision.relativeVelocity;
+    }
+
+    public void OnCollisionStay(Collision collision)
+    {
+        sphero.EnvironmentForce += collision.relativeVelocity;
+    }
+
+    public void OnCollisionExit(Collision collision)
+    {
+        Debug.LogFormat("END COLLISION");
+    }
+
+    public void LateUpdate()
+    {
+        if (name == "player1")
+        {
+            Debug.LogFormat("Env: {0}", sphero.EnvironmentForce);
+            Debug.DrawRay(transform.position, sphero.EnvironmentForce, Color.red);
+        }
+
+        sphero.EnvironmentForce *= 0.9f;
+    }
 
     public void UsePowerUp()
     {
