@@ -21,7 +21,8 @@ public enum ServerMessageType
     NodeInit        = 0x11,
     AppInit         = 0x21,
     SetEvents       = 0x22,
-    VoteEvent       = 0x23
+    VoteEvent       = 0x23,
+    Restart         = 0x24
 }
 
 public class ServerMessage

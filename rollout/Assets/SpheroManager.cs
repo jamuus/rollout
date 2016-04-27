@@ -60,7 +60,7 @@ public static class SpheroManager
 
         foreach (KeyValuePair<string, Sphero> sphero in Instances)
             if (sphero.Value.HasController)
-                Sever.SendTcp(sphero.Value.Connection, message);
+                Server.SendTcp(sphero.Value.Connection, message);
     }
 
     public static void ParseUpdatedState(byte[] bytes, int index)

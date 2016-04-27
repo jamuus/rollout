@@ -113,6 +113,7 @@ public class GameStateManager : MonoBehaviour {
 		if (gameStateId == 2) {
 			removeText ();
 			addPreGameScreen ();
+            SpheroManager.RestartGame();
 			//toNextState ();
 			//levelGenerator.restart ();
 		}

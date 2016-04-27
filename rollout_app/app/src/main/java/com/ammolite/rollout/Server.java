@@ -274,6 +274,8 @@ public final class Server {
                 readStreamedBytes(tcpBuffer[13 + tcpBuffer[12]], 14 + tcpBuffer[12]);
                 Sphero.parseState(tcpBuffer);
                 break;
+            case ServerMessageType.RESTART:
+                Sphero.restart();
             default:
                 break;
         }
