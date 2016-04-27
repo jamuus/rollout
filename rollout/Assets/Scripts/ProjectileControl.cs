@@ -16,16 +16,17 @@ public class ProjectileControl : MonoBehaviour
     //4) Include the weapon firing and ammo reduction in the switch statement in Update
 
     //intialise the weapon structures
-    enum Weapons : int { basicGun, homingLauncher, grenadeThrower };
-    private int[] ammunition = new int[3];
-    private int[] maxAmmo = new int[3];
-    private float[] fireRates = new float[3];
+    enum Weapons : int { basicGun, homingLauncher, grenadeThrower, machineGun };
+    private int[] ammunition = new int[4];
+    private int[] maxAmmo = new int[4];
+    private float[] fireRates = new float[4];
     private int activeWeapon;
 
     //weapon variables
     private BasicGun basicGun;
     private HomingLauncher homingLauncher;
     private GrenadeThrower grenadeThrower;
+    private MachineGun machineGun;
 
     //variables to aid firing
     private Vector3 projectilePosition;
@@ -48,6 +49,7 @@ public class ProjectileControl : MonoBehaviour
         ammunition[(int)Weapons.basicGun] = -1;
         ammunition[(int)Weapons.homingLauncher] = 0;
         ammunition[(int)Weapons.grenadeThrower] = 0;
+        ammunition[(int)Weapons.machineGun] = 40;
 
         //access the weapons
         basicGun = GetComponent<BasicGun>();
@@ -60,7 +62,11 @@ public class ProjectileControl : MonoBehaviour
 
         grenadeThrower = GetComponent<GrenadeThrower>();
         fireRates[ConvertID(102)] = grenadeThrower.fireRate;
-        maxAmmo[ConvertID(100)] = grenadeThrower.maxAmmo;
+        maxAmmo[ConvertID(102)] = grenadeThrower.maxAmmo;
+
+        machineGun = GetComponent<MachineGun>();
+        fireRates[ConvertID(103)] = machineGun.fireRate;
+        maxAmmo[ConvertID(103)] = machineGun.maxAmmo;
 
     }
 
@@ -81,13 +87,17 @@ public class ProjectileControl : MonoBehaviour
         {
             ChangeActiveWeapon("basicGun");
         }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
+        if(Input.GetKeyDown(KeyCode.Alpha2))
         {
             ChangeActiveWeapon("homingLauncher");
         }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
+        if(Input.GetKeyDown(KeyCode.Alpha3))
         {
             ChangeActiveWeapon("grenadeThrower");
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            ChangeActiveWeapon("machineGun");
         }
     }
 
@@ -118,6 +128,11 @@ public class ProjectileControl : MonoBehaviour
                 case (int)Weapons.grenadeThrower:
                     grenadeThrower.Fire();
                     ReduceAmmo(102, 1);
+                    break;
+
+                case (int)Weapons.machineGun:
+                    machineGun.Fire();
+                    ReduceAmmo(103, 1);
                     break;
             }
 

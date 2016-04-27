@@ -1720,6 +1720,7 @@ GameObject:
   - 82: {fileID: 796036344}
   - 114: {fileID: 796036346}
   - 114: {fileID: 796036345}
+  - 114: {fileID: 796036347}
   m_Layer: 0
   m_Name: player2
   m_TagString: Player
@@ -3541,7 +3542,7 @@ MonoBehaviour:
   homingMissile: {fileID: 11472636, guid: 453e49979ba6be5479ca3969baef5231, type: 2}
   ammunition: 20
   maxAmmo: 5
-  fireRate: 1
+  fireRate: 6
 --- !u!114 &796036346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3556,6 +3557,24 @@ MonoBehaviour:
   projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
   fireRate: 0
   ammunition: -1
+  maxAmmo: 1
+--- !u!114 &796036347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 796036330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fc607003dc42924d83ee599b75abb11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
+  fireRate: 0.1
+  bulletSpeed: 20
+  damage: 5
+  ammunition: 15
+  maxAmmo: 60
 --- !u!1 &821321506
 GameObject:
   m_ObjectHideFlags: 0
@@ -4476,6 +4495,7 @@ GameObject:
   - 114: {fileID: 1208294700}
   - 82: {fileID: 1208294699}
   - 114: {fileID: 1208294702}
+  - 114: {fileID: 1208294703}
   m_Layer: 0
   m_Name: player1
   m_TagString: Player
@@ -6302,6 +6322,7 @@ MonoBehaviour:
   projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
   fireRate: 0.5
   ammunition: -1
+  maxAmmo: 1
 --- !u!114 &1208294701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6316,7 +6337,7 @@ MonoBehaviour:
   homingMissile: {fileID: 11472636, guid: 453e49979ba6be5479ca3969baef5231, type: 2}
   ammunition: 20
   maxAmmo: 5
-  fireRate: 1
+  fireRate: 6
 --- !u!114 &1208294702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6337,6 +6358,23 @@ MonoBehaviour:
   fireRate: 1
   ammunition: 3
   maxAmmo: 10
+--- !u!114 &1208294703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1208294685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fc607003dc42924d83ee599b75abb11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
+  fireRate: 0.1
+  bulletSpeed: 20
+  damage: 5
+  ammunition: 15
+  maxAmmo: 60
 --- !u!1 &1217682913
 GameObject:
   m_ObjectHideFlags: 0
