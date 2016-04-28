@@ -7,7 +7,7 @@ public class MachineGun : MonoBehaviour
     private Vector3 velocity;
     private Vector3 projectilePosition;
     public float fireRate = 0.1f;
-    public float bulletSpeed = 20f;
+    public float bulletSpeed = 40f;
     public int damage = 4;
     public int ammunition = 15;
     public int maxAmmo = 60;
