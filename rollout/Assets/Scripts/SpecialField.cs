@@ -8,6 +8,7 @@ using System.Collections;
 // 1 : healPlayer
 // 2 : destroyPlayer
 // 3 : powerUp
+// 4 : weapon only
 
 
 public class SpecialField : MonoBehaviour
@@ -16,6 +17,7 @@ public class SpecialField : MonoBehaviour
     public int magnitude = 1; //behaviour's magnitude
     public bool isVolatile = false; // is field destroyed when triggered
     public int powerUpID;
+    public int weaponID = -1;
     private PowerUp powerUp;
 	private bool active = true;
     private ProjectileControl projectileControl;
@@ -57,13 +59,16 @@ public class SpecialField : MonoBehaviour
                     GameObject container = GameObject.Find("Container");
                     powerUp = container.GetComponent<InitialisePowerUp>().powerUps[powerUpID];
                     givePowerUp(player);
-                    AddWeapon(player);
+                    //AddWeapon(player, -1);
                 }
                 else
                 {
-                    AddWeapon(player);
+                    AddWeapon(player, -1);
                 }
 
+                break;
+            case 4:
+                AddWeapon(player, weaponID);
                 break;
             default:
                 print("Wrong field ID");
@@ -78,10 +83,12 @@ public class SpecialField : MonoBehaviour
         }
     }
 
-    public void AddWeapon(GameObject player)
+    public void AddWeapon(GameObject player, int randomWepID)
     {
         //get a random weapon ID
-        int randomWepID = Random.Range(101, 103);
+
+        if (randomWepID < 100)
+            randomWepID = Random.Range(101, 103);
 
         //determine the right amount of ammo to add for the weapon
         switch(randomWepID)
@@ -102,6 +109,9 @@ public class SpecialField : MonoBehaviour
         projectileControl = player.GetComponent<ProjectileControl>();
         projectileControl.AddAmmo(randomWepID, ammoAmount);
         print("Weapon " + randomWepID + " Added to " + player.name);
+
+        //Add the weapon to the app
+        player.GetComponent<PlayerControl>().sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)randomWepID));
     }
 
     public void setPowerUpID(int id)
@@ -126,7 +136,10 @@ public class SpecialField : MonoBehaviour
             color = new Color(.8f, .3f, .1f, 1f); // aggressive red
             break;
         case 3:
-            color = new Color(.1f, .7f, .01f, 1f); // yellow
+            color = new Color(.3f, .5f, .3f, 1f); // yellow
+            break;
+        case 4:
+            color = new Color(.25f, .25f, .8f, 1f); // blue
             break;
         }
 
