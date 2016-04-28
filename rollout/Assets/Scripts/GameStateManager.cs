@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 // OneDrive for reference
 //0: play state
@@ -16,6 +17,7 @@ public class GameStateManager : MonoBehaviour {
 	private GenerateLevel levelGenerator;
 	private SoundManager soundManager;
 	private Events events;
+	private List<Transform> levelObjects;
 
 	// Use this for initialization
 	void Start () {
@@ -26,6 +28,7 @@ public class GameStateManager : MonoBehaviour {
 		//levelGenerator = GameObject.Find ("Container").GetComponent<GenerateLevel> ();
 		soundManager = GameObject.Find ("Music").GetComponent<SoundManager> ();
 		events = GameObject.Find ("Container").GetComponent<Events>();
+		saveLevel ("Level");
 		setGameStates ();
 	}
 	
@@ -34,6 +37,15 @@ public class GameStateManager : MonoBehaviour {
 		if (checkGameStateChange()) {
 			print ("Game State Change");
 			toNextState();
+		}
+	}
+
+	private void saveLevel(string levelName){
+		GameObject level = GameObject.Find(levelName);
+		foreach (Transform child in level.transform)
+		{
+			levelObjects.Add (child);
+			print ("object: " + child);
 		}
 	}
 
@@ -117,6 +129,7 @@ public class GameStateManager : MonoBehaviour {
             SpheroManager.SendStateToControllers();
 			//toNextState ();
 			//levelGenerator.restart ();
+			//restartLevel();
 		}
 	}
 }
