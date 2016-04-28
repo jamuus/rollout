@@ -203,7 +203,7 @@ public class Sphero
     public void Roll(float direction, float force)
     {
 #if SOFTWARE_MODE
-        Force = new Vector2(force * -Mathf.Sin(direction) * 10.0f, force * -Mathf.Cos(direction) * 10.0f);
+        Force = new Vector2(force * Mathf.Sin(direction) * 10.0f, force * -Mathf.Cos(direction) * 10.0f);
 #else
         ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
 
@@ -228,7 +228,7 @@ public class Sphero
 
         //Covert the direction into a vector
 #if SOFTWARE_MODE
-        Vector3 directionVector = new Vector3(-Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
+        Vector3 directionVector = new Vector3(Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
 #else
         Vector3 directionVector = new Vector3(Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
 #endif

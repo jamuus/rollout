@@ -150,11 +150,13 @@ public class PlayerControl : MonoBehaviour
     public void OnCollisionEnter(Collision collision)
     {
         // sphero.EnvironmentForce -= GetComponent<Rigidbody>().velocity;
-        sphero.EnvironmentForce += collision.relativeVelocity;
+		if (sphero != null)
+		sphero.EnvironmentForce += collision.relativeVelocity;
     }
 
     public void OnCollisionStay(Collision collision)
     {
+		if (sphero != null)
         sphero.EnvironmentForce += collision.relativeVelocity;
     }
 
@@ -165,12 +167,13 @@ public class PlayerControl : MonoBehaviour
 
     public void LateUpdate()
     {
-        if (name == "player1")
+        if (sphero != null && name == "player1")
         {
             Debug.LogFormat("Env: {0}", sphero.EnvironmentForce);
             Debug.DrawRay(transform.position, sphero.EnvironmentForce, Color.red);
         }
 
+		if (sphero != null)
         sphero.EnvironmentForce *= 0.9f;
     }
 

@@ -8929,7 +8929,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameStateId: 0
   baseSpeed: 5
-  maxSpeed: 20
+  maxSpeed: 15
   speed: 0
   velocity: {x: 0, y: 0, z: 0}
   statuses: 0000000000000000000000000000000000000000
@@ -9061,7 +9061,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 317907519}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -16, y: 1.1, z: 0.02}
+  m_LocalPosition: {x: -16, y: 0.9, z: 0.02}
   m_LocalScale: {x: 1.6, y: 1.5999998, z: 1.6}
   m_Children:
   - {fileID: 1176375292}
@@ -14726,7 +14726,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 796036330}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16, y: 1.1, z: 0.02}
+  m_LocalPosition: {x: 16, y: 0.9, z: 0.02}
   m_LocalScale: {x: 1.6, y: 1.5999998, z: 1.6}
   m_Children:
   - {fileID: 1062633334}
@@ -14756,7 +14756,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameStateId: 0
   baseSpeed: 5
-  maxSpeed: 20
+  maxSpeed: 15
   speed: 0
   velocity: {x: 0, y: 0, z: 0}
   statuses: 0000000000000000000000000000000000000000
@@ -15156,14 +15156,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6baa06a84c65444018ce3066f7385259, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shoot: {fileID: 0}
-  collideProjectile: {fileID: 0}
-  collidePlayer: {fileID: 0}
+  shoot: {fileID: 8300000, guid: a82080d25d82549a692558dde93d57a1, type: 3}
+  collideProjectile: {fileID: 8300000, guid: 4b73df114192647508f43cc743087f65, type: 3}
+  collidePlayer: {fileID: 8300000, guid: 0dcdde6b88cdf4fc894388c14fc7644a, type: 3}
   collideDamageField: {fileID: 0}
   collideHealthField: {fileID: 0}
   collideObstacle: {fileID: 0}
-  pickPowerUp: {fileID: 0}
-  BGM: {fileID: 0}
+  pickPowerUp: {fileID: 8300000, guid: 88e1ee5556e8a478ea1be5b10eae0d52, type: 3}
+  BGM: {fileID: 8300000, guid: ad105933cfa2d4a41b67aff393341a1c, type: 3}
 --- !u!4 &836304068
 Transform:
   m_ObjectHideFlags: 0
@@ -21145,7 +21145,7 @@ ParticleSystem:
   randomSeed: 0
   looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   moveWithTransform: 0
   scalingMode: 0
   InitialModule:
@@ -21187,7 +21187,7 @@ ParticleSystem:
         m_RotationOrder: 4
       minMaxState: 0
     startSpeed:
-      scalar: 3
+      scalar: 0.1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -21484,7 +21484,7 @@ ParticleSystem:
     serializedVersion: 2
     m_Type: 0
     rate:
-      scalar: 3
+      scalar: 100
       maxCurve:
         serializedVersion: 2
         m_Curve:
