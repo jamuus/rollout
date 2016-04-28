@@ -106,6 +106,13 @@ public final class Sphero {
         Server.leaveServerAsync();
     }
 
+    public static void restart()
+    {
+        health = maxHealth;
+        powerUps = new byte[0];
+        recentDamage = false;
+    }
+
     public static boolean getHasRecentDamage() {
         return recentDamage;
     }

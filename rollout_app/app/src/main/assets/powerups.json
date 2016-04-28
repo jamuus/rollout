@@ -33,5 +33,26 @@
         "description": "Player regenerates health continuously.",
         "image": "null",
         "colour": "#4CAF50"
+    },
+    {
+        "id": 100,
+        "name": "Gun",
+        "description": "A basic weapon which won't run out of ammo",
+        "image": "null",
+        "colour": "#4CAF50"
+    },
+    {
+        "id": 101,
+        "name": "Homing Launcher",
+        "description": "Fires a heat seeking missile at your opponent",
+        "image": "null",
+        "colour": "#4CAF50"
+    },
+    {
+        "id": 102,
+        "name": "Grenade",
+        "description": "Drops a powerful grenade behind you",
+        "image": "null",
+        "colour": "#4CAF50"
     }
 ]

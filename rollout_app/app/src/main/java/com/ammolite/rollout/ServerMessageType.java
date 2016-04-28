@@ -16,4 +16,5 @@ public final class ServerMessageType {
     public static final int APP_INIT        = 0x21;
     public static final int SET_EVENTS      = 0x22;
     public static final int VOTE_EVENT      = 0x23;
+    public static final int RESTART         = 0x24;
 }

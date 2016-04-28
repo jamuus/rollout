@@ -33,6 +33,11 @@ public class SpheroControllerActivity extends ActionBarActivity implements Senso
     private Vector2f            rollVector;
     private Button[]            powerUpButtons;
 
+    public void restart()
+    {
+        updateHealthBar();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

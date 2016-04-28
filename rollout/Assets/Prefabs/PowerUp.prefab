@@ -92,6 +92,7 @@ MonoBehaviour:
   magnitude: 1
   isVolatile: 0
   powerUpID: 0
+  weaponID: 0
 --- !u!122 &12239766
 Halo:
   m_ObjectHideFlags: 1

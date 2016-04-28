@@ -269,6 +269,6 @@ public class GenerateLevel : MonoBehaviour
 			Destroy (obj);
 		}
 		placedObstacles.Clear ();
-		Start ();
+		//Start ();
 	}
 }

@@ -36,7 +36,7 @@ public class GUIController : MonoBehaviour
         if (player.name == "player1") {
             playerColor = new Color (0.0f, 0.8f, 0.8f);
         } else {
-            playerColor = new Color (0.1f, 0.7f, 0.1f);
+            playerColor = new Color (0.2f, 0.5f, 0.9f);
         }
         lineRenderer.material.color = playerColor;
         statuses = GameObject.Find("Container").GetComponent<InitialiseStatus>().statuses;
@@ -66,7 +66,6 @@ public class GUIController : MonoBehaviour
         //Work out the proportion
         return Math.Max((float)playerHealth.currentHealth / (float)playerHealth.getMaxHealth(),0);
     }
-
     //renders the active statuses
     //two strings are rendered, one indicating inactive, one active statuses
     void renderStatuses()

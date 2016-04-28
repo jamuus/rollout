@@ -54,6 +54,17 @@ public static class SpheroManager
                 sphero.Value.SendStateToController();
     }
 
+    public static void RestartGame()
+    {
+        ServerMessage message = new ServerMessage(ServerMessageType.Restart);
+
+        foreach (KeyValuePair<string, Sphero> sphero in Instances)
+        {
+            sphero.Value.Health = UniversalHealth.maxHealth;
+            sphero.Value.PowerUps.Clear();
+        }
+    }
+
     public static void ParseUpdatedState(byte[] bytes, int index)
     {
         while (index < bytes.Length) {
@@ -168,6 +179,9 @@ public class Sphero
     public Vector2                      Force                   { get; set; }
 #endif
 
+    public Vector3                      MoveForce               { get; set; }
+    public Vector3                      EnvironmentForce        { get; set; }
+
     public Sphero()
     {
         Weapons = new List<SpheroWeapon>();
@@ -176,6 +190,9 @@ public class Sphero
         Weapons.Add(new SpheroWeapon(SpheroWeaponType.Default));
 
         HasController = false;
+
+        MoveForce           = new Vector2(0, 0);
+        EnvironmentForce    = new Vector2(0, 0);
     }
 
     // RollSphero message format:
@@ -186,7 +203,7 @@ public class Sphero
     public void Roll(float direction, float force)
     {
 #if SOFTWARE_MODE
-        Force = new Vector2(force * -Mathf.Sin(direction) * 10.0f, force * -Mathf.Cos(direction) * 10.0f);
+        Force = new Vector2(force * Mathf.Sin(direction) * 10.0f, force * -Mathf.Cos(direction) * 10.0f);
 #else
         ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
 
@@ -211,7 +228,7 @@ public class Sphero
 
         //Covert the direction into a vector
 #if SOFTWARE_MODE
-        Vector3 directionVector = new Vector3(-Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
+        Vector3 directionVector = new Vector3(Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
 #else
         Vector3 directionVector = new Vector3(Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
 #endif
@@ -233,9 +250,20 @@ public class Sphero
 
     public void UsePowerUp(SpheroPowerUp powerUp)
     {
-        MainThread.EnqueueAction(() => {
-            UnityObject.UsePowerUp((int)powerUp.Type);
-        });
+        if ((int)powerUp.Type < 100)
+        {
+            MainThread.EnqueueAction(() =>
+            {
+                UnityObject.UsePowerUp((int)powerUp.Type);
+            });
+        }
+        else
+        {
+            MainThread.EnqueueAction(() =>
+            {
+                UnityProjectileControl.ChangeActiveWeapon((int)powerUp.Type);
+            });
+        }
 
         PowerUps.Remove(powerUp);
     }
@@ -293,7 +321,10 @@ public enum SpheroPowerUpType : byte {
     DamageEnemy     = 1,
     StunEnemey      = 2,
     SlowDownEnemy   = 3,
-    Regeneration    = 4
+    Regeneration    = 4,
+    Gun             = 100,
+    Homing_Launcher = 101,
+    Grenade         = 102,
 }
 
 public class SpheroPowerUp : IEquatable<SpheroPowerUp>

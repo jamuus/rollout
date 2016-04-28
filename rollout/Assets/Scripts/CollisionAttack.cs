@@ -6,7 +6,7 @@ using System;
 public class CollisionAttack : MonoBehaviour
 {
     //Base attack value
-    public int collisionAttackValue = 10; 
+    public int collisionAttackValue = 1; 
 
     //Accessing other parts of the players
     private UniversalHealth health;
@@ -52,6 +52,8 @@ public class CollisionAttack : MonoBehaviour
 			health.damagePlayer (damage);
 			manager.CollidePlayer (col.gameObject);
 
+			gameObject.GetComponent<PlayerControl>().particles[5].Play();
+
 			//Play collision particle effect
 			//particles.Play (); //this causes some errors
 		} else if (col.gameObject.tag == "Obstacle") {
@@ -77,7 +79,7 @@ public class CollisionAttack : MonoBehaviour
 
         //Calculate the damage to be dealt to the other player
         float collisionAttackValue = Vector3.Dot(otherPlayerVel.normalized, gameObject.transform.position - otherPlayer.transform.position);
-        float attackMagnitude = otherPlayerVel.magnitude;
+        float attackMagnitude = 0.3f * otherPlayerVel.magnitude;
         float damage = (collisionAttackValue * attackMagnitude);
 
         return (int)damage;
