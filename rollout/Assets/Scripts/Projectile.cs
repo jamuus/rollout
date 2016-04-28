@@ -7,7 +7,7 @@ public class Projectile : MonoBehaviour
     private GameObject playerShooting;
     public float speed;
     public int damage;
-
+    public Color colour = new Vector4(1, 0, 0, 1);
     private UniversalHealth health;
     private GameObject music;
 
@@ -16,6 +16,9 @@ public class Projectile : MonoBehaviour
 
     public void Initialise(Vector3 givenVelocity)
     {
+        //set the colour
+        GetComponent<TrailRenderer>().material.SetColor("_TintColor", colour);
+
         //Immediately make the projectile move in the desired direction
         velocity = givenVelocity;
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -26,8 +29,12 @@ public class Projectile : MonoBehaviour
     }
 
     //In case you want to set your own speed and damage
-    public void Initialise(Vector3 givenVelocity, float givenSpeed, int givenDamage)
+    public void Initialise(Vector3 givenVelocity, float givenSpeed, int givenDamage, Color givenColour)
     {
+        //set the colour
+        colour = givenColour;
+        GetComponent<TrailRenderer>().material.SetColor("_TintColor", givenColour);
+
         velocity = givenVelocity;
         speed = givenSpeed;
         damage = givenDamage;

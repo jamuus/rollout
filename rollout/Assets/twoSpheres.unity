@@ -7271,6 +7271,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
   fireRate: 0.5
+  bulletSpeed: 40
+  damage: 10
+  colour: {r: 1, g: 0, b: 0, a: 1}
   ammunition: 0
   maxAmmo: 1
 --- !u!82 &317907523
@@ -13480,6 +13483,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
   fireRate: 0.5
+  bulletSpeed: 40
+  damage: 10
+  colour: {r: 1, g: 0, b: 0, a: 1}
   ammunition: 0
   maxAmmo: 1
 --- !u!4 &825876655 stripped

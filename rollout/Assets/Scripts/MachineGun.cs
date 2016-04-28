@@ -11,6 +11,7 @@ public class MachineGun : MonoBehaviour
     public int damage = 4;
     public int ammunition = 15;
     public int maxAmmo = 60;
+    public Color colour = new Vector4(0f, 1f, 1f, 1f);
 
     public int ID()
     {
@@ -31,7 +32,7 @@ public class MachineGun : MonoBehaviour
         projectilePosition = transform.position + velocity.normalized;
         var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
         spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
-        spawnedProjectile.Initialise(velocity, bulletSpeed, damage);
+        spawnedProjectile.Initialise(velocity, bulletSpeed, damage, colour);
     }
 
     public void Fire(Vector3 velocity)
@@ -40,7 +41,7 @@ public class MachineGun : MonoBehaviour
         projectilePosition = transform.position + velocity.normalized;
         var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
         spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
-        spawnedProjectile.Initialise(velocity, bulletSpeed, damage);
+        spawnedProjectile.Initialise(velocity, bulletSpeed, damage, colour);
 
     }
 

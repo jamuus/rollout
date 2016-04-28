@@ -6,7 +6,10 @@ public class BasicGun : MonoBehaviour
     public Projectile projectile;
     private Vector3 velocity;
     private Vector3 projectilePosition;
-    public float fireRate;
+    public float fireRate = 0.5f;
+    public float bulletSpeed = 40f;
+    public int damage = 10;
+    public Color colour = new Vector4(1, 0, 0, 1);
     public int ammunition = -1;
     public int maxAmmo = 1;
 
@@ -38,7 +41,7 @@ public class BasicGun : MonoBehaviour
         projectilePosition = transform.position + velocity.normalized;
         var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
         spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
-        spawnedProjectile.Initialise(velocity);
+        spawnedProjectile.Initialise(velocity, bulletSpeed, damage, colour);
 
     }
 
