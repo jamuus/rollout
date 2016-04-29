@@ -191,8 +191,8 @@ public class Sphero
 
         HasController = false;
 
-        MoveForce           = new Vector2(0, 0);
-        EnvironmentForce    = new Vector2(0, 0);
+        MoveForce           = new Vector3(0, 0, 0);
+        EnvironmentForce    = new Vector3(0, 0, 0);
     }
 
     // RollSphero message format:
@@ -205,14 +205,15 @@ public class Sphero
 #if SOFTWARE_MODE
         Force = new Vector2(force * -Mathf.Sin(direction) * 10.0f, force * -Mathf.Cos(direction) * 10.0f);
 #else
-        ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
+        MoveForce = new Vector3(force * Mathf.Cos(direction), 0.0f, force * Mathf.Sin(direction));
+        // ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
 
-        message.Target = Server.NodeServerTarget;
-        message.AddContent(direction);
-        message.AddContent(force);
-        message.AddContent(DeviceName);
+        // message.Target = Server.NodeServerTarget;
+        // message.AddContent(direction);
+        // message.AddContent(force);
+        // message.AddContent(DeviceName);
 
-        Server.Send(message);
+        // Server.Send(message);
 #endif
 
     }
@@ -240,6 +241,23 @@ public class Sphero
             UnityProjectileControl.Shoot(directionVector);
         });
 
+    }
+
+    public void SendMove()
+    {
+        Vector3 resultant = MoveForce + EnvironmentForce;
+
+        float force = Mathf.Clamp(resultant.magnitude, 0.0f, 0.3f);
+        float direction = Mathf.Atan2(resultant.x, resultant.z);
+
+        Debug.LogFormat("MV: {2} DIR: {0} FRC: {1}", direction, force, MoveForce);
+
+        ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
+        message.Target = Server.NodeServerTarget;
+        message.AddContent(direction);
+        message.AddContent(force);
+        message.AddContent(DeviceName);
+        Server.Send(message);
     }
 
     public void Leave()

@@ -288,6 +288,7 @@ public static class Server
                 break;
             case ServerMessageType.UpdateState:
                 // Parse state, assumed to be received from Node.js server.
+                NodeServerTarget = receivedFrom;
                 SpheroManager.ParseUpdatedState(bytes, 1);
                 break;
             case ServerMessageType.RollSphero:

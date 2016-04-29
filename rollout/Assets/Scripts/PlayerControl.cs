@@ -31,6 +31,7 @@ public class PlayerControl : MonoBehaviour
 	private ParticleSystem[] particles;
 
     public Sphero sphero;
+    private Rigidbody rigidbody;
 
 
     void Start()
@@ -43,6 +44,7 @@ public class PlayerControl : MonoBehaviour
         allPowerUps = container.GetComponent<InitialisePowerUp>().powerUps;
         levelRadius = container.GetComponent<GenerateLevel>().levelRadius;
         boundaryHardness = container.GetComponent<GenerateLevel>().boundaryHardness * 2 + 1;
+        rigidbody = GetComponent<Rigidbody>();
 
 		particles = gameObject.GetComponentsInChildren<ParticleSystem>();
 		foreach (ParticleSystem ps in particles) {
@@ -85,7 +87,7 @@ public class PlayerControl : MonoBehaviour
 			float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
 
-            position = new Vector3(moveHorizontal, 0.9000168f, moveVertical);
+            position = new Vector3(moveHorizontal, 1.5f, moveVertical);
             //rb.position = position;
             rb.MovePosition(position);
 
@@ -111,12 +113,22 @@ public class PlayerControl : MonoBehaviour
 
     void Move()
     {
+        if (sphero != null)
+        {
+            sphero.MoveForce = new Vector3(0,0,0);
+        }
 
         Rigidbody rb = GetComponent<Rigidbody>();
         float distanceFromEdge = levelRadius - (rb.position.magnitude * 1.1f); // check if left arena
 
         float moveHorizontal = Input.GetAxis(horizontalAxis);
         float moveVertical = Input.GetAxis(verticalAxis);
+
+        if (sphero != null)
+        {
+            sphero.MoveForce = new Vector3(-moveHorizontal, 0.0f,moveVertical);
+        }
+
 #if SOFTWARE_MODE
         if (sphero != null)
         {
@@ -131,6 +143,8 @@ public class PlayerControl : MonoBehaviour
         {
             // accelerate in opposite direction
             rb.AddForce(speed * 2 * (float)Math.Pow(distanceFromEdge, boundaryHardness) * rb.position.normalized);
+            if (sphero != null)
+                sphero.EnvironmentForce = speed * 2.0f * Mathf.Pow(distanceFromEdge, boundaryHardness) * rb.position.normalized;
         }
         else
         {
@@ -149,29 +163,49 @@ public class PlayerControl : MonoBehaviour
 
     public void OnCollisionEnter(Collision collision)
     {
-        // sphero.EnvironmentForce -= GetComponent<Rigidbody>().velocity;
-        sphero.EnvironmentForce += collision.relativeVelocity;
+        Debug.LogFormat("COLLISION START");
+        CalculateReflectedEnvironmentForce(collision);
     }
 
     public void OnCollisionStay(Collision collision)
     {
-        sphero.EnvironmentForce += collision.relativeVelocity;
+        Debug.LogFormat("COLLISION STAY");
+        CalculateReflectedEnvironmentForce(collision);
     }
 
     public void OnCollisionExit(Collision collision)
     {
-        Debug.LogFormat("END COLLISION");
+        // Debug.LogFormat("END COLLISION");
+    }
+
+    private void CalculateReflectedEnvironmentForce(Collision collision)
+    {
+        if (sphero != null)
+        {
+            float n = collision.contacts.Length;
+            sphero.EnvironmentForce = Vector3.zero;
+            foreach (ContactPoint p in collision.contacts)
+                sphero.EnvironmentForce += Vector3.Reflect(rigidbody.velocity, p.normal);
+            sphero.EnvironmentForce /= n;
+        }
+    }
+
+    private void ClampEnvironmentForce(float min, float max)
+    {
+        sphero.EnvironmentForce = new Vector3(Mathf.Clamp(sphero.EnvironmentForce.x, min, max), 0.0f, Mathf.Clamp(sphero.EnvironmentForce.z, min, max));
     }
 
     public void LateUpdate()
     {
-        if (name == "player1")
+        if (sphero != null)
         {
-            Debug.LogFormat("Env: {0}", sphero.EnvironmentForce);
-            Debug.DrawRay(transform.position, sphero.EnvironmentForce, Color.red);
-        }
+            //ClampEnvironmentForce(0.0f, 0.3f);
 
-        sphero.EnvironmentForce *= 0.9f;
+            // Debug.LogFormat("Env: {0}", sphero.EnvironmentForce);
+            Debug.DrawRay(transform.position, sphero.EnvironmentForce, Color.red);
+            sphero.SendMove();
+            sphero.EnvironmentForce *= 0.9f;
+        }
     }
 
     public void UsePowerUp()
