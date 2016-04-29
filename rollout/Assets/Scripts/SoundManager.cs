@@ -149,6 +149,7 @@ public class SoundManager : MonoBehaviour {
 		sPlayer2 = player2.GetComponent<AudioSource> ();
 		sBGM = GetComponent<AudioSource>();
 		sBGM.clip = BGM;
+		sBGM.loop = true;
 		sBGM.Play ();
 		print("BGM SHOULD PLAY OK !!!!!!!!!!!") ;
 //		shoot = Resources.Load<AudioClip> ("SFX/zap");

@@ -66,7 +66,6 @@ public class GUIController : MonoBehaviour
         //Work out the proportion
         return Math.Max((float)playerHealth.currentHealth / (float)playerHealth.getMaxHealth(),0);
     }
-
     //renders the active statuses
     //two strings are rendered, one indicating inactive, one active statuses
     void renderStatuses()

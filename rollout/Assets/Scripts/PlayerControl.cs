@@ -28,7 +28,7 @@ public class PlayerControl : MonoBehaviour
     private float levelRadius;
     private int boundaryHardness;
 
-	private ParticleSystem[] particles;
+	public ParticleSystem[] particles;
 
     public Sphero sphero;
     private Rigidbody rigidbody;
@@ -366,10 +366,5 @@ public class PlayerControl : MonoBehaviour
 		gameObject.GetComponent<Rigidbody> ().velocity = new Vector3 (0f, 0f, 0f);
 		gameObject.GetComponent<UniversalHealth> ().currentHealth = gameObject.GetComponent<UniversalHealth> ().getMaxHealth ();
 		gameObject.transform.position = startingPosition;
-	}
-
-	private void OnDestroy()
-	{
-		print ("destroyed");
 	}
 }

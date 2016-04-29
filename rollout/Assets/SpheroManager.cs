@@ -203,7 +203,7 @@ public class Sphero
     public void Roll(float direction, float force)
     {
 #if SOFTWARE_MODE
-        Force = new Vector2(force * -Mathf.Sin(direction) * 10.0f, force * -Mathf.Cos(direction) * 10.0f);
+        Force = new Vector2(force * Mathf.Sin(direction) * 10.0f, force * -Mathf.Cos(direction) * 10.0f);
 #else
         MoveForce = new Vector3(force * Mathf.Cos(direction), 0.0f, force * Mathf.Sin(direction));
         // ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
@@ -229,7 +229,7 @@ public class Sphero
 
         //Covert the direction into a vector
 #if SOFTWARE_MODE
-        Vector3 directionVector = new Vector3(-Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
+        Vector3 directionVector = new Vector3(Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
 #else
         Vector3 directionVector = new Vector3(Mathf.Cos(direction), 0.0f, Mathf.Sin(direction));
 #endif
@@ -252,12 +252,15 @@ public class Sphero
 
         Debug.LogFormat("MV: {2} DIR: {0} FRC: {1}", direction, force, MoveForce);
 
-        ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
-        message.Target = Server.NodeServerTarget;
-        message.AddContent(direction);
-        message.AddContent(force);
-        message.AddContent(DeviceName);
-        Server.Send(message);
+        if (Server.NodeServerTarget != null)
+        {
+            ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
+            message.Target = Server.NodeServerTarget;
+            message.AddContent(direction);
+            message.AddContent(force);
+            message.AddContent(DeviceName);
+            Server.Send(message);
+        }
     }
 
     public void Leave()
