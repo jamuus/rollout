@@ -108,10 +108,10 @@ function initSphero(dataOut) {
     var scaleLog = vec2log(40);
     scaleLog.add({
         x: 0,
-        y: 0
+        y: 0,
     });
     var ret = {
-        ipPos: vec2log(40),
+        ipPos: vec2log(100),
         spheroVel: vec2log(100),
         spheroPos,
         batteryVoltage: -1,
@@ -130,7 +130,7 @@ function initSphero(dataOut) {
         kalmanModel: KM,
         kSpheroObservation: Ksphero,
         kIPObservation: Kimage,
-        angleVecLog: vec2log(40),
+        angleVecLog: vec2log(20),
         scaleLog,
         scale: 0.2,
         lastCalib: new Date().getTime(),
@@ -145,13 +145,13 @@ function initSphero(dataOut) {
 
         var x = KM.x_k.elements[0];
         var y = KM.x_k.elements[1];
-        if (x < -12) x = -12;
-        if (x > 12) x = 12;
-        if (y < -12) y = -12;
-        if (y > 12) y = 12;
+        if (x < -20) x = -20;
+        if (x > 20) x = 20;
+        if (y < -20) y = -20;
+        if (y > 20) y = 20;
 
         ret.pos = {
-            x: -x,
+            x: x,
             y: -y,
         };
 
@@ -182,7 +182,7 @@ var offset = {
 };
 
 function updateSpheroDrift(sphero, result) {
-    if (result.distance < 1000 && result.maxDistance > 5) {
+    if (result.distance < 2000 && result.maxDistance > 5) {
         sphero.angleVecLog.add(result.angleVec);
         sphero.driftAngle = vecAngle(sphero.angleVecLog.average());
 
@@ -192,7 +192,7 @@ function updateSpheroDrift(sphero, result) {
         });
         sphero.scale = sphero.scaleLog.average().x;
 
-        // console.log('Drift: ', sphero.driftAngle, 'dist', result.distance, 'maxDist', result.maxDistance, 'scale', result.scale);
+        console.log('Drift: ', sphero.driftAngle, 'dist', result.distance, 'maxDist', result.maxDistance, 'scale', result.scale);
     }
 }
 

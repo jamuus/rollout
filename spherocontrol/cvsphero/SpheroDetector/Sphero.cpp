@@ -66,22 +66,23 @@ Sphero::Sphero(string name)
         //TODO: use "calibration mode" to find HSV min
         //and HSV max values
         setType(name);
-        setHSVmin(Scalar(25, 71, 180));
-        setHSVmax(Scalar(120, 186, 256));
+        // setHSVmin(Scalar(25, 71, 180));
+        // setHSVmax(Scalar(120, 186, 256));
 
-        // H_MIN 25
-        // H_MAX 111
-        // S_MIN 71
-        // S_MAX 253
-        // V_MIN 0
-        // V_MAX 256
 
-        // H_MIN 21
-        // H_MAX 256
-        // S_MIN 91
-        // S_MAX 186
-        // V_MIN 187
-        // V_MAX 256
+
+        setHSVmin(Scalar(22, 77, 147));
+        setHSVmax(Scalar(98, 192, 220));
+
+
+        // H_MIN 22
+        // H_MAX 98
+        // S_MIN 77
+        // S_MAX 192
+        // V_MIN 147
+        // V_MAX 220
+
+
 
         //BGR value for Yellow:
         setColour(Scalar(256, 0, 0));
