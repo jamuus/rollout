@@ -16,31 +16,31 @@ public class SoundManager : MonoBehaviour {
 
 
 	public void PickPowerUp(){
-		mains.Play ();
+		mains.PlayOneShot (pickPowerUp);
 	}
 
 	public void Shoot(){
-		mains.Play();
+		mains.PlayOneShot (shoot);
 	}
 
 	public void CollideProjectile(){
-		mains.Play();
+		mains.PlayOneShot (collideProjectile);
 
 	}
 
 	public void CollidePlayer(){
-		mains.Play();
+		mains.PlayOneShot (collidePlayer);
 	}
 
 	public void CollideDamageField(){
-		mains.Play();
+		mains.PlayOneShot (collideDamageField);
 	}
 
 	public void CollideHealthField(){
-		mains.Play();
+		mains.PlayOneShot (collideHealthField);
 	}
 	public void CollideObstacle(){
-		mains.Play();
+		mains.PlayOneShot (collideObstacle);
 	}
 
 

@@ -43,27 +43,27 @@ public class CollisionAttack : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-		music = GameObject.Find("Music");
+		music = gameObject.transform.GetChild(0).gameObject;
 		SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
         //If you collided with the other player
 		if (otherPlayer && col.gameObject.name == otherPlayer.name) {
 			//Calculate and deal some damage to the player
 			int damage = calculateDamage (col) * collisionAttackValue;
 			health.damagePlayer (damage);
-			manager.CollidePlayer (col.gameObject);
+			manager.CollidePlayer ();
 
 			gameObject.GetComponent<PlayerControl>().particles[5].Play();
 
 			//Play collision particle effect
 			//particlesmain.Play(); //this causes some errors
 		} else if (col.gameObject.tag == "Obstacle") {
-			manager.CollideObstacle (gameObject);
+			manager.CollideObstacle ();
 		} else if (col.gameObject.tag == "Projectile") {
-			manager.CollideProjectile (gameObject);
+			manager.CollideProjectile ();
 		} else if (col.gameObject.tag == "DamageField") {
-		manager.CollideDamageField (gameObject);
+			manager.CollideDamageField ();
 		} else if (col.gameObject.tag == "HealthField") {
-			manager.CollideHealthField (gameObject);
+			manager.CollideHealthField ();
 		}
     }
 

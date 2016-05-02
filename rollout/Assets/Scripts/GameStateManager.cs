@@ -26,7 +26,6 @@ public class GameStateManager : MonoBehaviour {
 		player1Health = player1.GetComponent<UniversalHealth> ();
 		player2Health = player2.GetComponent<UniversalHealth> ();
 		//levelGenerator = GameObject.Find ("Container").GetComponent<GenerateLevel> ();
-		soundManager = GameObject.Find ("Music").GetComponent<SoundManager> ();
 		events = GameObject.Find ("Container").GetComponent<Events>();
 		saveLevel ("Level");
 		setGameStates ();

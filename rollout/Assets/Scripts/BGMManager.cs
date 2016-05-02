@@ -84,7 +84,7 @@ public class BGMManager : MonoBehaviour {
 
 
 			case State.Play:
-				x.outputmain.Play();
+				x.output.Play();
 				x.State = State.None;
 				break;
 

@@ -16,10 +16,13 @@ public class GUIController : MonoBehaviour
     private GameObject playerInactiveStatuses;
     private List<Status> statuses = new List<Status>();
     private GameObject container;
+	private GameObject BGM;
 
     // Use this for initialization
     void Start()
     {
+		BGM = GameObject.Find("BGM");
+		BGMManager manager = (BGMManager) BGM.GetComponent(typeof(BGMManager));
         playerHealth = player.GetComponent<UniversalHealth> ();
         playerStatus = player.GetComponent<PlayerControl> ();
         initialiseHealthBar ();
