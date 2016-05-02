@@ -1,13 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System;
 
 public class SoundManager : MonoBehaviour {
 
-	private AudioSource sPlayer1;
-	private AudioSource sPlayer2;
-	AudioSource sBGM;
-	private GameObject player1;
-	private GameObject player2;
+	public AudioSource[] sources;
 	public AudioClip shoot;
 	public AudioClip collideProjectile;
 	public AudioClip collidePlayer;
@@ -15,147 +11,40 @@ public class SoundManager : MonoBehaviour {
 	public AudioClip collideHealthField;
 	public AudioClip collideObstacle;
 	public AudioClip pickPowerUp;
+	private AudioSource mains;
 
 
 
-	public AudioClip BGM;
-
-	//	public AudioClip collideIntoObstacle;
-//	public AudioClip collideIntoPlayer;
-//	public AudioClip homingMissle;
-//	public AudioClip restoreHealth;
-//	public AudioClip damageOverTime;
-
-
-	void PlaySFX(){
-	
+	public void PickPowerUp(){
+		mains.Play ();
 	}
 
-	void PlayBGM(){
-			
+	public void Shoot(){
+		mains.Play();
 	}
 
-	public void PickPowerUp(GameObject player){
-        if (sPlayer1 != null) sPlayer1.clip = pickPowerUp;
-        if (sPlayer2 != null) sPlayer2.clip = pickPowerUp;
-		if (player.name == "player1") {
-			sPlayer1.Play ();
-			print(player.name + " plays ");
+	public void CollideProjectile(){
+		mains.Play();
 
-		} else if (player.name == "player2") {
-			sPlayer2.Play ();
-			print(player.name + " plays ") ;
-		}
-	
 	}
 
-	public void Shoot(GameObject player){
-        if(sPlayer1 != null) sPlayer1.clip = shoot;
-        if (sPlayer2 != null) sPlayer2.clip = shoot;
-		if (player.name == "player1") {
-			sPlayer1.Play ();
-			print(player.name + " plays ");
-
-		} else if (player.name == "player2") {
-			sPlayer2.Play ();
-			print(player.name + " plays ") ;
-		}
+	public void CollidePlayer(){
+		mains.Play();
 	}
 
-	public void CollideProjectile(GameObject player){
-        if (sPlayer1 != null) sPlayer1.clip = collideProjectile;
-        if (sPlayer2 != null) sPlayer2.clip = collideProjectile;
-		if (player.name == "player1") {
-			sPlayer1.Play ();
-			print(player.name + " plays ");
-
-		} else if (player.name == "player2") {
-			sPlayer2.Play ();
-			print(player.name + " plays ") ;
-		}
+	public void CollideDamageField(){
+		mains.Play();
 	}
 
-	public void CollidePlayer(GameObject player){
-        if (sPlayer1 != null) sPlayer1.clip = collidePlayer;
-        if (sPlayer2 != null) sPlayer2.clip = collidePlayer;
-		if (player.name == "player1") {
-			sPlayer1.Play ();
-			print(player.name + " plays ");
-
-		} else if (player.name == "player2") {
-			sPlayer2.Play ();
-			print(player.name + " plays ") ;
-		}
+	public void CollideHealthField(){
+		mains.Play();
+	}
+	public void CollideObstacle(){
+		mains.Play();
 	}
 
-	public void CollideDamageField(GameObject player){
-        if (sPlayer1 != null) sPlayer1.clip = collideDamageField;
-        if (sPlayer2 != null) sPlayer2.clip = collideDamageField;
-		if (player.name == "player1") {
-			sPlayer1.Play ();
-			print(player.name + " plays ");
-
-		} else if (player.name == "player2") {
-			sPlayer2.Play ();
-			print(player.name + " plays ") ;
-		}
-	}
-
-	public void CollideHealthField(GameObject player){
-        if (sPlayer1 != null) sPlayer1.clip = collideDamageField;
-        if (sPlayer2 != null) sPlayer2.clip = collideDamageField;
-		if (player.name == "player1") {
-			sPlayer1.Play ();
-			print(player.name + " plays ");
-
-		} else if (player.name == "player2") {
-			sPlayer2.Play ();
-			print(player.name + " plays ") ;
-		}
-	}
-	public void CollideObstacle(GameObject player){
-        if (sPlayer1 != null) sPlayer1.clip = collideObstacle;
-        if (sPlayer2 != null) sPlayer2.clip = collideObstacle;
-		if (player.name == "player1") {
-			sPlayer1.Play ();
-			print(player.name + " plays ");
-
-		} else if (player.name == "player2") {
-			sPlayer2.Play ();
-			print(player.name + " plays ") ;
-		}
-	}
-
-	public void Collide(GameObject player, string obj){
-		if (obj == "obstacle") {
-			sPlayer1.clip = collideObstacle;
-			sPlayer2.clip = collideObstacle;
-		} else if (obj == "player") {
-			sPlayer1.clip = collidePlayer;
-			sPlayer2.clip = collidePlayer;
-		}
-		else if (obj == "projectile"){
-			sPlayer1.clip = collideProjectile;
-			sPlayer2.clip = collideProjectile;
-		}
-		if (player.name == "player1")sPlayer1.Play ();
-		else sPlayer2.Play ();
-	}
 
 	void Start () {
-		player1 = GameObject.Find("player1");
-		player2 = GameObject.Find("player2");
-		sPlayer1 = player1.GetComponent<AudioSource> ();
-		sPlayer2 = player2.GetComponent<AudioSource> ();
-		sBGM = GetComponent<AudioSource>();
-		sBGM.clip = BGM;
-		sBGM.loop = true;
-		sBGM.Play ();
-		print("BGM SHOULD PLAY OK !!!!!!!!!!!") ;
-//		shoot = Resources.Load<AudioClip> ("SFX/zap");
-//		pickupPowerup = Resources.Load<AudioClip> ("SFX/zap");
-//		collideIntoPlayer = Resources.Load<AudioClip> ("SFX/zap");
-//		collideIntoObstacle = Resources.Load<AudioClip> ("SFX/zap");
-//		homingMissle = Resources.Load<AudioClip> ("SFX/zap");
+		mains = GetComponent<AudioSource>();
 	}
 }

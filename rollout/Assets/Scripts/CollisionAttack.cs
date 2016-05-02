@@ -55,7 +55,7 @@ public class CollisionAttack : MonoBehaviour
 			gameObject.GetComponent<PlayerControl>().particles[5].Play();
 
 			//Play collision particle effect
-			//particles.Play (); //this causes some errors
+			//particlesmain.Play(); //this causes some errors
 		} else if (col.gameObject.tag == "Obstacle") {
 			manager.CollideObstacle (gameObject);
 		} else if (col.gameObject.tag == "Projectile") {
