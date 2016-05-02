@@ -11,8 +11,10 @@ var vec2log = filters.vec2log;
 var Filter = filters.Filter;
 
 var spheroIds = [
-    'ybr',
+    'wyp',
     'boo',
+    'rob',
+    'gwo'
 ];
 
 var spheros = {};
@@ -199,20 +201,19 @@ function updateSpheroDrift(sphero, result) {
 module.exports = function(fn, workers) {
     var dataOut = fn.dataOut;
 
-    spheros = {
-        "ybr": initSphero(pos => dataOut({
-            name: 'ybr',
-            data: {
-                kalmanPos: pos
-            }
-        })),
-        "boo": initSphero(pos => dataOut({
-            name: 'boo',
-            data: {
-                kalmanPos: pos
-            }
-        })),
-    };
+    spheros = {};
+    for (var i in spheroIds) {
+        var name = spheroIds[i];
+        (_name => {
+            spheros[_name] = initSphero(pos => dataOut({
+                name: _name,
+                data: {
+                    kalmanPos: pos
+                }
+            }));
+        })(name);
+
+    }
 
     workers[0].on('message', result => {
         var sphero = spheros[spheroIds[0]];
@@ -241,8 +242,9 @@ module.exports = function(fn, workers) {
 
     // called by web client to test forces
     fn.forceCallback(function(data) {
-        spheros.ybr.force(data.direction, data.force);
-        spheros.boo.force(data.direction, data.force);
+        for (var i in spheros) {
+            spheros[i].force(data.direction, data.force);
+        }
     });
 
     fn.transformCallback(function(data) {
@@ -322,7 +324,8 @@ function setupSpheroManager(dataOut) {
 
 function deviceNameTofriendly(name) {
     // ew
-    return name.toLowerCase().indexOf("ybr") !== -1 ? "ybr" : "boo";
+    // return name.toLowerCase().indexOf("ybr") !== -1 ? "ybr" : "boo";
+    return name.substring(11, 14).toLowerCase();
 }
 
 
