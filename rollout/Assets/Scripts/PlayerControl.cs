@@ -249,7 +249,7 @@ public class PlayerControl : MonoBehaviour
 			sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)powerUp.id));//allPowerUps.IndexOf(powerUp)));
 		}
 		catch {}
-		music = gameObject.transform.GetChild(0).gameObject;
+		music = gameObject.transform.Find("sound").gameObject;
 		SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
 		manager.PickPowerUp ();
         print("PowerUp " + powerUp.name + " added to " + gameObject.name);
