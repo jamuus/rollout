@@ -46,7 +46,7 @@ public class CollisionAttack : MonoBehaviour
 		music = gameObject.transform.GetChild(0).gameObject;
 		SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
         //If you collided with the other player
-		if (otherPlayer && col.gameObject.name == otherPlayer.name) {
+		if (otherPlayer && col.gameObject.name == otherPlayer.name || col.gameObject.CompareTag("Shield")) {
 			//Calculate and deal some damage to the player
 			int damage = calculateDamage (col) * collisionAttackValue;
 			health.damagePlayer (damage);

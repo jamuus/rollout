@@ -57,6 +57,14 @@ public class InitialisePowerUp: MonoBehaviour
         powerUp.instant = false;
         powerUps.Add(powerUp);
 
+        powerUp.id = newID();
+        powerUp.name = "Shield";
+        powerUp.description = "Gives you a shield which deflects weapons";
+        powerUp.value = 50;
+        powerUp.instant = true;
+        powerUps.Add(powerUp);
+
+
         foreach (PowerUp p in powerUps)
             Debug.LogFormat("POWERUP: {0} -> {1}.", p.id, p.name);
 

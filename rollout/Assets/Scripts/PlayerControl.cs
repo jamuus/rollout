@@ -23,6 +23,8 @@ public class PlayerControl : MonoBehaviour
     private GameObject music;
 
     private Player player;
+    private GameObject playerObject;
+    private GameObject shield;
     public string powerUpButton;
     private List<PowerUp> allPowerUps;
     private float levelRadius;
@@ -40,6 +42,7 @@ public class PlayerControl : MonoBehaviour
         speed = baseSpeed;
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
+        shield = gameObject.transform.Find("shield").gameObject;
         statusList = container.GetComponent<InitialiseStatus>().statuses;
         allPowerUps = container.GetComponent<InitialisePowerUp>().powerUps;
         levelRadius = container.GetComponent<GenerateLevel>().levelRadius;
@@ -202,9 +205,8 @@ public class PlayerControl : MonoBehaviour
             //ClampEnvironmentForce(0.0f, 0.3f);
 
             // Debug.LogFormat("Env: {0}", sphero.EnvironmentForce);
-            Debug.DrawRay(transform.position, sphero.EnvironmentForce, Color.red);
-            sphero.SendMove();
-            sphero.EnvironmentForce *= 0.9f;
+
+            //Debug.LogFormat("Env: {0}", sphero.EnvironmentForce);
         }
     }
 
@@ -286,6 +288,11 @@ public class PlayerControl : MonoBehaviour
         {
             //Apply a force to the sphero
             velocity += powerUp.value*velocity.normalized;
+        }
+        if (powerUp.name == "Shield")
+        {
+            //Charge the shield
+            shield.GetComponent<Shield>().shieldCharge(powerUp.value);
         }
     }
 
