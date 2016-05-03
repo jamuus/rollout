@@ -120,10 +120,10 @@ public class GenerateLevel : MonoBehaviour
         for (int i = 0; i < upgradeN; i++) {
             Vector3 pos = randomPosition (levelRadius);
             GameObject powerUp = (GameObject)Instantiate (upgrade, pos, Quaternion.identity);
-            powerUp.GetComponent<SpecialField> ().setPowerUpID ((int)Random.Range (0f, 5f));
+            powerUp.GetComponent<SpecialField> ().setPowerUpID ((int)Random.Range (0f, 6f));
             if (symmetricBattleArena) {
                 powerUp = (GameObject)Instantiate (upgrade, new Vector3 (-pos.x, 1f, -pos.z), Quaternion.identity);
-                powerUp.GetComponent<SpecialField>().setPowerUpID((int)Random.Range(0f, 5f));
+                powerUp.GetComponent<SpecialField>().setPowerUpID((int)Random.Range(0f, 6f));
             }
         }
     }
@@ -163,7 +163,7 @@ public class GenerateLevel : MonoBehaviour
         bool freeSideFound = false;
         int attempts = 0;
         while (!freeSideFound && attempts < blocks.Count * 1.4) {
-            //Get a random block in the list
+            //Get a om block in the list
             GameObject nextNeighbour = blocks.ElementAt(Random.Range(0, blocks.Count - 1));
 
             //Look around it to try and find a free side
@@ -247,11 +247,11 @@ public class GenerateLevel : MonoBehaviour
         for (int i = 0; i < seed.powerUps.Count (); i++) {
             Vector3 pos = new Vector3 (seed.powerUps [i].x, 1f, seed.powerUps [i].y);
             GameObject powerUp = (GameObject)Instantiate (upgrade, pos, Quaternion.identity);
-            powerUp.GetComponent<SpecialField> ().setPowerUpID ((int)Random.Range (0f, 5f));
+            powerUp.GetComponent<SpecialField> ().setPowerUpID (6);
 
             if (symmetricBattleArena) {
                 powerUp = (GameObject)Instantiate (upgrade, new Vector3 (-pos.x, 1f, -pos.z), Quaternion.identity);
-                powerUp.GetComponent<SpecialField>().setPowerUpID((int)Random.Range(0f, 5f));
+                powerUp.GetComponent<SpecialField>().setPowerUpID(6);
             }
         }
 

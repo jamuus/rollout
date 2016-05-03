@@ -57,7 +57,7 @@ public class Explosion : MonoBehaviour
                 UniversalHealth health = objectInExplosion.GetComponent<UniversalHealth>();
                 proportionalDistance = distance / explosionRadius;
                 damage = (int)Mathf.Round(Mathf.Lerp(maxDamage, minDamage, proportionalDistance));
-                health.damagePlayer(damage);
+                if (objectInExplosion.GetComponent<Shield>().isActiveAndEnabled) objectInExplosion.GetComponent<Shield>().shieldCharge(damage);
             }
         }
         //Destroy(this.gameObject);

@@ -199,7 +199,7 @@ public class SpecialField : MonoBehaviour
 	}
 
 	void setRandomPowerup (){
-		powerUpID = (int)Random.Range (0, 5);
+        powerUpID = (int)Random.Range (0, 6);
 	}
 }
 

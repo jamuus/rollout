@@ -12,6 +12,7 @@ TagManager:
   - HealField
   - Field
   - Generated
+  - Shield
   layers:
   - Default
   - TransparentFX
