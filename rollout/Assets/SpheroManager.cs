@@ -1,15 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Net;
 
 using UnityEngine;
 
 public static class SpheroManager
 {
     public static Dictionary<string, Sphero> Instances { get; private set; }
-    public static PlayerControl ybr;
-    public static PlayerControl boo;
+    // public static PlayerControl ybr;
+    // public static PlayerControl boo;
+
+    public static PlayerControl[]   Players;
+    public static int               NumberOfPlayers;
+    public const int                MaxNumberOfPlayers = 2;
 
     public static string SpectatorName { get { return "Spectator"; } }
 
@@ -17,14 +20,17 @@ public static class SpheroManager
     {
         Instances = new Dictionary<string, Sphero>();
 
-        Debug.LogFormat("{0}, {1}", ybr, boo);
+        Players = new PlayerControl[MaxNumberOfPlayers];
+        NumberOfPlayers = 0;
     }
 
     public static void Initialise()
     {
+        Players[0] = GameObject.Find("player1").GetComponent<PlayerControl>();
+        Players[1] = GameObject.Find("player2").GetComponent<PlayerControl>();
 
-        ybr = GameObject.Find("player2").GetComponent<PlayerControl>();
-        boo = GameObject.Find("player1").GetComponent<PlayerControl>();
+        // ybr = GameObject.Find("player2").GetComponent<PlayerControl>();
+        // boo = GameObject.Find("player1").GetComponent<PlayerControl>();
     }
 
     public static Sphero GetNextSphero()
@@ -88,24 +94,33 @@ public static class SpheroManager
             index += 4;
 
             Sphero sphero;
-            if (!Instances.TryGetValue(deviceName, out sphero)) {
+            if (!Instances.TryGetValue(deviceName, out sphero) && NumberOfPlayers < MaxNumberOfPlayers) {
                 Instances.Add(deviceName, new Sphero());
                 sphero = Instances[deviceName];
-                if (deviceName.ToUpper().Contains("YBR")) {
-                    ybr.sphero = sphero;
-                    MainThread.EnqueueAction(() =>
-                    {
-                        ybr.sphero.UnityProjectileControl = ybr.GetComponent<ProjectileControl>();
-                        Debug.LogFormat("[SpheroManager] Added Sphero \"{0}\".", deviceName);
-                    });
-                } else {
-                    boo.sphero = sphero;
-                    MainThread.EnqueueAction(() =>
-                    {
-                        boo.sphero.UnityProjectileControl = boo.GetComponent<ProjectileControl>();
-                        Debug.LogFormat("[SpheroManager] Added Sphero \"{0}\".", deviceName);
-                    });
-                }
+
+                int currentPlayerIndex = NumberOfPlayers++;
+                Players[currentPlayerIndex].sphero = sphero;
+                MainThread.EnqueueAction(() =>
+                {
+                    Players[currentPlayerIndex].sphero.UnityProjectileControl = Players[currentPlayerIndex].GetComponent<ProjectileControl>();
+                    Debug.LogFormat("[SpheroManager] Added Sphero \"{0}\".", deviceName);
+                });
+
+                // if (deviceName.ToUpper().Contains("YBR")) {
+                //     ybr.sphero = sphero;
+                //     MainThread.EnqueueAction(() =>
+                //     {
+                //         ybr.sphero.UnityProjectileControl = ybr.GetComponent<ProjectileControl>();
+                //         Debug.LogFormat("[SpheroManager] Added Sphero \"{0}\".", deviceName);
+                //     });
+                // } else {
+                //     boo.sphero = sphero;
+                //     MainThread.EnqueueAction(() =>
+                //     {
+                //         boo.sphero.UnityProjectileControl = boo.GetComponent<ProjectileControl>();
+                //         Debug.LogFormat("[SpheroManager] Added Sphero \"{0}\".", deviceName);
+                //     });
+                // }
             }
 
             sphero.DeviceName = deviceName;
@@ -250,7 +265,7 @@ public class Sphero
         float force = Mathf.Clamp(resultant.magnitude, 0.0f, 0.3f);
         float direction = Mathf.Atan2(resultant.x, resultant.z);
 
-//        Debug.LogFormat("MV: {2} DIR: {0} FRC: {1}", direction, force, MoveForce);
+        //Debug.LogFormat("MV: {2} DIR: {0} FRC: {1}", direction, force, MoveForce);
 
         if (Server.NodeServerTarget != null)
         {

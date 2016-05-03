@@ -43,11 +43,12 @@ public class MainThread : MonoBehaviour
         boo.Shield = 44.5f;
         boo.Weapons.Add(new SpheroWeapon(SpheroWeaponType.RailGun));
         boo.BatteryVoltage = 7.2f;
-        boo.UnityObject = SpheroManager.boo; // TODO This needs to be automated.
-        boo.UnityProjectileControl = SpheroManager.boo.GetComponent<ProjectileControl>();
+        boo.UnityObject = SpheroManager.Players[0]; // TODO This needs to be automated.
+        boo.UnityProjectileControl = SpheroManager.Players[0].GetComponent<ProjectileControl>();
         SpheroManager.Instances[boo.DeviceName] = boo;
 
-        SpheroManager.boo.sphero = boo;
+        //SpheroManager.boo.sphero = boo;
+        SpheroManager.Players[0].sphero = boo;
 
         Sphero ybr = new Sphero();
         ybr.DeviceName = "tty.Sphero-YBR-AMP-SPP";
@@ -55,11 +56,12 @@ public class MainThread : MonoBehaviour
         ybr.Shield = 44.5f;
         ybr.Weapons.Add(new SpheroWeapon(SpheroWeaponType.RailGun));
         ybr.BatteryVoltage = 7.2f;
-        ybr.UnityObject = SpheroManager.ybr; // TODO This needs to be automated.
-        ybr.UnityProjectileControl = SpheroManager.ybr.GetComponent<ProjectileControl>();
+        ybr.UnityObject = SpheroManager.Players[1]; // TODO This needs to be automated.
+        ybr.UnityProjectileControl = SpheroManager.Players[1].GetComponent<ProjectileControl>();
         SpheroManager.Instances[ybr.DeviceName] = ybr;
 
-        SpheroManager.ybr.sphero = ybr;
+        //SpheroManager.ybr.sphero = ybr;
+        SpheroManager.Players[1].sphero = ybr;
 #endif
 
         // Testing events.

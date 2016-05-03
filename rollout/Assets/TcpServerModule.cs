@@ -334,6 +334,21 @@ public class TcpServerModule
         catch
         {
         }
+        finally
+        {
+            Connections.Remove(connection);
+
+            foreach (KeyValuePair<string, Sphero> s in SpheroManager.Instances)
+            {
+                if (s.Value.Connection == connection)
+                {
+                    s.Value.Leave();
+                    break;
+                }
+            }
+
+            Log("Disconnected client socket.");
+        }
     }
 
     #endregion
