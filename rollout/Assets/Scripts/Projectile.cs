@@ -11,9 +11,6 @@ public class Projectile : MonoBehaviour
     private UniversalHealth health;
     private GameObject music;
 
-
-    //private ParticleSystem particles;
-
     public void Initialise(Vector3 givenVelocity)
     {
         //set the colour
@@ -28,7 +25,7 @@ public class Projectile : MonoBehaviour
         Destroy(gameObject, 2.0f);
     }
 
-    //In case you want to set your own speed and damage
+    //In case you want to set your own speed, damage and colour
     public void Initialise(Vector3 givenVelocity, float givenSpeed, int givenDamage, Color givenColour)
     {
         //set the colour
@@ -60,7 +57,8 @@ public class Projectile : MonoBehaviour
         Destroy(gameObject, 0.05f);
 
         //print("collision player : " + col.gameObject.name + " player who spawned is : " + gameObject.name );
-        if (col.gameObject.GetComponent<UniversalHealth> () && col.gameObject != playerShooting) {
+        if (col.gameObject.GetComponent<UniversalHealth> () && col.gameObject != playerShooting)
+        {
             //Damage whatever collided with the projectile
             GameObject collidedObject = col.gameObject;
 
@@ -71,14 +69,12 @@ public class Projectile : MonoBehaviour
             SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
             manager.CollideProjectile (collidedObject);
 
-        } else {
+        }
+        else
+        {
             music = GameObject.Find("Music");
             SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
             manager.CollideObstacle (col.gameObject);
         }
-    }
-
-    void Update()
-    {
     }
 }

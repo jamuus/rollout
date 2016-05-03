@@ -16,10 +16,10 @@ public class ProjectileControl : MonoBehaviour
     //4) Include the weapon firing and ammo reduction in the switch statement in Update
 
     //intialise the weapon structures
-    enum Weapons : int { basicGun, homingLauncher, grenadeThrower, machineGun };
-    private int[] ammunition = new int[4];
-    private int[] maxAmmo = new int[4];
-    private float[] fireRates = new float[4];
+    enum Weapons : int { basicGun, homingLauncher, grenadeThrower, machineGun, shotgun };
+    private int[] ammunition = new int[5];
+    private int[] maxAmmo = new int[5];
+    private float[] fireRates = new float[5];
     private int activeWeapon;
 
     //weapon variables
@@ -27,6 +27,7 @@ public class ProjectileControl : MonoBehaviour
     private HomingLauncher homingLauncher;
     private GrenadeThrower grenadeThrower;
     private MachineGun machineGun;
+    private Shotgun shotgun;
 
     //variables to aid firing
     private Vector3 projectilePosition;
@@ -50,6 +51,7 @@ public class ProjectileControl : MonoBehaviour
         ammunition[(int)Weapons.homingLauncher] = 0;
         ammunition[(int)Weapons.grenadeThrower] = 0;
         ammunition[(int)Weapons.machineGun] = 40;
+        ammunition[(int)Weapons.shotgun] = 100;
 
         //access the weapons
         basicGun = GetComponent<BasicGun>();
@@ -67,6 +69,10 @@ public class ProjectileControl : MonoBehaviour
         machineGun = GetComponent<MachineGun>();
         fireRates[ConvertID(103)] = machineGun.fireRate;
         maxAmmo[ConvertID(103)] = machineGun.maxAmmo;
+
+        shotgun = GetComponent<Shotgun>();
+        fireRates[ConvertID(104)] = shotgun.fireRate;
+        maxAmmo[ConvertID(104)] = shotgun.maxAmmo;
 
     }
 
@@ -98,6 +104,10 @@ public class ProjectileControl : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Alpha4))
         {
             ChangeActiveWeapon("machineGun");
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            ChangeActiveWeapon("shotgun");
         }
     }
 
@@ -134,6 +144,11 @@ public class ProjectileControl : MonoBehaviour
                     machineGun.Fire();
                     ReduceAmmo(103, 1);
                     break;
+
+                case (int)Weapons.shotgun:
+                    shotgun.Fire();
+                    ReduceAmmo(104, 1);
+                    break;
             }
 
             //set the time since last shot
@@ -168,6 +183,16 @@ public class ProjectileControl : MonoBehaviour
                 case (int)Weapons.grenadeThrower:
                     grenadeThrower.Fire(velocity);
                     ReduceAmmo(102, 1);
+                    break;
+
+                case (int)Weapons.machineGun:
+                    machineGun.Fire(velocity);
+                    ReduceAmmo(103, 1);
+                    break;
+
+                case (int)Weapons.shotgun:
+                    shotgun.Fire(velocity);
+                    ReduceAmmo(104, 1);
                     break;
             }
 

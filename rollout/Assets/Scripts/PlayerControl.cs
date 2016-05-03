@@ -169,7 +169,7 @@ public class PlayerControl : MonoBehaviour
     {
         if (sphero != null && name == "player1")
         {
-            Debug.LogFormat("Env: {0}", sphero.EnvironmentForce);
+           // Debug.LogFormat("Env: {0}", sphero.EnvironmentForce);
             Debug.DrawRay(transform.position, sphero.EnvironmentForce, Color.red);
         }
 

@@ -7216,6 +7216,7 @@ GameObject:
   - 114: {fileID: 317907521}
   - 114: {fileID: 317907520}
   - 114: {fileID: 317907535}
+  - 114: {fileID: 317907536}
   m_Layer: 0
   m_Name: player1
   m_TagString: Player
@@ -7272,7 +7273,7 @@ MonoBehaviour:
   projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
   fireRate: 0.5
   bulletSpeed: 40
-  damage: 10
+  damage: 7
   colour: {r: 1, g: 0, b: 0, a: 1}
   ammunition: 0
   maxAmmo: 1
@@ -7555,6 +7556,27 @@ MonoBehaviour:
   damage: 4
   ammunition: 15
   maxAmmo: 60
+  colour: {r: 0, g: 1, b: 1, a: 1}
+--- !u!114 &317907536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 317907519}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 885e8f75cab1ebc46abb7f61e6babd20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
+  fireRate: 1
+  bulletSpeed: 40
+  damage: 3
+  noOfPellets: 9
+  spreadAngle: 30
+  ammunition: 5
+  maxAmmo: 60
+  colour: {r: 0, g: 1, b: 1, a: 1}
 --- !u!1 &318710698
 GameObject:
   m_ObjectHideFlags: 0
@@ -13149,6 +13171,7 @@ GameObject:
   - 114: {fileID: 796036345}
   - 114: {fileID: 796036341}
   - 114: {fileID: 796036342}
+  - 114: {fileID: 796036347}
   m_Layer: 0
   m_Name: player2
   m_TagString: Player
@@ -13369,6 +13392,7 @@ MonoBehaviour:
   damage: 4
   ammunition: 15
   maxAmmo: 60
+  colour: {r: 0, g: 1, b: 1, a: 1}
 --- !u!114 &796036343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13484,10 +13508,30 @@ MonoBehaviour:
   projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
   fireRate: 0.5
   bulletSpeed: 40
-  damage: 10
+  damage: 7
   colour: {r: 1, g: 0, b: 0, a: 1}
   ammunition: 0
   maxAmmo: 1
+--- !u!114 &796036347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 796036330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 885e8f75cab1ebc46abb7f61e6babd20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  projectile: {fileID: 11432872, guid: 2f64d6668a62f544a9b7612fc9fcd4a3, type: 2}
+  fireRate: 1
+  bulletSpeed: 40
+  damage: 3
+  noOfPellets: 9
+  spreadAngle: 30
+  ammunition: 5
+  maxAmmo: 60
+  colour: {r: 0, g: 1, b: 0, a: 1}
 --- !u!4 &825876655 stripped
 Transform:
   m_PrefabParentObject: {fileID: 486332, guid: d9ef7db6aaea63644aaf89674834b30b, type: 2}

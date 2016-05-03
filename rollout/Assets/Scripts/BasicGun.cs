@@ -8,7 +8,7 @@ public class BasicGun : MonoBehaviour
     private Vector3 projectilePosition;
     public float fireRate = 0.5f;
     public float bulletSpeed = 40f;
-    public int damage = 10;
+    public int damage = 7;
     public Color colour = new Vector4(1, 0, 0, 1);
     public int ammunition = -1;
     public int maxAmmo = 1;
