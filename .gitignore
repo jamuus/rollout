@@ -35,3 +35,5 @@ rollout_app/.idea/libraries
 rollout_app/.DS_Store
 rollout_app/build
 
+
+rollout/Assets/Scripts/GameStateManager.cs

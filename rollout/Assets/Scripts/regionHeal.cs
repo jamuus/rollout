@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class RegionHeal : Region {
+public class RegionHeal : Region
+{
 
 	public int magnitude = 0;
 
@@ -14,6 +15,16 @@ public class RegionHeal : Region {
 			lastEffectCall = Time.time;
 			print ("hey girl");
 		}
+	}
+
+	public override void OnPlayerEnter(PlayerControl player)
+	{
+		Debug.LogFormat("PLAYER {0} ENTER REGION", player.name);
+	}
+
+	public override void OnPlayerLeave(PlayerControl player)
+	{
+		Debug.LogFormat("PLAYER {0} LEFT REGION", player.name);
 	}
 
 }

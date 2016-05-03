@@ -27,6 +27,7 @@ public class SpecialField : MonoBehaviour
     void Start ()
     {
         renderColor(behaviourOption);
+		setRandomPowerup ();
     }
 
     // Update is called once per frame

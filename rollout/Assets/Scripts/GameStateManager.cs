@@ -27,7 +27,7 @@ public class GameStateManager : MonoBehaviour {
 		player2Health = player2.GetComponent<UniversalHealth> ();
 		//levelGenerator = GameObject.Find ("Container").GetComponent<GenerateLevel> ();
 		events = GameObject.Find ("Container").GetComponent<Events>();
-		saveLevel ("Level");
+		//saveLevel ("Level");
 		setGameStates ();
 	}
 	
