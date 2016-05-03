@@ -20,17 +20,17 @@ public class DamageSlowRegion : Region
     {
         Debug.LogFormat("PLAYER {0} ENTER REGION", player.name);
 
-//        #if SOFTWARE_MODE
+        #if SOFTWARE_MODE
         player.GetComponent<Rigidbody>().drag *= DragMultiplier;
-//        #endif
+        #endif
     }
 
     public override void OnPlayerLeave(PlayerControl player)
     {
         Debug.LogFormat("PLAYER {0} LEFT REGION", player.name);
-//        #if SOFTWARE_MODE
+        #if SOFTWARE_MODE
         player.GetComponent<Rigidbody>().drag /= DragMultiplier;
-//        #endif
+        #endif
     }
 
 }

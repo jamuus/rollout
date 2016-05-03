@@ -250,7 +250,7 @@ public class Sphero
         float force = Mathf.Clamp(resultant.magnitude, 0.0f, 0.3f);
         float direction = Mathf.Atan2(resultant.x, resultant.z);
 
-        Debug.LogFormat("MV: {2} DIR: {0} FRC: {1}", direction, force, MoveForce);
+//        Debug.LogFormat("MV: {2} DIR: {0} FRC: {1}", direction, force, MoveForce);
 
         if (Server.NodeServerTarget != null)
         {
