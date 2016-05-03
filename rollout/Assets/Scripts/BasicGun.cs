@@ -28,6 +28,7 @@ public class BasicGun : MonoBehaviour
         projectilePosition = transform.position + velocity.normalized;
         var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
         spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
+        spawnedProjectile.ignoreCollider(gameObject.transform.Find("shield").GetComponent<Collider>());
         spawnedProjectile.Initialise(velocity);
     }
 
