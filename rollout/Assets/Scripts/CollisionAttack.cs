@@ -6,7 +6,7 @@ using System;
 public class CollisionAttack : MonoBehaviour
 {
     //Base attack value
-    public int collisionAttackValue = 1; 
+    public int collisionAttackValue = 1;
 
     //Accessing other parts of the players
     private UniversalHealth health;
@@ -43,7 +43,7 @@ public class CollisionAttack : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-		music = gameObject.transform.GetChild(0).gameObject;
+		music = gameObject.transform.Find("sound").gameObject;
 		SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
         //If you collided with the other player
 		if (otherPlayer && col.gameObject.name == otherPlayer.name || col.gameObject.CompareTag("Shield")) {
@@ -70,7 +70,7 @@ public class CollisionAttack : MonoBehaviour
     int calculateDamage(Collision col)
     {
         Vector3 colImpulse = col.impulse.normalized;
-        
+
         //Get relative position on collision is impulse
         Vector3 tempThisPlayerVel = thisPlayerVel.normalized;
 

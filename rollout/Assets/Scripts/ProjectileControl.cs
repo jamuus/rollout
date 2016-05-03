@@ -100,7 +100,7 @@ public class ProjectileControl : MonoBehaviour
         if (ammunition[activeWeapon] != 0 && sinceLastShot >= (float)fireRates[activeWeapon])
         {
             //play the shooting sound
-			music = gameObject.transform.GetChild(0).gameObject;
+			music = gameObject.transform.Find("sound").gameObject;
 			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
 			manager.Shoot ();
 
@@ -193,7 +193,7 @@ public class ProjectileControl : MonoBehaviour
         //toggle between basic gun and other weapons
         /*if(activeWeapon == 0) { activeWeapon = ConvertID(ID); }
         else { activeWeapon = 0; }*/
-        activeWeapon = ConvertID(ID);      
+        activeWeapon = ConvertID(ID);
     }
 
     public void ChangeActiveWeapon(string weaponString)
