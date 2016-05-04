@@ -58,6 +58,7 @@ public class BGMManager : MonoBehaviour {
 		int[] list = { 2, 3, 4, 1, 0 };
 		playlist = list;
 		source.clip = tracks[list[current]].clip;
+		source.volume = 0.6f;
 		source.Play();
 		eventFlag = -1;
 	}

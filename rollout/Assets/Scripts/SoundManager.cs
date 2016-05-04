@@ -29,25 +29,40 @@ public class SoundManager : MonoBehaviour {
 		mains.PlayOneShot (slowDown);
 	}
 	public void Stun(){
+		mains.volume= (0.4f);
 		mains.PlayOneShot (stun);
 	}
-	public void CollideProjectile(){
+	public void CollideProjectile(Vector3 impact){
 		mains.PlayOneShot (collideProjectile);
 	}
 
-	public void CollidePlayer(){
+	public void CollidePlayer(Vector3 impact){
+		float volume = (impact.magnitude / 8f);
+		mains.volume = volume;
+		print (volume);
 		mains.PlayOneShot (collidePlayer);
 	}
 
-	public void CollideDamageField(){
+	public void CollideDamageField(Vector3 impact){
+		float volume = (impact.magnitude / 8f);
+		mains.volume = volume;
+		print (volume);
 		mains.PlayOneShot (collideDamageField);
 	}
 
-	public void CollideHealthField(){
+	public void CollideHealthField(Vector3 impact){
+		float volume = (impact.magnitude / 8f);
+		mains.volume = volume;
+		print (volume);
 		mains.PlayOneShot (collideHealthField);
+
 	}
-	public void CollideObstacle(){
+	public void CollideObstacle(Vector3 impact){
+		float volume = (impact.magnitude / 8f);
+		mains.volume = volume;
+		print (volume);
 		mains.PlayOneShot (collideObstacle);
+
 	}
 	public void GrenadeShoot(){
 		mains.PlayOneShot (grenadeShoot);
