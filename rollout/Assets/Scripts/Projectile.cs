@@ -10,12 +10,14 @@ public class Projectile : MonoBehaviour
 
     private UniversalHealth health;
     private GameObject music;
-
+	private AudioSource mains;
+	public AudioClip collision;
 
     //private ParticleSystem particles;
 
     public void Initialise(Vector3 givenVelocity)
     {
+		mains = GetComponent<AudioSource>();
         //Immediately make the projectile move in the desired direction
         velocity = givenVelocity;
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -50,6 +52,7 @@ public class Projectile : MonoBehaviour
     void OnCollisionEnter(Collision col)
     {
         //Destroy the game object
+		mains.PlayOneShot(collision);
         Destroy(gameObject, 0.05f);
 
         //print("collision player : " + col.gameObject.name + " player who spawned is : " + gameObject.name );

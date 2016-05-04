@@ -3,14 +3,17 @@ using System;
 
 public class SoundManager : MonoBehaviour {
 
-	public AudioSource[] sources;
+	private AudioSource[] sources;
 	public AudioClip shoot;
+	public AudioClip slowDown;
 	public AudioClip collideProjectile;
 	public AudioClip collidePlayer;
 	public AudioClip collideDamageField;
 	public AudioClip collideHealthField;
 	public AudioClip collideObstacle;
 	public AudioClip pickPowerUp;
+	public AudioClip grenadeShoot;
+	public AudioClip stun;
 	private AudioSource mains;
 
 
@@ -22,10 +25,14 @@ public class SoundManager : MonoBehaviour {
 	public void Shoot(){
 		mains.PlayOneShot (shoot);
 	}
-
+	public void SlowDown(){
+		mains.PlayOneShot (slowDown);
+	}
+	public void Stun(){
+		mains.PlayOneShot (stun);
+	}
 	public void CollideProjectile(){
 		mains.PlayOneShot (collideProjectile);
-
 	}
 
 	public void CollidePlayer(){
@@ -42,7 +49,9 @@ public class SoundManager : MonoBehaviour {
 	public void CollideObstacle(){
 		mains.PlayOneShot (collideObstacle);
 	}
-
+	public void GrenadeShoot(){
+		mains.PlayOneShot (grenadeShoot);
+	}
 
 	void Start () {
 		mains = GetComponent<AudioSource>();

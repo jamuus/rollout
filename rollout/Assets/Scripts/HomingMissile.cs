@@ -12,6 +12,8 @@ public class HomingMissile : MonoBehaviour
     public Explosion explosion;
     private Rigidbody homingMissile;
     private GameObject otherPlayer;
+	private AudioSource mains;
+	public AudioClip collision;
 
     public void Initialise(Vector3 givenVelocity, GameObject givenOtherPlayer)
     {
@@ -30,6 +32,7 @@ public class HomingMissile : MonoBehaviour
         turnSpeed = givenTurnSpeed;
         damage = givenDamage;
         otherPlayer = givenOtherPlayer;
+		mains = GetComponent<AudioSource>();
 
         //Immediately make the projectile move in the desired direction
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -61,6 +64,7 @@ public class HomingMissile : MonoBehaviour
 
     void OnDestroy()
     {
+		mains.PlayOneShot (collision);
         var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
         spawnedExplosion.Initialise(4, explosionPower, 30, 10);
         print("Explosion Successful");

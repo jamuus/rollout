@@ -5163,14 +5163,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6baa06a84c65444018ce3066f7385259, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sources: []
   shoot: {fileID: 8300000, guid: dbf26145b8cb7453b8955cc1859b3c73, type: 3}
+  slowDown: {fileID: 0}
   collideProjectile: {fileID: 8300000, guid: 1f8e02c209f7746ffb50bef93f4ad6cb, type: 3}
   collidePlayer: {fileID: 8300000, guid: 2179db4cc6c2b4d94b353c13eb0b0ef5, type: 3}
-  collideDamageField: {fileID: 0}
+  collideDamageField: {fileID: 8300000, guid: f34e142ca0b6641aebc92a2b9d86a0c6, type: 3}
   collideHealthField: {fileID: 0}
   collideObstacle: {fileID: 8300000, guid: feffd38ec49f4453f9c41b5b888113f3, type: 3}
   pickPowerUp: {fileID: 8300000, guid: 8cb369a19acbe4bf7945849d717b4a6e, type: 3}
+  grenadeShoot: {fileID: 8300000, guid: 5fac6be26c670498f97f7daba0cbba4d, type: 3}
+  stun: {fileID: 8300000, guid: 7b32a0939ba68447fab353411c48e219, type: 3}
 --- !u!82 &134367957
 AudioSource:
   m_ObjectHideFlags: 0
@@ -16294,7 +16296,6 @@ GameObject:
   - 4: {fileID: 1438730232}
   - 114: {fileID: 1438730231}
   - 82: {fileID: 1438730230}
-  - 82: {fileID: 1438730229}
   m_Layer: 0
   m_Name: BGM
   m_TagString: Untagged
@@ -16302,80 +16303,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!82 &1438730229
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1438730228}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    - time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!82 &1438730230
 AudioSource:
   m_ObjectHideFlags: 0
@@ -16427,7 +16354,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
   spreadCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -16438,7 +16365,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
   reverbZoneMixCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -16449,7 +16376,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
 --- !u!114 &1438730231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24155,14 +24082,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6baa06a84c65444018ce3066f7385259, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sources: []
   shoot: {fileID: 8300000, guid: e381e19c1d1e3470eb15f68afc62fd80, type: 3}
-  collideProjectile: {fileID: 0}
-  collidePlayer: {fileID: 0}
+  slowDown: {fileID: 0}
+  collideProjectile: {fileID: 8300000, guid: 1f8e02c209f7746ffb50bef93f4ad6cb, type: 3}
+  collidePlayer: {fileID: 8300000, guid: 2179db4cc6c2b4d94b353c13eb0b0ef5, type: 3}
   collideDamageField: {fileID: 8300000, guid: f34e142ca0b6641aebc92a2b9d86a0c6, type: 3}
   collideHealthField: {fileID: 8300000, guid: f4b044e58de1e44b7ac89a896b240adc, type: 3}
-  collideObstacle: {fileID: 0}
+  collideObstacle: {fileID: 8300000, guid: feffd38ec49f4453f9c41b5b888113f3, type: 3}
   pickPowerUp: {fileID: 8300000, guid: 8cb369a19acbe4bf7945849d717b4a6e, type: 3}
+  grenadeShoot: {fileID: 8300000, guid: 5fac6be26c670498f97f7daba0cbba4d, type: 3}
+  stun: {fileID: 8300000, guid: 7b32a0939ba68447fab353411c48e219, type: 3}
 --- !u!82 &2042400936
 AudioSource:
   m_ObjectHideFlags: 0
