@@ -60,7 +60,7 @@ public class ProjectileControl : MonoBehaviour
 		try {
 	        grenadeThrower = GetComponent<GrenadeThrower>();
 	        fireRates[ConvertID(102)] = grenadeThrower.fireRate;
-	        maxAmmo[ConvertID(100)] = grenadeThrower.maxAmmo;
+	        maxAmmo[ConvertID(102)] = grenadeThrower.maxAmmo;
 		} catch(Exception e) {
 		}
     }
