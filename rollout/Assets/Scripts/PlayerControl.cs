@@ -166,13 +166,13 @@ public class PlayerControl : MonoBehaviour
 
     public void OnCollisionEnter(Collision collision)
     {
-        Debug.LogFormat("COLLISION START");
+//        Debug.LogFormat("COLLISION START");
         CalculateReflectedEnvironmentForce(collision);
     }
 
     public void OnCollisionStay(Collision collision)
     {
-        Debug.LogFormat("COLLISION STAY");
+//        Debug.LogFormat("COLLISION STAY");
         CalculateReflectedEnvironmentForce(collision);
     }
 
