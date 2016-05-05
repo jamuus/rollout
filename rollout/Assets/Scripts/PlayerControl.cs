@@ -166,13 +166,13 @@ public class PlayerControl : MonoBehaviour
 
     public void OnCollisionEnter(Collision collision)
     {
-        Debug.LogFormat("COLLISION START");
+        //Debug.LogFormat("COLLISION START");
         CalculateReflectedEnvironmentForce(collision);
     }
 
     public void OnCollisionStay(Collision collision)
     {
-        Debug.LogFormat("COLLISION STAY");
+        //Debug.LogFormat("COLLISION STAY");
         CalculateReflectedEnvironmentForce(collision);
     }
 
@@ -188,7 +188,7 @@ public class PlayerControl : MonoBehaviour
             float n = collision.contacts.Length;
             sphero.EnvironmentForce = Vector3.zero;
             foreach (ContactPoint p in collision.contacts)
-                sphero.EnvironmentForce += Vector3.Reflect(rigidbody.velocity, p.normal);
+                sphero.EnvironmentForce += Vector3.Reflect(rigidbody.velocity, p.normal) * 0.1f;
             sphero.EnvironmentForce /= n;
         }
     }
@@ -202,7 +202,11 @@ public class PlayerControl : MonoBehaviour
     {
         if (sphero != null)
         {
+			Debug.DrawRay (rigidbody.position, sphero.EnvironmentForce*10.0f, Color.red);
             //ClampEnvironmentForce(0.0f, 0.3f);
+			sphero.SendMove ();
+
+			sphero.EnvironmentForce *= 0.5f;
 
             // Debug.LogFormat("Env: {0}", sphero.EnvironmentForce);
 

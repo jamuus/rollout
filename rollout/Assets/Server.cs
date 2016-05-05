@@ -148,6 +148,7 @@ public static class Server
                 while (udpListening)
                 {
                     IPEndPoint senderEndPoint = new IPEndPoint(IPAddress.Any, 0);
+						Debug.LogFormat("Waiting on UDP");
                     byte[] data = udpIncoming.Receive(ref senderEndPoint);
 
                     new Thread(() =>
@@ -270,7 +271,8 @@ public static class Server
         ServerMessage message = new ServerMessage();
         ServerMessageType type = (ServerMessageType)bytes[0];
 
-        // Debug.LogFormat("{0} {1} (0x{2:x2}).", prefix, type.ToString(), bytes[0]);
+
+        Debug.LogFormat("{0} {1} (0x{2:x2}).", prefix, type.ToString(), bytes[0]);
 
         ++receivedFrom.Port; // TODO might have to find a better way to do this.
 

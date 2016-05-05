@@ -220,7 +220,7 @@ public class Sphero
 #if SOFTWARE_MODE
         Force = new Vector2(force * Mathf.Sin(direction) * 10.0f, force * -Mathf.Cos(direction) * 10.0f);
 #else
-        MoveForce = new Vector3(force * Mathf.Cos(direction), 0.0f, force * Mathf.Sin(direction));
+        MoveForce = new Vector3(force * Mathf.Cos(direction) * 10.0f, 0.0f, force * Mathf.Sin(direction) * 10.0f);
         // ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
 
         // message.Target = Server.NodeServerTarget;
@@ -260,10 +260,10 @@ public class Sphero
 
     public void SendMove()
     {
-        Vector3 resultant = MoveForce + EnvironmentForce;
+		Vector3 resultant = MoveForce + EnvironmentForce;
 
         float force = Mathf.Clamp(resultant.magnitude, 0.0f, 0.3f);
-        float direction = Mathf.Atan2(resultant.x, resultant.z);
+        float direction = Mathf.Atan2(-resultant.x, resultant.z);
 
         //Debug.LogFormat("MV: {2} DIR: {0} FRC: {1}", direction, force, MoveForce);
 
