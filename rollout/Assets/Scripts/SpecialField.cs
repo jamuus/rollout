@@ -87,8 +87,9 @@ public class SpecialField : MonoBehaviour
     public void AddWeapon(GameObject player, int randomWepID)
     {
         //get a random weapon ID
+
         if (randomWepID < 100)
-            randomWepID = Random.Range(101, 102);
+            randomWepID = Random.Range(101, 103);
 
         //determine the right amount of ammo to add for the weapon
         switch(randomWepID)
@@ -100,6 +101,9 @@ public class SpecialField : MonoBehaviour
             //grenade thrower
             case 102:
                 ammoAmount = player.GetComponent<GrenadeThrower>().ammunition;
+                break;
+            case 103:
+                ammoAmount = player.GetComponent<MachineGun>().ammunition;
                 break;
         }
 

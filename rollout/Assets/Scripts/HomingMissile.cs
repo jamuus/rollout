@@ -18,7 +18,7 @@ public class HomingMissile : MonoBehaviour
     public void Initialise(Vector3 givenVelocity, GameObject givenOtherPlayer)
     {
         otherPlayer = givenOtherPlayer;
-        homingMissile = GetComponent<Rigidbody>();
+        homingMissile = gameObject.GetComponent<Rigidbody>();
         mains = gameObject.GetComponent<AudioSource>();
 
         //Schedule to destroy the missile after 8 seconds
@@ -34,7 +34,7 @@ public class HomingMissile : MonoBehaviour
         damage = givenDamage;
 
         //Immediately make the projectile move in the desired direction
-        Rigidbody rb = GetComponent<Rigidbody>();
+        Rigidbody rb = gameObject.GetComponent<Rigidbody>();
         rb.velocity = velocity.normalized * speed;
 
         Initialise(givenVelocity, givenOtherPlayer);
