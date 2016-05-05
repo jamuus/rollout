@@ -20,6 +20,12 @@ div {
     #spheroData2 {
         float: right;
     }
+    #spheroData3 {
+        float: left;
+    }
+    #spheroData4 {
+        float: right;
+    }
     
     .container {
         width: 900px;
@@ -57,17 +63,34 @@ div {
         <input oninput="spheroScaleChange(this.value)" type="range" min="0" max="5" step="0.001" value="1" style="width: 800px" />
         <br/> Output scale: <span id="outputScale">1</span>
         <input oninput="outputScaleChange(this.value)" type="range" min="0" max="5" step="0.001" value="1" style="width: 800px" />
+        <br />
+        <input id="takecontrol" onclick="changeControl(this.value)" type="button" value="Take control" />
         <div class="spheroData" id="spheroData1"></div>
         <div class="spheroData" id="spheroData2"></div>
-        <!-- <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;"></canvas> -->
-        <!-- <canvas id="spheroAngles" width="600" height="100"></canvas> -->
-        <!-- <canvas id="kalmanData" width="600" height="200"></canvas> -->
+        <div class="spheroData" id="spheroData3"></div>
+        <div class="spheroData" id="spheroData4"></div>
     </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="smoothie.js"></script>
     <script>
     var canvas1 = document.getElementById('absoluteCvs');
     var ctx1 = canvas1.getContext('2d');
+
+    function driftChange(val) {
+        console.log(val);
+    }
+
+    var controlbtn = document.getElementById("takecontrol");
+    function changeControl(val) {
+        if(val === "Take control") {
+            controlbtn.value = "Release";
+            socket.emit('control', 'take');
+        } else {
+            controlbtn.value = "Take control";
+            socket.emit('control', 'release');
+        }
+    }
 
     function createSpheroLayout(name, id) {
         var container = document.querySelector(id);
@@ -76,58 +99,91 @@ div {
         nameSpan.innerHTML = name;
 
 
+        var ipPosTag = document.createElement('div');
+        ipPosTag.innerHTML = 'ipPos';
+
         var spheroPosTag = document.createElement('div');
-        spheroPosTag.innerHTML = 'init';
+        spheroPosTag.innerHTML = 'spheroPos';
+
+        var scaleTag = document.createElement('div');
+        scaleTag.innerHTML = 'scale';
+
+        var driftTag = document.createElement('div');
+        driftTag.innerHTML = 'drift';
 
 
-        var driftGraph = document.createElement('canvas');
-        driftGraph.width = "400";
-        driftGraph.height = "200";
-        driftGraph.className = "driftGraph";
+        var batteryTag = document.createElement('div');
+        batteryTag.innerHTML = 'battery';
 
-        var smoothie = new SmoothieChart();
-        smoothie.streamTo(driftGraph);
+        var driftBar = document.createElement('input');
+        driftBar.type = "range";
+        driftBar.min = 0;
+        driftBar.max = 360;
+        driftBar.step = 0.1;
+        driftBar.setAttribute("oninput", "driftChange(this.value)");
 
-        var spheroIPAngle = new TimeSeries();
-        var spheroDataAngle = new TimeSeries();
-        var spheroDrift = new TimeSeries();
+        // var driftGraph = document.createElement('canvas');
+        // driftGraph.width = "400";
+        // driftGraph.height = "200";
+        // driftGraph.className = "driftGraph";
 
-        smoothie.addTimeSeries(spheroIPAngle, {
-            strokeStyle: 'rgb(0, 255, 0)',
-            lineWidth: 1
-        });
-        smoothie.addTimeSeries(spheroDataAngle, {
-            strokeStyle: 'rgb(255, 0, 0)',
-            lineWidth: 1
-        });
-        smoothie.addTimeSeries(spheroDrift, {
-            strokeStyle: 'rgb(0, 191, 255)',
-            lineWidth: 1
-        });
+        // var smoothie = new SmoothieChart();
+        // smoothie.streamTo(driftGraph);
+
+        // var spheroIPAngle = new TimeSeries();
+        // var spheroDataAngle = new TimeSeries();
+        // var spheroDrift = new TimeSeries();
+
+        // smoothie.addTimeSeries(spheroIPAngle, {
+        //     strokeStyle: 'rgb(0, 255, 0)',
+        //     lineWidth: 1
+        // });
+        // smoothie.addTimeSeries(spheroDataAngle, {
+        //     strokeStyle: 'rgb(255, 0, 0)',
+        //     lineWidth: 1
+        // });
+        // smoothie.addTimeSeries(spheroDrift, {
+        //     strokeStyle: 'rgb(0, 191, 255)',
+        //     lineWidth: 1
+        // });
 
 
 
         container.appendChild(nameSpan);
+        container.appendChild(ipPosTag);
         container.appendChild(spheroPosTag);
-        container.appendChild(driftGraph);
+        container.appendChild(scaleTag);
+        container.appendChild(driftTag);
+        container.appendChild(batteryTag);
+        container.appendChild(driftBar);
+
+        // container.appendChild(driftGraph);
 
         return {
-            spheroIPAngle,
-            spheroDataAngle,
-            spheroDrift,
+            // spheroIPAngle,
+            // spheroDataAngle,
+            // spheroDrift,
+            ipPosTag,
             spheroPosTag,
+            scaleTag,
+            driftTag,
+            batteryTag,
         }
     }
 
-    var booVis = createSpheroLayout('boo', '#spheroData1');
-    var ybrVis = createSpheroLayout('ybr', '#spheroData2');
-
     var vis = {
-        boo: booVis,
-        ybr: ybrVis
-    }
+        boo: createSpheroLayout('boo', '#spheroData1'),
+        gwo: createSpheroLayout('gwo', '#spheroData2'),
+        rob: createSpheroLayout('rob', '#spheroData3'),
+        wyp: createSpheroLayout('wyp', '#spheroData4')
+    };
 
     var state = {};
+
+    function rad2deg(radians){
+        degrees = radians * (180/Math.PI);
+        return degrees;
+    }
 
     var socket = io();
     socket.on('data', function(msg) {
@@ -137,21 +193,30 @@ div {
             state[msg.name][dtype] = msg.data[dtype];
 
             if (dtype === 'spheroAngle') {
-                vis[msg.name].spheroDataAngle.append(new Date().getTime(), msg.data[dtype]);
+                // vis[msg.name].spheroDataAngle.append(new Date().getTime(), msg.data[dtype]);
             } else if (dtype === 'ipAngle') {
-                vis[msg.name].spheroIPAngle.append(new Date().getTime(), msg.data[dtype]);
+                // vis[msg.name].spheroIPAngle.append(new Date().getTime(), msg.data[dtype]);
             } else if (dtype === 'driftAngle') {
-                vis[msg.name].spheroDrift.append(new Date().getTime(), msg.data[dtype]);
+                vis[msg.name].driftTag.innerHTML = 'Drift angle: ' + rad2deg(msg.data[dtype]);
+                // vis[msg.name].spheroDrift.append(new Date().getTime(), msg.data[dtype]);
             } else if (dtype === 'ipPosTransformed') {
-                vis[msg.name].spheroPosTag.innerHTML = 'Last detected visual pos: ' + posToString(msg.data[dtype]);
+                vis[msg.name].ipPosTag.innerHTML = 'Last detected visual pos: ' + posToString(msg.data[dtype]);
+            } else if(dtype === 'kalmanPos') {
+                vis[msg.name].spheroPosTag.innerHTML = 'Last calculated pos: ' + posToString(msg.data[dtype]);
             } else if (dtype === 'scale') {
-                console.log('hue');
+                vis[msg.name].scaleTag.innerHTML = 'Scale: ' + msg.data[dtype];
+            } else if(dtype === 'batteryVoltage') {
+                vis[msg.name].batteryTag.innerHTML = 'Battery: ' + parseInt(msg.data[dtype])/100 + 'V';
             }
         }
     });
 
     function posToString(pos) {
-        return '(' + pos.x.toFixed(2) + ', ' + pos.y.toFixed(2) + ', ' + pos.z.toFixed(2) + ')';
+        var str = '(' + pos.x.toFixed(2) + ', ' + pos.y.toFixed(2);
+        if(pos.z)
+            return str + ', ' + pos.z.toFixed(2) + ')';
+        else
+            return str + ')';
     }
 
     var center = {
@@ -357,6 +422,10 @@ div {
         a: false,
         s: false,
         d: false,
+        up: false,
+        down: false,
+        left: false,
+        right: false,
     }
     document.addEventListener('keydown', function(event) {
         if (event.keyCode === 87) {
@@ -370,6 +439,19 @@ div {
         }
         if (event.keyCode === 68) {
             pressedKeys.d = true;
+        }
+
+        if (event.keyCode === 38) {
+            pressedKeys.up = true;
+        }
+        if (event.keyCode === 40) {
+            pressedKeys.down = true;
+        }
+        if (event.keyCode === 37) {
+            pressedKeys.left = true;
+        }
+        if (event.keyCode === 39) {
+            pressedKeys.right = true;
         }
         calcNewForce();
     });
@@ -386,18 +468,40 @@ div {
         if (event.keyCode === 68) {
             pressedKeys.d = false;
         }
+
+        if (event.keyCode === 38) {
+            pressedKeys.up = false;
+        }
+        if (event.keyCode === 40) {
+            pressedKeys.down = false;
+        }
+        if (event.keyCode === 37) {
+            pressedKeys.left = false;
+        }
+        if (event.keyCode === 39) {
+            pressedKeys.right = false;
+        }
         calcNewForce();
     });
 
     function calcNewForce() {
-        force = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 0.2 : 0.0;
-        var x = pressedKeys.w + -pressedKeys.s;
-        var y = pressedKeys.d + -pressedKeys.a;
-        var direction = Math.atan2(y, x);
+        var force1 = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 0.3 : 0.0;
+        var force2 = (pressedKeys.up || pressedKeys.left || pressedKeys.down || pressedKeys.right) ? 0.3 : 0.0;
+
+        var x1 = pressedKeys.w + -pressedKeys.s;
+        var y1 = pressedKeys.d + -pressedKeys.a;
+        var direction1 = Math.atan2(y1, x1);
+
+        var x2 = pressedKeys.up + -pressedKeys.down;
+        var y2 = pressedKeys.right + -pressedKeys.left;
+        var direction2 = Math.atan2(y2, x2);
+
         // console.log(direction);
         socket.emit('force', {
-            force: force,
-            direction: direction
+            force1: force1,
+            force2: force2,
+            direction1: direction1,
+            direction2: direction2,
         });
     }
     </script>

@@ -308,8 +308,8 @@ int main( int, char** argv )
             morphOps(threshold);
             trackFilteredObject(ybr, threshold, HSV, frame);
 
-            sendToServer(&socketDescriptor, &serverAddress, ybr, 0);
-            sendToServer(&socketDescriptor, &serverAddress, boo, 1);
+            sendToServer(&socketDescriptor, &serverAddress, ybr, 1);
+            sendToServer(&socketDescriptor, &serverAddress, boo, 0);
             imshow(window_name, frame);
         }
 

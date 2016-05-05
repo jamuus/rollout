@@ -11,10 +11,10 @@ var vec2log = filters.vec2log;
 var Filter = filters.Filter;
 
 var spheroIds = [
-    'wyp',
     'boo',
+    'gwo',
     'rob',
-    'gwo'
+    'wyp',
 ];
 
 var spheros = {};
@@ -56,8 +56,8 @@ function initSphero(dataOut) {
     // the input model
     // to add the velocity to position
     var F_k = $M([
-        [1, 0, 1 / 60, 0],
-        [0, 1, 0, 1 / 60],
+        [1, 0, 1 / 120, 0],
+        [0, 1, 0, 1 / 120],
         [0, 0, 1, 0],
         [0, 0, 0, 1],
     ]);
@@ -86,8 +86,8 @@ function initSphero(dataOut) {
 
     // noise
     var R_k = $M([
-        [1, 0, 0, 0],
-        [0, 1, 0, 0],
+        [5, 0, 0, 0],
+        [0, 5, 0, 0],
         [0, 0, 0.1, 0],
         [0, 0, 0, 0.1],
     ]);
@@ -102,18 +102,20 @@ function initSphero(dataOut) {
     ]);
 
     var Ksphero = new KalmanObservation(z_k, H_k, R_k);
-    var spheroPos = vec2log(500);
+    var spheroPos = vec2log(1000);
     spheroPos.add({
         x: 0,
         y: 0
     });
+
     var scaleLog = vec2log(40);
     scaleLog.add({
-        x: 0,
-        y: 0,
+        x: 20,
+        y: 0
     });
+
     var ret = {
-        ipPos: vec2log(100),
+        ipPos: vec2log(50),
         spheroVel: vec2log(100),
         spheroPos,
         batteryVoltage: -1,
@@ -134,7 +136,7 @@ function initSphero(dataOut) {
         kIPObservation: Kimage,
         angleVecLog: vec2log(20),
         scaleLog,
-        scale: 0.2,
+        scale: 15,
         lastCalib: new Date().getTime(),
         lastSpheroData: new Date().getTime(),
         lastIpData: new Date().getTime()
@@ -153,38 +155,39 @@ function initSphero(dataOut) {
         if (y > 20) y = 20;
 
         ret.pos = {
-            x: x,
+            x: -x,
             y: -y,
         };
 
         dataOut({
-            x: -ret.pos.x,
-            y: -ret.pos.y
+            kalmanPos: {
+                x: -ret.pos.x,
+                y: -ret.pos.y,
+            },
+            scale: ret.scale,
+            driftAngle: ret.driftAngle,
         });
-    }, 1000 / 60);
+    }, 1000 / 120);
 
     return ret;
 }
-
-
-var transformCorners;
 
 var imageSize = {
     x: 1280.0,
     y: 720.0,
 };
 
-var spheroScale = 1;
-var outputScale = 1;
+var spheroScale = 0.43;
+var outputScale = 1.9;
 
 var debugLog = console.log;
 var offset = {
-    x: 0,
-    y: 0
+    x: -1.5,
+    y: -18,
 };
 
 function updateSpheroDrift(sphero, result) {
-    if (result.distance < 2000 && result.maxDistance > 5) {
+    if (result.distance < 5000 && result.maxDistance > 5) {
         sphero.angleVecLog.add(result.angleVec);
         sphero.driftAngle = vecAngle(sphero.angleVecLog.average());
 
@@ -192,11 +195,13 @@ function updateSpheroDrift(sphero, result) {
             x: result.scale,
             y: 0
         });
-        sphero.scale = sphero.scaleLog.average().x;
+        // sphero.scale = sphero.scaleLog.average().x;
 
         console.log('Drift: ', sphero.driftAngle, 'dist', result.distance, 'maxDist', result.maxDistance, 'scale', result.scale);
     }
 }
+
+var exclusiveControl = false;
 
 module.exports = function(fn, workers) {
     var dataOut = fn.dataOut;
@@ -205,11 +210,9 @@ module.exports = function(fn, workers) {
     for (var i in spheroIds) {
         var name = spheroIds[i];
         (_name => {
-            spheros[_name] = initSphero(pos => dataOut({
+            spheros[_name] = initSphero(d => dataOut({
                 name: _name,
-                data: {
-                    kalmanPos: pos
-                }
+                data: d
             }));
         })(name);
 
@@ -227,6 +230,7 @@ module.exports = function(fn, workers) {
             }
         });
     });
+
     workers[1].on('message', result => {
         var sphero = spheros[spheroIds[1]];
         updateSpheroDrift(sphero, result);
@@ -242,8 +246,20 @@ module.exports = function(fn, workers) {
 
     // called by web client to test forces
     fn.forceCallback(function(data) {
-        for (var i in spheros) {
-            spheros[i].force(data.direction, data.force);
+        // for (var i in spheros) {
+        //     spheros[i].force(data.direction, data.force);
+        // }
+        spheros[spheroIds[0]].force(data.direction1, data.force1, true);
+        spheros[spheroIds[1]].force(data.direction2, data.force2, true);
+    });
+
+    fn.controlCallback(function(data) {
+        if (data === 'take') {
+            exclusiveControl = true;
+        } else if (data === 'release') {
+            exclusiveControl = false;
+        } else {
+            console.log('Control wtf:', data);
         }
     });
 
@@ -291,6 +307,14 @@ function setupSpheroManager(dataOut) {
                     name,
                     data: newSpheroData(val.data, spheros[name])
                 });
+            } else if (val.data.type === 'battery') {
+                var voltage = val.data.v;
+                dataOut({
+                    name,
+                    data: {
+                        batteryVoltage: voltage
+                    }
+                })
             } else {
                 ipc.log('Unknown data type'.debug);
             }
@@ -305,7 +329,7 @@ function setupSpheroManager(dataOut) {
                 var name = deviceNameTofriendly(deviceName);
                 var sphero = spheros[name];
                 ((sphero) => {
-                    sphero.force = (direction, force) => {
+                    sphero.force = (direction, force, local) => {
                         let offsetDirection = direction + sphero.driftAngle;
 
                         let send = {
@@ -313,7 +337,8 @@ function setupSpheroManager(dataOut) {
                             direction: offsetDirection,
                             force
                         };
-                        ipc.of[id].emit('force', JSON.stringify(send));
+                        if ((exclusiveControl && local) || !exclusiveControl)
+                            ipc.of[id].emit('force', JSON.stringify(send));
                     };
                 })(sphero)
             }
@@ -656,7 +681,7 @@ function newIpData(sphero, data, worker) {
 
     var aft = new Date().getTime();
     var dif = aft - sphero.lastCalib;
-    if (dif > 500) {
+    if (dif > 1500) {
         sphero.lastCalib = aft;
         worker.send([sphero.ipPos, sphero.spheroPos]);
     }
@@ -692,7 +717,7 @@ function newIpData(sphero, data, worker) {
 
 var angleOffset = 0 / 360 * Math.PI * 2; // camera angle offset
 var h = 5; // meters high
-var verticalFov = 40 / 360 * Math.PI * 2; // 60 degrees in radiuns
+var verticalFov = 30 / 360 * Math.PI * 2; // 60 degrees in radiuns
 var radiunsPerYPixel = verticalFov / imageSize.y;
 
 var focalLength = 200; // 10 mm?
@@ -719,9 +744,14 @@ function pixelToPosition(pos) {
     //     x: pos.x / (imageSize.x * 0.5) - 1.0,
     //     y: (imageSize.y - pos.y) / (imageSize.y * 0.5) - 1.0,
     // }
+    // return {
+    //     x: res.elements[0] * outputScale + offset.x,
+    //     y: res.elements[1] * outputScale + offset.y,
+    //     z: res.elements[2] * outputScale
+    // }
     return {
-        x: res.elements[0] * outputScale + offset.x,
-        y: res.elements[1] * outputScale + offset.y,
-        z: res.elements[2] * outputScale
+        x: X * outputScale + offset.x,
+        y: Y * outputScale + offset.y,
+        z: Z * outputScale
     }
 }

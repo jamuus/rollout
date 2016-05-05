@@ -2,6 +2,14 @@
 
 var debug = true;
 
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive)
+ * Using Math.round() will give you a non-uniform distribution!
+ */
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 module.exports = function(opts) {
     opts = opts || {};
 
@@ -77,7 +85,7 @@ module.exports = function(opts) {
                 return connectedSpheros.deviceNames.indexOf(sphName) === -1;
             });
             if (newSph.length > 0) {
-                var sphDevName = newSph[0]
+                var sphDevName = newSph[getRandomInt(0, newSph.length - 1)];
                 log("[SPHERO] Connecting to sphero", sphDevName);
                 var sph = sphero('/dev/' + sphDevName, {
                     emitPacketErrors: true
@@ -92,10 +100,9 @@ module.exports = function(opts) {
                         var response = connectedSpheros.deviceNames;
                         sendToAllSockets('spheroList', response);
                     }
-                    setTimeout(updateSpheros, 2000);
+                    setTimeout(updateSpheros, 1000);
                 });
             } else {
-                // console.log('[SPHERO] No spheros found');
                 setTimeout(updateSpheros, 2000);
             }
         });
@@ -147,18 +154,38 @@ module.exports = function(opts) {
                 name: deviceName,
                 data
             };
-            // ipc.server.emit(socket,
-            //     'newSpheroData', JSON.stringify(response)
-            // );
-            sendToAllSockets('newSpheroData', response)
-
-            // _newDataCallback(data, 'velocity');
+            sendToAllSockets('newSpheroData', response);
         });
+
+        // setInterval(() => {
+        //     sphero.getPowerState(function(err, data) {
+        //         //     console.log("  recVer:", data.recVer);
+        //         //     console.log("  batteryState:", data.batteryState);
+        //         //     console.log("  batteryVoltage:", data.batteryVoltage);
+        //         //     console.log("  chargeCount:", data.chargeCount);
+        //         //     console.log("  secondsSinceCharge:", data.secondsSinceCharge);
+        //         if (err) {
+        //             console.log('[ERROR] in sphero', deviceName, 'charging err:', err);
+        //         } else {
+        //             sendToAllSockets('newSpheroData', {
+        //                 name: deviceName,
+        //                 data: {
+        //                     type: 'battery',
+        //                     v: data.batteryVoltage
+        //                 }
+        //             });
+        //         }
+        //     });
+        // }, 5 * 1000);
+
 
         sphero.on('error', function(err) {
             log('[ERROR] in sphero', deviceName, '-', err);
-            removeSphero(sphero, deviceName);
-            sphero.disconnect();
+            // removeSphero(sphero, deviceName);
+            if (connected) {
+                connected = false;
+                sphero.disconnect();
+            }
         });
 
         sphero.on('close', function() {
@@ -166,12 +193,19 @@ module.exports = function(opts) {
             removeSphero(sphero, deviceName);
             connected = false;
         });
-
+        // if (deviceName.indexOf('GWO') !== -1) {
+        //     sphero.setRgbLed({
+        //         red: 255,
+        //         green: 0,
+        //         blue: 0
+        //     });
+        // } else {
         sphero.setRgbLed({
-            red: 0,
-            green: 0,
-            blue: 0
+            red: 255,
+            green: 255,
+            blue: 255
         });
+        // }
 
         // _onSpheroConnect(api.instances[api.instances.length - 1]);
     }

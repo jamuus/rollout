@@ -100,7 +100,7 @@ function discover() {
             console.log("No unity instance found.");
             // process.exit();
         }
-    }, 5000);
+    }, 1000);
 }
 
 function connectToUnity(server) {
@@ -163,6 +163,7 @@ function startVisServer() {
         socket.on('force', force);
         socket.on('transform', transform);
         socket.on('scale', spheroScale);
+        socket.on('control', control);
     });
 
     http.listen(3000, function() {
@@ -174,6 +175,8 @@ function startVisServer() {
     function transform() {}
 
     function spheroScale() {}
+
+    function control() {}
 
     return {
         dataOut: function(data) {
@@ -187,6 +190,9 @@ function startVisServer() {
         },
         spheroScaleCallback: function(callback) {
             spheroScale = callback;
+        },
+        controlCallback: function(callback) {
+            control = callback;
         }
     }
 }
@@ -197,7 +203,7 @@ function sendState() {
 
     for (var name in state) {
         var sphero = state[name];
-        // console.log(sphero.x, sphero.y);
+        // console.log(name);
         var buf = new Buffer(1 + name.length + 5 * 4);
         buf[0] = name.length;
         buf.write(name, 1, name.length, "ascii");

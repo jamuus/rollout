@@ -18,14 +18,13 @@ Sphero::Sphero(string name)
         //and HSV max values
         setType(name);
 
-        // // for orange cover
-        setHSVmin(Scalar(5, 175, 154));
-        setHSVmax(Scalar(20, 256, 256));
+        // orange cover
+        // setHSVmin(Scalar(5, 175, 154));
+        // setHSVmax(Scalar(20, 256, 256));
 
         // red tape
         // setHSVmin(Scalar(122, 93, 98));
         // setHSVmax(Scalar(189, 256, 230));
-
         // H_MIN 122
         // H_MAX 189
         // S_MIN 93
@@ -34,27 +33,15 @@ Sphero::Sphero(string name)
         // V_MAX 230
 
 
-
-
-
-        // for orange cover
-        // setHSVmin(Scalar(0, 0, 131));
-        // setHSVmax(Scalar(75, 256, 256));
+        // red tape light
+        setHSVmin(Scalar(0, 75, 196));
+        setHSVmax(Scalar(51, 256, 256));
         // H_MIN 0
-        // H_MAX 75
-        // S_MIN 0
+        // H_MAX 51
+        // S_MIN 75
         // S_MAX 256
-        // V_MIN 131
+        // V_MIN 196
         // V_MAX 256
-
-
-        // for red sphero
-        // setHSVmin(Scalar(0, 66, 45));
-        // setHSVmax(Scalar(29, 180, 256));
-
-        // for red sphero
-        // setHSVmin(Scalar(163, 94, 0));
-        // setHSVmax(Scalar(242, 256, 256));
 
 
 
@@ -66,15 +53,27 @@ Sphero::Sphero(string name)
         //TODO: use "calibration mode" to find HSV min
         //and HSV max values
         setType(name);
+
+
         // setHSVmin(Scalar(25, 71, 180));
         // setHSVmax(Scalar(120, 186, 256));
 
 
+        // blue light
+        setHSVmin(Scalar(70, 173, 151));
+        setHSVmax(Scalar(146, 256, 256));
+        // H_MIN 70
+        // H_MAX 146
+        // S_MIN 173
+        // S_MAX 256
+        // V_MIN 151
+        // V_MAX 256
 
-        setHSVmin(Scalar(22, 77, 147));
-        setHSVmax(Scalar(98, 192, 220));
 
 
+        // not sure
+        // setHSVmin(Scalar(22, 77, 147));
+        // setHSVmax(Scalar(98, 192, 220));
         // H_MIN 22
         // H_MAX 98
         // S_MIN 77
@@ -82,6 +81,16 @@ Sphero::Sphero(string name)
         // V_MIN 147
         // V_MAX 220
 
+
+        // white no nothing
+        // setHSVmin(Scalar(0, 0, 241));
+        // setHSVmax(Scalar(256, 30, 256));
+        // H_MIN 0
+        // H_MAX 256
+        // S_MIN 0
+        // S_MAX 30
+        // V_MIN 241
+        // V_MAX 256
 
 
         //BGR value for Yellow:
