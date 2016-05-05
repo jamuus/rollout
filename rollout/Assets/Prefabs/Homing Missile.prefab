@@ -160,7 +160,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
   spreadCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -182,7 +182,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
 --- !u!114 &11472636
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -199,6 +199,7 @@ MonoBehaviour:
   explosionPower: 200
   damage: 10
   explosion: {fileID: 11498218, guid: 1c886662c014c294d94b33f112640f46, type: 2}
+  collision: {fileID: 8300000, guid: b447135ca469749059481c2bb5f1aa49, type: 3}
 --- !u!136 &13662424
 CapsuleCollider:
   m_ObjectHideFlags: 1

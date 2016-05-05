@@ -19,6 +19,7 @@ public class HomingMissile : MonoBehaviour
     {
         otherPlayer = givenOtherPlayer;
         homingMissile = GetComponent<Rigidbody>();
+        mains = gameObject.GetComponent<AudioSource>();
 
         //Schedule to destroy the missile after 8 seconds
         Destroy(gameObject, 8f);
@@ -31,15 +32,12 @@ public class HomingMissile : MonoBehaviour
         speed = givenSpeed;
         turnSpeed = givenTurnSpeed;
         damage = givenDamage;
-        otherPlayer = givenOtherPlayer;
-		mains = GetComponent<AudioSource>();
 
         //Immediately make the projectile move in the desired direction
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.velocity = velocity.normalized * speed;
 
-        //Destroys the projectile afer 8 seconds
-        Destroy(gameObject, 8.0f);
+        Initialise(givenVelocity, givenOtherPlayer);
     }
 
     //when the missile hits something, spawn an explosion
@@ -64,9 +62,9 @@ public class HomingMissile : MonoBehaviour
 
     void OnDestroy()
     {
-		mains.PlayOneShot (collision);
         var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
         spawnedExplosion.Initialise(4, explosionPower, 30, 10);
+        mains.PlayOneShot(collision);
         print("Explosion Successful");
     }
 }
