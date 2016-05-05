@@ -13,7 +13,7 @@ public class DamageSlowRegion : Region
             player.GetComponent<UniversalHealth>().damagePlayer(Damage);
             lastEffectCall = Time.time;
 			Debug.LogFormat ("damage here");
-			music = player.gameObject.transform.GetChild(0).gameObject;
+			music = player.gameObject.transform.Find("sound").gameObject;
 			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
 			manager.Stun ();
         }
