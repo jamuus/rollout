@@ -106,7 +106,7 @@ public class SpecialField : MonoBehaviour
         projectileControl = player.GetComponent<ProjectileControl>();
         projectileControl.AddAmmo(randomWepID, ammoAmount);
         print("Weapon " + randomWepID + " Added to " + player.name);
-		music = player.transform.GetChild (0).gameObject;
+		music = player.transform.Find("sound").gameObject;
 		SoundManager manager = (SoundManager)music.GetComponent (typeof(SoundManager));
 		manager.PickPowerUp ();
         //Add the weapon to the app
