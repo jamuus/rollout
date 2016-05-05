@@ -49,6 +49,8 @@ public class PlayerControl : MonoBehaviour
         boundaryHardness = container.GetComponent<GenerateLevel>().boundaryHardness * 2 + 1;
         rigidbody = GetComponent<Rigidbody>();
 
+        Physics.IgnoreCollision(GetComponent<SphereCollider>(), GameObject.Find("Circular Plane").GetComponent<MeshCollider>());
+
 		particles = gameObject.GetComponentsInChildren<ParticleSystem>();
 		foreach (ParticleSystem ps in particles) {
 			//ps.Play ();
@@ -188,7 +190,7 @@ public class PlayerControl : MonoBehaviour
             float n = collision.contacts.Length;
             sphero.EnvironmentForce = Vector3.zero;
             foreach (ContactPoint p in collision.contacts)
-                sphero.EnvironmentForce += Vector3.Reflect(rigidbody.velocity, p.normal);
+                sphero.EnvironmentForce += Vector3.Reflect(rigidbody.velocity, p.normal) * 0.1f;
             sphero.EnvironmentForce /= n;
         }
     }
@@ -202,6 +204,10 @@ public class PlayerControl : MonoBehaviour
     {
         if (sphero != null)
         {
+            Debug.DrawRay(rigidbody.position, sphero.EnvironmentForce * 10.0f, Color.red);
+            sphero.SendMove();
+            sphero.EnvironmentForce *= 0.5f;
+
             //ClampEnvironmentForce(0.0f, 0.3f);
 
             // Debug.LogFormat("Env: {0}", sphero.EnvironmentForce);
