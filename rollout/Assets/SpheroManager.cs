@@ -198,6 +198,8 @@ public class Sphero
     public Vector3                      EnvironmentForce        { get; set; }
 
     public float                        PhysicalForceClamp      { get; set; }
+    public float                        PhysicalCollisionScale  { get; private set; }
+    public float                        PhysicalForceDecayRate  { get; private set; }
 
     public Sphero()
     {
@@ -212,6 +214,8 @@ public class Sphero
         EnvironmentForce    = new Vector3(0, 0, 0);
 
         PhysicalForceClamp = 0.3f;
+        PhysicalCollisionScale = 0.1f;
+        PhysicalForceDecayRate = 0.5f;
     }
 
     // RollSphero message format:

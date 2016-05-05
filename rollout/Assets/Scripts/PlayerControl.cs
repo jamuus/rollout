@@ -190,7 +190,7 @@ public class PlayerControl : MonoBehaviour
             float n = collision.contacts.Length;
             sphero.EnvironmentForce = Vector3.zero;
             foreach (ContactPoint p in collision.contacts)
-                sphero.EnvironmentForce += Vector3.Reflect(rigidbody.velocity, p.normal) * 0.1f;
+                sphero.EnvironmentForce += Vector3.Reflect(rigidbody.velocity, p.normal) * sphero.PhysicalCollisionScale;
             sphero.EnvironmentForce /= n;
         }
     }
@@ -206,7 +206,7 @@ public class PlayerControl : MonoBehaviour
         {
             Debug.DrawRay(rigidbody.position, sphero.EnvironmentForce * 10.0f, Color.red);
             sphero.SendMove();
-            sphero.EnvironmentForce *= 0.5f;
+            sphero.EnvironmentForce *= sphero.PhysicalForceDecayRate;
 
             //ClampEnvironmentForce(0.0f, 0.3f);
 
