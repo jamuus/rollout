@@ -141,7 +141,9 @@ public static class SpheroManager
 
         // TODO Process with collisions etc, then forward on to node.
 
-        Instances[name].Roll(direction, force);
+        var sphero = Instances[name];
+        sphero.Roll(sphero.CorrectAngle(direction), force);
+        //Instances[name].Roll(direction, force);
 
         //Debug.LogFormat("Rolling Sphero {0} in direction {1} with force {2}.", name, direction, force);
     }
@@ -156,7 +158,10 @@ public static class SpheroManager
         string name = Encoding.ASCII.GetString(data, offset + 1, data[offset]);
 
         //Shoot from the relevant sphero
-        Instances[name].Shoot(SpheroWeaponType.Default, direction);
+        var sphero = Instances[name];
+        sphero.Shoot(SpheroWeaponType.Default, sphero.CorrectAngle(direction));
+
+        //Instances[name].Shoot(SpheroWeaponType.Default, direction);
 
         //Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
     }
@@ -216,6 +221,15 @@ public class Sphero
         PhysicalForceClamp = 0.3f;
         PhysicalCollisionScale = 0.1f;
         PhysicalForceDecayRate = 0.5f;
+    }
+
+    public float CorrectAngle(float angle)
+    {
+        if (UnityObject.gameObject.name == "player1")
+            angle += Mathf.PI / 2.0f;
+        else
+            angle -= Mathf.PI / 2.0f;
+        return angle;
     }
 
     // RollSphero message format:
