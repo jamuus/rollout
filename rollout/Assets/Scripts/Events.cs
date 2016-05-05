@@ -23,7 +23,8 @@ public class Events : MonoBehaviour {
     public float timeUntilFirstEvent;
     public float timeBetweenEvents;
     public GameObject enemy;
-	GameObject player1;
+    GameObject powerups;
+    GameObject player1;
 	GameObject player2;
 
 	private System.Random random;
@@ -38,7 +39,9 @@ public class Events : MonoBehaviour {
         timeOfLastEvent = 0;
 
 		random = new System.Random();
-	}
+
+        powerups = gameObject.transform.Find("/Level/PowerUps/Special Powerups").gameObject;
+    }
 
 	void Update () {
 		updateTimer ();
@@ -74,7 +77,13 @@ public class Events : MonoBehaviour {
 		globalEvent.time = 100000;
 		globalEvent.id = 2;
 		globalEvents.Add (globalEvent);
-	}
+
+        globalEvent.name = "Weapons";
+        globalEvent.description = "Spawns lots of weapon powerups";
+        globalEvent.time = 100000;
+        globalEvent.id = 3;
+        globalEvents.Add(globalEvent);
+    }
 
 	public void triggerEvent(int id)
 	{
@@ -91,9 +100,13 @@ public class Events : MonoBehaviour {
 		}
 		if (id == 2) {
 			initialiseEnemy ();
-			manager.enemy ();
-		}
-		setTimer (id);
+            manager.enemy();
+        }
+        if (id == 3)
+        {
+            initialseWeapons();
+        }
+        setTimer (id);
 	}
 
 	void applyRecurringEvent()
@@ -114,14 +127,16 @@ public class Events : MonoBehaviour {
 
 	void initialiseLava()
 	{
-		float radius = gameObject.GetComponent<GenerateLevel> ().levelRadius + 2;
-		GameObject specialFieldD = gameObject.GetComponent<GenerateLevel> ().specialFieldD;
-		for (int i = 0; i < 10; i++)
-		{
-			Vector3 pos = randomPosition(radius);
-			GameObject spawnedObject = (GameObject)Instantiate(specialFieldD, pos, Quaternion.identity);
-			spawnedObjects.Add (spawnedObject);
-		}
+
+        DamageSlowRegion newRegion = new DamageSlowRegion();
+		//float radius = gameObject.GetComponent<GenerateLevel> ().levelRadius + 2;
+		//GameObject specialFieldD = gameObject.GetComponent<GenerateLevel> ().specialFieldD;
+		//for (int i = 0; i < 10; i++)
+		//{
+		//	Vector3 pos = randomPosition(radius);
+		//	GameObject spawnedObject = (GameObject)Instantiate(specialFieldD, pos, Quaternion.identity);
+		//	spawnedObjects.Add (spawnedObject);
+		//}
 	}
 
 	void initialiseEarthquake()
@@ -142,6 +157,11 @@ public class Events : MonoBehaviour {
 		GameObject spawnedObject = (GameObject)Instantiate (enemy, pos, Quaternion.identity);
 		spawnedObjects.Add (spawnedObject);
 	}
+
+    void initialseWeapons()
+    {
+        if (powerups != null) powerups.SetActive(true);
+    }
 
 	void updateTimer()
 	{
@@ -164,7 +184,7 @@ public class Events : MonoBehaviour {
 		while (spawnedObjects.Count > 0) {
 			Destroy (spawnedObjects [0]);
 			spawnedObjects.Remove (spawnedObjects[0]);
-
+            if (powerups != null) powerups.SetActive(false);
 		}
 		recurringID = 0;
 		BGM = GameObject.Find("BGM");
