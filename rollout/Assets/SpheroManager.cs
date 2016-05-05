@@ -197,6 +197,8 @@ public class Sphero
     public Vector3                      MoveForce               { get; set; }
     public Vector3                      EnvironmentForce        { get; set; }
 
+    public float                        PhysicalForceClamp      { get; set; }
+
     public Sphero()
     {
         Weapons = new List<SpheroWeapon>();
@@ -208,6 +210,8 @@ public class Sphero
 
         MoveForce           = new Vector3(0, 0, 0);
         EnvironmentForce    = new Vector3(0, 0, 0);
+
+        PhysicalForceClamp = 0.3f;
     }
 
     // RollSphero message format:
@@ -263,7 +267,7 @@ public class Sphero
     {
         Vector3 resultant = MoveForce + EnvironmentForce;
 
-        float force = Mathf.Clamp(resultant.magnitude, 0.0f, 0.3f);
+        float force = Mathf.Clamp(resultant.magnitude, 0.0f, PhysicalForceClamp);
         float direction = Mathf.Atan2(-resultant.x, resultant.z);
 
         //Debug.LogFormat("MV: {2} DIR: {0} FRC: {1}", direction, force, MoveForce);

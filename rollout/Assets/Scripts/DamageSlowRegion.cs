@@ -5,6 +5,8 @@ public class DamageSlowRegion : Region
     public int Damage;
     public float DragMultiplier;
 	private GameObject music;
+    private float outOfRegionClamp;
+    private const float inRegionClamp = 0.05f;
 
     public override void ApplyEffect(PlayerControl player)
     {
@@ -21,7 +23,10 @@ public class DamageSlowRegion : Region
 
     public override void OnPlayerEnter(PlayerControl player)
     {
-        Debug.LogFormat("PLAYER {0} ENTER REGION", player.name);
+        //Debug.LogFormat("PLAYER {0} ENTER REGION", player.name);
+
+        outOfRegionClamp = player.sphero.PhysicalForceClamp;
+        player.sphero.PhysicalForceClamp = inRegionClamp;
 
         #if SOFTWARE_MODE
         player.GetComponent<Rigidbody>().drag *= DragMultiplier;
@@ -30,7 +35,10 @@ public class DamageSlowRegion : Region
 
     public override void OnPlayerLeave(PlayerControl player)
     {
-        Debug.LogFormat("PLAYER {0} LEFT REGION", player.name);
+        //Debug.LogFormat("PLAYER {0} LEFT REGION", player.name);
+
+        player.sphero.PhysicalForceClamp = outOfRegionClamp;
+
         #if SOFTWARE_MODE
         player.GetComponent<Rigidbody>().drag /= DragMultiplier;
         #endif
