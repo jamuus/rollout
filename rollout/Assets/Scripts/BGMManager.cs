@@ -3,116 +3,97 @@ using System.Collections;
 
 public class BGMManager : MonoBehaviour {
 
-	public enum State { Pause = 0, Play = 1, FadingOut = 2,  FadingIn = 3, Stop = 4, None = 5}
+	public enum State { Pause = 0, Play = 1, Prev = 2, Next = 3}
 
-	private AudioSource[] sources;
-	public AudioClip basetrack;
-	public AudioClip earthquake;
-	public Track[] tracks = new Track[2];
-
+	private AudioSource source;
+	public AudioClip bs12;
+	public AudioClip bs2;
+	public AudioClip bb1;
+	public AudioClip bb2;
+	public AudioClip bass;
+	public AudioClip rumble;
+	public AudioClip tension;
+	private int[] playlist;
+	private int current;
+	private int eventFlag;
 	public class Track : MonoBehaviour
 	{
 		public int id;
 		public string name;
-		public State State;
-		public float fadeSpeed;
 		public bool loop;
-		public AudioSource output;
 		public AudioClip clip;
 		public float volume;
-		public float nextStateVolume;
 
-		public Track(int newId, string newName, State newState, float newFadeSpeed, bool newLoop, AudioSource newOutput, AudioClip newClip,
-					float newVolume, float newNextStateVolume ){
-			newOutput.clip=newClip;
-			newOutput.loop = newLoop;
-			newOutput.volume = newVolume;
+		public Track(int newId, string newName, float newVolume, bool newLoop, AudioClip newClip){
+			volume = newVolume;
 			id = newId;
 			name = newName;
-			State = newState;
-			fadeSpeed = newFadeSpeed;
 			loop = newLoop;
-			output = newOutput;
 			clip = newClip;
-			nextStateVolume = newNextStateVolume;
-
 		}
 	}
 
+
+	private Track[] tracks = new Track[5];
+	private Track[] events = new Track[3];
+
 	private void init()
 	{
-		sources = this.GetComponents<AudioSource>();
-		tracks [0] = new Track (0, "basetrack", State.Play, 1.0f, true, sources [0], basetrack, 1.0f, 0.0f);
-		tracks [1] = new Track (1, "earthquake", State.Play, 1.0f, true, sources [1], earthquake, 0.0f, 1.0f);
+		source = this.GetComponent<AudioSource>();
+		tracks [0] = new Track (0, "bs12", 1.0f, true,bs12);
+		tracks [1] = new Track (1, "bs2", 1.0f, true,bs2);
+		tracks [2] = new Track (2, "bass",  1.0f, true,bass);
+		tracks [3] = new Track (3, "bb1", 1.0f, true,bb1);
+		tracks [4] = new Track (4, "bb2", 1.0f, true,bb2);
+
+		events [0] = new Track (0, "rumble",  1.0f, true,rumble);
+		events [1] = new Track (1, "tension", 1.0f, true,tension);
+		events [2] = new Track (1, "tension", 1.0f, true,tension);
+
 	}
 
 	void Start () {
 		init ();
+		current = 0;
+		int[] list = { 2, 3, 4, 1, 0 };
+		playlist = list;
+		source.clip = tracks[list[current]].clip;
+		source.volume = 0.6f;
+		source.Play();
+		eventFlag = -1;
 	}
-
-	public void FadeToNextClip(int fromTrackID, int toTrackID)
-	{
-		FadeOut (fromTrackID);
-		FadeIn (toTrackID);
-	}
-
-	private void FadeOut(int TrackID)
-	{
-		tracks [TrackID].State = State.FadingOut;
-	}
-	private void FadeIn(int TrackID)
-	{
-		tracks [TrackID].State = State.FadingIn;
-	}
-
-//
-//		
+		
 	private void Update()
-	{
-		foreach (Track x in tracks) 
+	{        
+		if (!source.isPlaying)
 		{
-			switch (x.State) 
-			{
-
-			case State.None:
-				break;
-			
-			case State.Pause:
-				x.output.Pause();
-				x.State = State.None;
-				break;
-
-
-			case State.Play:
-				x.output.Play();
-				x.State = State.None;
-				break;
-
-			case State.FadingIn:
-				if (x.output.volume < x.nextStateVolume) {
-					x.output.volume += x.fadeSpeed * Time.deltaTime;
-				} else {
-					x.State = State.None;
-				}
-				break;
-
-			case State.FadingOut:
-				if (x.output.volume > x.nextStateVolume) {
-					x.output.volume -= x.fadeSpeed * Time.deltaTime;
-				} else {
-					if (x.nextStateVolume == 0.0f) {
-						x.State = State.Pause;
-					} else {
-						x.State = State.None;
-					}
-				}
-				break;
-
-			case State.Stop:
-				x.output.Stop();
-				break;
-
+			if (eventFlag == -1) {
+				current += 1;
+				if (current == playlist.Length)
+					current = 0;
+				source.clip = tracks [playlist [current]].clip;
+				source.Play ();
+			} else {
+				source.clip = events [eventFlag].clip;
+				source.Play ();
 			}
 		}
+
+	}
+	public void lava()
+	{
+		eventFlag = 0;
+	}
+	public void earthquake()
+	{
+		eventFlag = 1;
+	}
+	public void enemy()
+	{
+		eventFlag = 2;
+	}
+	public void reset()
+	{
+		eventFlag = -1;
 	}
 }

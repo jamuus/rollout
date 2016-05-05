@@ -50,20 +50,18 @@ public class CollisionAttack : MonoBehaviour
 			//Calculate and deal some damage to the player
 			int damage = calculateDamage (col) * collisionAttackValue;
 			health.damagePlayer (damage);
-			manager.CollidePlayer ();
+			manager.CollidePlayer (col.relativeVelocity);
 
 			gameObject.GetComponent<PlayerControl>().particles[5].Play();
 
 			//Play collision particle effect
 			//particlesmain.Play(); //this causes some errors
 		} else if (col.gameObject.tag == "Obstacle") {
-			manager.CollideObstacle ();
+			manager.CollideObstacle (col.relativeVelocity);
 		} else if (col.gameObject.tag == "Projectile") {
-			manager.CollideProjectile ();
+			manager.CollideProjectile (col.relativeVelocity);
 		} else if (col.gameObject.tag == "DamageField") {
-			manager.CollideDamageField ();
-		} else if (col.gameObject.tag == "HealthField") {
-			manager.CollideHealthField ();
+			manager.CollideDamageField (col.relativeVelocity);
 		}
     }
 

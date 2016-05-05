@@ -57,7 +57,11 @@ public class Explosion : MonoBehaviour
                 UniversalHealth health = objectInExplosion.GetComponent<UniversalHealth>();
                 proportionalDistance = distance / explosionRadius;
                 damage = (int)Mathf.Round(Mathf.Lerp(maxDamage, minDamage, proportionalDistance));
-                if (objectInExplosion.GetComponent<Shield>().isActiveAndEnabled) objectInExplosion.GetComponent<Shield>().shieldCharge(damage);
+                if (objectInExplosion.CompareTag("Player"))
+                {
+                    GameObject shield = objectInExplosion.transform.Find("shield").gameObject;
+                    if (shield.activeSelf) shield.GetComponent<Shield>().shieldCharge(damage);
+                }
             }
         }
         //Destroy(this.gameObject);

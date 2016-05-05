@@ -12,7 +12,7 @@ public class Events : MonoBehaviour {
 		public int time; //ms
 		public int id;
 	}
-
+	public GameObject BGM;
 	public int gameStateId;
 	public List<GlobalEvent> globalEvents = new List<GlobalEvent>();
 	int eventTimer;
@@ -88,14 +88,19 @@ public class Events : MonoBehaviour {
 	public void triggerEvent(int id)
 	{
 		resetOldState();
+		BGM = GameObject.Find("BGM");
+		BGMManager manager = (BGMManager) BGM.GetComponent(typeof(BGMManager));
 		if (id == 0){
 			initialiseLava ();
+			manager.lava ();
 		}
 		if (id == 1){
 			initialiseEarthquake();
+			manager.earthquake ();
 		}
 		if (id == 2) {
 			initialiseEnemy ();
+            manager.enemy();
         }
         if (id == 3)
         {
@@ -182,6 +187,9 @@ public class Events : MonoBehaviour {
             if (powerups != null) powerups.SetActive(false);
 		}
 		recurringID = 0;
+		BGM = GameObject.Find("BGM");
+		BGMManager manager = (BGMManager) BGM.GetComponent(typeof(BGMManager));
+		manager.reset ();
 	}
 
 }

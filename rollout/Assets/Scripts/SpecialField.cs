@@ -22,7 +22,7 @@ public class SpecialField : MonoBehaviour
 	private bool active = true;
     private ProjectileControl projectileControl;
     private int ammoAmount;
-
+	public GameObject music;
     // Use this for initialization
     void Start ()
     {
@@ -38,6 +38,8 @@ public class SpecialField : MonoBehaviour
 
     void OnTriggerEnter(Collider col)
     {
+		print ("hey gal");
+
         //If the field affects the player
 		if (col.gameObject.tag == "Player" && this.active == true) {
             //Get the player object
@@ -53,20 +55,18 @@ public class SpecialField : MonoBehaviour
             case 2:
                 destroyPlayer(player);
                 break;
-            case 3:
+			case 3:
                 //50% chance to add powerup or weapon
-                if (Random.Range(0,1) == 0)
-                {
-                    GameObject container = GameObject.Find("Container");
-                    powerUp = container.GetComponent<InitialisePowerUp>().powerUps[powerUpID];
-                    givePowerUp(player);
-                    //AddWeapon(player, -1);
-                }
-                else
-                {
-                    AddWeapon(player, -1);
-                }
-
+				if (Random.Range (0, 1) == 0) {
+					GameObject container = GameObject.Find ("Container");
+					powerUp = container.GetComponent<InitialisePowerUp> ().powerUps [powerUpID];
+					givePowerUp (player);
+					//AddWeapon(player, -1);
+					Debug.LogFormat("here1");
+				} else {
+					AddWeapon (player, -1);
+					Debug.LogFormat("here 2");
+				}
                 break;
             case 4:
                 AddWeapon(player, weaponID);
@@ -106,7 +106,9 @@ public class SpecialField : MonoBehaviour
         projectileControl = player.GetComponent<ProjectileControl>();
         projectileControl.AddAmmo(randomWepID, ammoAmount);
         print("Weapon " + randomWepID + " Added to " + player.name);
-
+		music = player.transform.Find("sound").gameObject;
+		SoundManager manager = (SoundManager)music.GetComponent (typeof(SoundManager));
+		manager.PickPowerUp ();
         //Add the weapon to the app
         player.GetComponent<PlayerControl>().sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)randomWepID));
     }

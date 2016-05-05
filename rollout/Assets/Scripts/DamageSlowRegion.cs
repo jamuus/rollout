@@ -8,11 +8,14 @@ public class DamageSlowRegion : Region
 
     public override void ApplyEffect(PlayerControl player)
     {
-
         if (Time.time > lastEffectCall + Rate)
         {
             player.GetComponent<UniversalHealth>().damagePlayer(Damage);
             lastEffectCall = Time.time;
+			Debug.LogFormat ("damage here");
+			music = player.gameObject.transform.Find("sound").gameObject;
+			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
+			manager.Stun ();
         }
     }
 
