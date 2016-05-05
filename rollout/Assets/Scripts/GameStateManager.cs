@@ -10,6 +10,7 @@ using System.Collections.Generic;
 
 public class GameStateManager : MonoBehaviour {
 	public int gameStateId = 0;
+	public string levelName = "Level";
 	private GameObject player1;
 	private GameObject player2;
 	private UniversalHealth player1Health;
@@ -17,7 +18,7 @@ public class GameStateManager : MonoBehaviour {
 	private GenerateLevel levelGenerator;
 	private SoundManager soundManager;
 	private Events events;
-	private List<Transform> levelObjects;
+	private List<Vector3> levelObjects  = new List<Vector3>();
 
 	// Use this for initialization
 	void Start () {
@@ -27,7 +28,7 @@ public class GameStateManager : MonoBehaviour {
 		player2Health = player2.GetComponent<UniversalHealth> ();
 		//levelGenerator = GameObject.Find ("Container").GetComponent<GenerateLevel> ();
 		events = GameObject.Find ("Container").GetComponent<Events>();
-		//saveLevel ("Level");
+		saveLevel (levelName);
 		setGameStates ();
 	}
 	
@@ -41,10 +42,12 @@ public class GameStateManager : MonoBehaviour {
 
 	private void saveLevel(string levelName){
 		GameObject level = GameObject.Find(levelName);
-		foreach (Transform child in level.transform)
+		Transform[] elements = level.GetComponentsInChildren<Transform>();
+		for(int i = 0; i < elements.Length; i++)
 		{
-			levelObjects.Add (child);
-			print ("object: " + child);
+			print (elements[i]);
+			print (levelObjects);
+			levelObjects.Add (elements[i].position);
 		}
 	}
 
@@ -56,10 +59,20 @@ public class GameStateManager : MonoBehaviour {
 		events.gameStateId = gameStateId;
 	}
 
+	private void restartLevel(string levelName)
+	{
+		GameObject level = GameObject.Find(levelName);
+		Transform[] elements = level.GetComponentsInChildren<Transform>();
+		for(int i = 0; i < elements.Length; i++)
+		{
+			elements[i].position = levelObjects [i];
+		}
+	}
+
 	public bool checkGameStateChange() {
 		if (gameStateId == 0) {
-			if (player1Health.currentHealth <=0 || 
-				player2Health.currentHealth <=0 ) {
+			if (player1Health.currentHealth <= 0 || 
+				player2Health.currentHealth <= 0 ) {
 				//change gameState
 				return true;
 			}
@@ -80,6 +93,7 @@ public class GameStateManager : MonoBehaviour {
 	
 		return false;
 	}
+
 	private void addVictoryScreen() {
 		TextMesh victoryMessage = GameObject.Find ("Victory").GetComponent<TextMesh> ();
 		if (player1Health.currentHealth <= 0) {
@@ -126,9 +140,8 @@ public class GameStateManager : MonoBehaviour {
 			addPreGameScreen ();
             SpheroManager.RestartGame();
             SpheroManager.SendStateToControllers();
-			//toNextState ();
 			//levelGenerator.restart ();
-			//restartLevel();
+			restartLevel(levelName);
 		}
 	}
 }
