@@ -128,15 +128,15 @@ public class Events : MonoBehaviour {
 	void initialiseLava()
 	{
 
-        DamageSlowRegion newRegion = new DamageSlowRegion();
-		//float radius = gameObject.GetComponent<GenerateLevel> ().levelRadius + 2;
-		//GameObject specialFieldD = gameObject.GetComponent<GenerateLevel> ().specialFieldD;
-		//for (int i = 0; i < 10; i++)
-		//{
-		//	Vector3 pos = randomPosition(radius);
-		//	GameObject spawnedObject = (GameObject)Instantiate(specialFieldD, pos, Quaternion.identity);
-		//	spawnedObjects.Add (spawnedObject);
-		//}
+        //DamageSlowRegion newRegion = new DamageSlowRegion();
+		float radius = gameObject.GetComponent<GenerateLevel> ().levelRadius + 2;
+		GameObject specialFieldD = gameObject.GetComponent<GenerateLevel> ().specialFieldD;
+		for (int i = 0; i < 10; i++)
+		{
+			Vector3 pos = randomPosition(radius);
+			GameObject spawnedObject = (GameObject)Instantiate(specialFieldD, pos, Quaternion.identity);
+			spawnedObjects.Add (spawnedObject);
+		}
 	}
 
 	void initialiseEarthquake()
@@ -152,7 +152,6 @@ public class Events : MonoBehaviour {
 
 	void initialiseEnemy()
 	{
-		float radius = gameObject.GetComponent<GenerateLevel> ().levelRadius + 2;
 		Vector3 pos = new Vector3 (0f, 1f, 0f);
 		GameObject spawnedObject = (GameObject)Instantiate (enemy, pos, Quaternion.identity);
 		spawnedObjects.Add (spawnedObject);

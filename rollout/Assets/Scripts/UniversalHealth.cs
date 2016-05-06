@@ -11,13 +11,15 @@ public class UniversalHealth : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
-		maxHealth = currentHealth;
+		if (this.gameObject.CompareTag("Player")) {
+			maxHealth = currentHealth;
+		}
     }
 
     // Update is called once per frame
     void Update ()
     {
-
+		print ("max health" + maxHealth + "    currentHealth" + currentHealth);
     }
 
     void updateSphero()
