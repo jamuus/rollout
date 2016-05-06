@@ -15,6 +15,7 @@ GameObject:
   - 54: {fileID: 5444240}
   - 64: {fileID: 6433498}
   - 96: {fileID: 9651024}
+  - 82: {fileID: 8259260}
   m_Layer: 8
   m_Name: Linear Projectile
   m_TagString: Projectile
@@ -94,10 +95,8 @@ MeshCollider:
   serializedVersion: 2
   m_Convex: 0
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!82 &8223388
+--- !u!82 &8259260
 AudioSource:
---- !u!96 &9651024
-TrailRenderer:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
@@ -158,7 +157,7 @@ TrailRenderer:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 0
+    m_RotationOrder: 4
   reverbZoneMixCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -170,6 +169,13 @@ TrailRenderer:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+--- !u!96 &9651024
+TrailRenderer:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 111852}
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_Materials:
@@ -223,8 +229,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 40
   damage: 10
-  collision: {fileID: 8300000, guid: 5fac6be26c670498f97f7daba0cbba4d, type: 3}
   colour: {r: 1, g: 0, b: 0, a: 1}
+  collision: {fileID: 8300000, guid: 5fac6be26c670498f97f7daba0cbba4d, type: 3}
 --- !u!135 &13521176
 SphereCollider:
   m_ObjectHideFlags: 1
