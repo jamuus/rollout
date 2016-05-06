@@ -21,6 +21,7 @@ public class PlayerControl : MonoBehaviour
     public string horizontalAxis;
     public string verticalAxis;
     private GameObject music;
+    public string SpheroName;
 
     private Player player;
     private GameObject playerObject;
@@ -38,6 +39,7 @@ public class PlayerControl : MonoBehaviour
 
     void Start()
     {
+        SpheroName = gameObject.name;
 		startingPosition = gameObject.transform.position;
         speed = baseSpeed;
         velocity = GetComponent<Rigidbody> ().velocity;

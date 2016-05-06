@@ -336,7 +336,7 @@ public class TcpServerModule
         }
         finally
         {
-            Connections.Remove(connection);
+            //Connections.Remove(connection);
 
             foreach (KeyValuePair<string, Sphero> s in SpheroManager.Instances)
             {
