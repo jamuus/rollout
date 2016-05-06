@@ -126,7 +126,7 @@ public class ProjectileControl : MonoBehaviour
             {
                 case (int)Weapons.basicGun:
                     basicGun.Fire();
-//					manager.Shoot ();
+					manager.Shoot ();
 
                     break;
 
