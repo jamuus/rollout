@@ -16,7 +16,7 @@ public class BGMManager : MonoBehaviour {
 	private int[] playlist;
 	private int current;
 	private int eventFlag;
-	public class Track : MonoBehaviour
+	public class Track
 	{
 		public int id;
 		public string name;

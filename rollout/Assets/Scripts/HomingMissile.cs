@@ -28,6 +28,7 @@ public class HomingMissile : MonoBehaviour
     //In case you want to set your own speed and damage
     public void Initialise(Vector3 givenVelocity, float givenSpeed, float givenTurnSpeed, int givenDamage, GameObject givenOtherPlayer)
     {
+        otherPlayer = givenOtherPlayer;
         velocity = givenVelocity;
         speed = givenSpeed;
         turnSpeed = givenTurnSpeed;

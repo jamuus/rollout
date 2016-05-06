@@ -15,8 +15,12 @@ public class SoundManager : MonoBehaviour {
 	public AudioClip grenadeShoot;
 	public AudioClip stun;
 	private AudioSource mains;
+	private GameObject player;
 
-
+	public float GetPosition(GameObject player){
+		float objectPos =  player.transform.position.x;
+		return objectPos;
+	}
 
 	public void PickPowerUp(){
 		mains.PlayOneShot (pickPowerUp);
