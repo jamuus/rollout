@@ -13,6 +13,7 @@ TagManager:
   - Field
   - Generated
   - Shield
+  - Enemy
   layers:
   - Default
   - TransparentFX
