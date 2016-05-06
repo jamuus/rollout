@@ -102,6 +102,7 @@ public static class SpheroManager
                 Players[currentPlayerIndex].sphero = sphero;
                 MainThread.EnqueueAction(() =>
                 {
+                    Players[currentPlayerIndex].sphero.UnityObject = Players[currentPlayerIndex].GetComponent<PlayerControl>();
                     Players[currentPlayerIndex].sphero.UnityProjectileControl = Players[currentPlayerIndex].GetComponent<ProjectileControl>();
                     Debug.LogFormat("[SpheroManager] Added Sphero \"{0}\".", deviceName);
                 });
