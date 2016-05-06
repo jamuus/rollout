@@ -15937,7 +15937,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 679b6856b5b32bb4bbbecce640cb4b30, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 679b6856b5b32bb4bbbecce640cb4b30, type: 3}
       propertyPath: m_TagString
@@ -17582,7 +17582,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 317907519}
-  health: 0
+  health: 50
 --- !u!64 &1150058614
 MeshCollider:
   m_ObjectHideFlags: 0
