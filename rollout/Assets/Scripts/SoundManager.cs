@@ -15,14 +15,24 @@ public class SoundManager : MonoBehaviour {
 	public AudioClip grenadeShoot;
 	public AudioClip stun;
 	private AudioSource mains;
+	private GameObject player;
 
-
+	public float GetPosition(){
+		float objectPosX =  player.transform.position.x;
+		return objectPosX;
+	}
+	public void SetSteroPan(AudioSource source){
+		float gridX = GetPosition ();
+		float posX = (gridX)/16.5f;
+		source.panStereo = posX;
+	}
 
 	public void PickPowerUp(){
 		mains.PlayOneShot (pickPowerUp);
 	}
 
 	public void Shoot(){
+		SetSteroPan (mains);
 		mains.PlayOneShot (shoot);
 	}
 	public void SlowDown(){
@@ -70,5 +80,6 @@ public class SoundManager : MonoBehaviour {
 
 	void Start () {
 		mains = GetComponent<AudioSource>();
+		player = this.transform.parent.gameObject;
 	}
 }
