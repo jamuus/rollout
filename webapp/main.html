@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="font/roboto-regular/stylesheet.css" type="text/css" />
+        <link rel="stylesheet" href="rollout.css" type="text/css" />
+        <script src="js/jquery-1.12.3.min.js"></script>
+        <script src="js/main.js"></script>
+        <title>Rollout Spectator App</title>
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="header">
+                <h1>
+                    <img class="inline" src="img/logo.png" height="30px"/>
+                    What should happen next?
+                </h1>
+            </div>
+            <div id="content">
+                <table>
+                    <tr>
+                        <td class="event-btn-container">
+                            <div class="event-btn" id="event-btn-left">
+                                <p>Event 0</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div id="event-timer">
+                                <p>5</p>
+                            </div>
+                        </td>
+                        <td class="event-btn-container">
+                            <div class="event-btn" id="event-btn-right">
+                                <p>Event 1</p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div id="warning-message">
+            <h1>Please switch to landscape view.</h1>
+        </div>
+    </body>
+</html>
