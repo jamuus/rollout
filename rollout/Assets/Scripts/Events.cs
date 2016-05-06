@@ -62,7 +62,7 @@ public class Events : MonoBehaviour {
 
 		globalEvent.name = "Hell";
 		globalEvent.description = "Spawn a lot of lava";
-		globalEvent.time = 10000;
+		globalEvent.time = 50000;
 		globalEvent.id = 0;
 		globalEvents.Add (globalEvent);
 
@@ -74,7 +74,7 @@ public class Events : MonoBehaviour {
 
 		globalEvent.name = "Enemy";
 		globalEvent.description = "Spawn a vicious enemy that shoots at players";
-		globalEvent.time = 100000;
+		globalEvent.time = 500000;
 		globalEvent.id = 2;
 		globalEvents.Add (globalEvent);
 
