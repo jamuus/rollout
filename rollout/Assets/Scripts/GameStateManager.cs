@@ -115,13 +115,13 @@ public class GameStateManager : MonoBehaviour {
 			if (player2Health.currentHealth <= 0) {
 				victoryMessage.text = ("   2 way tie");
 			} else {
-				victoryMessage.text = ("  Player 2 is win");
+				victoryMessage.text = ("    Player 2 wins");
 			}
 		} else {
 			if (player2Health.currentHealth <= 0) {
-				victoryMessage.text = ("  Player 1 is win");
+				victoryMessage.text = ("    Player 1 wins");
 			} else {
-				victoryMessage.text = ("Press return again\n    to restart");
+				victoryMessage.text = ("    Press enter\n      to restart");
 			} 
 		}
 			

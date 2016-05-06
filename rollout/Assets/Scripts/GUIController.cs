@@ -112,6 +112,7 @@ public class GUIController : MonoBehaviour
 
     void drawArc(float healthPercentage, float boardSide)
     {
+		print (healthPercentage);
         float theta_scale = 0.01f;
         int size = (int)((1f * 3f) * healthPercentage / theta_scale); //Total number of points in circle.
 

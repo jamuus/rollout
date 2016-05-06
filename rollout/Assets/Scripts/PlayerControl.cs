@@ -277,13 +277,13 @@ public class PlayerControl : MonoBehaviour
         }
         if (powerUp.name == "Slow Down Enemy") {
             otherPlayer.GetComponent<PlayerControl>().statuses [2] = statusList[2].time;
-            statuses [3] = 0;
+			otherPlayer.GetComponent<PlayerControl>().statuses [3] = 1;
 			otherPlayer.GetComponent<PlayerControl>().particles [2].Play ();
         }
         if (powerUp.name == "Boost") {
             statuses [3] = statusList[3].time;
-            statuses [2] = 0; // When boost used it removes negative speed effects
-            statuses [4] = 0; // Removing stunn status
+            statuses [2] = 1; // When boost used it removes negative speed effects
+            statuses [4] = 1; // Removing stunn status
 			particles [3].Play ();
         }
         if (powerUp.name == "Stun Enemy") {
@@ -328,7 +328,7 @@ public class PlayerControl : MonoBehaviour
 
         // reduce speed
         if (statuses[2] > 0) {
-            if (statuses[2] == statusList[2].time) speed = baseSpeed / statusList[2].magnitude;
+            speed = baseSpeed / statusList[2].magnitude;
             decrementStatusDuration(2);
             if (statuses[2] <= 0) {
 				particles [2].Stop ();
@@ -339,7 +339,7 @@ public class PlayerControl : MonoBehaviour
 
         // increase speed
         if (statuses[3] > 0) {
-            if (statuses[3] == statusList[3].time) speed = baseSpeed * statusList[3].magnitude;
+            speed = baseSpeed * statusList[3].magnitude;
             decrementStatusDuration(3);
             if (statuses[3] <= 0) {
                 speed = baseSpeed;
@@ -376,6 +376,8 @@ public class PlayerControl : MonoBehaviour
 		}
 
 		powerUps.Clear ();
+		shield.GetComponent<Shield>().health = 0;
+		shield.SetActive (false);
 		speed = baseSpeed;
 		gameObject.transform.rotation = Quaternion.identity;
 		gameObject.GetComponent<Rigidbody> ().velocity = new Vector3 (0f, 0f, 0f);

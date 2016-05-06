@@ -4,14 +4,14 @@ using System;
 
 public class UniversalHealth : MonoBehaviour
 {
-    public static int maxHealth = 100;
+    public static int maxHealth = 200;
     public static int minHealth = 1;
-    public int currentHealth = maxHealth;
+    public int currentHealth = 200;
 
     // Use this for initialization
     void Start ()
     {
-        int currentHealth = maxHealth;
+		maxHealth = currentHealth;
     }
 
     // Update is called once per frame
