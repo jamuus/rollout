@@ -38,9 +38,7 @@ public class SpecialField : MonoBehaviour
 
     void OnTriggerEnter(Collider col)
     {
-		print ("hey gal");
-
-        //If the field affects the player
+		//If the field affects the player
 		if (col.gameObject.tag == "Player" && this.active == true) {
             //Get the player object
             GameObject player = col.gameObject;
@@ -89,7 +87,7 @@ public class SpecialField : MonoBehaviour
         //get a random weapon ID
 
         if (randomWepID < 100)
-            randomWepID = Random.Range(101, 103);
+            randomWepID = Random.Range(101, 104);
 
         //determine the right amount of ammo to add for the weapon
         switch(randomWepID)
@@ -104,6 +102,9 @@ public class SpecialField : MonoBehaviour
                 break;
             case 103:
                 ammoAmount = player.GetComponent<MachineGun>().ammunition;
+                break;
+            case 104:
+                ammoAmount = player.GetComponent<Shotgun>().ammunition;
                 break;
         }
 
