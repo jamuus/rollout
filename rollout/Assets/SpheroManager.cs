@@ -225,7 +225,7 @@ public class Sphero
 
     public float CorrectAngle(float angle)
     {
-        if (UnityObject.gameObject.name == "player1")
+        if (UnityObject.gameObject.name == "player2")
             angle += Mathf.PI / 2.0f;
         else
             angle -= Mathf.PI / 2.0f;

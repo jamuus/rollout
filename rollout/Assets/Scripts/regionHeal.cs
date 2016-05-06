@@ -13,7 +13,6 @@ public class RegionHeal : Region
 		{
 			player.GetComponent<UniversalHealth>().healPlayer(magnitude);
 			lastEffectCall = Time.time;
-			print ("hey girl");
 		}
 	}
 

@@ -40,7 +40,7 @@ public class Events : MonoBehaviour {
 
 		random = new System.Random();
 
-        powerups = gameObject.transform.Find("/Level/PowerUps/Special Powerups").gameObject;
+        //powerups = gameObject.transform.Find("/Level/PowerUps/Special Powerups").gameObject;
     }
 
 	void Update () {
