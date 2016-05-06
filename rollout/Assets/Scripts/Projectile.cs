@@ -7,17 +7,22 @@ public class Projectile : MonoBehaviour
     private GameObject playerShooting;
     public float speed;
     public int damage;
-
+    public Color colour = new Vector4(1, 0, 0, 1);
     private UniversalHealth health;
     private GameObject music;
 	private AudioSource mains;
 	public AudioClip collision;
 
     //private ParticleSystem particles;
+    
 
     public void Initialise(Vector3 givenVelocity)
     {
-		mains = GetComponent<AudioSource>();
+        mains = gameObject.GetComponent<AudioSource>();
+
+        //set the colour
+        GetComponent<TrailRenderer>().material.SetColor("_TintColor", colour);
+        
         //Immediately make the projectile move in the desired direction
         velocity = givenVelocity;
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -27,19 +32,18 @@ public class Projectile : MonoBehaviour
         Destroy(gameObject, 2.0f);
     }
 
-    //In case you want to set your own speed and damage
-    public void Initialise(Vector3 givenVelocity, float givenSpeed, int givenDamage)
+    //In case you want to set your own speed, damage and colour
+    public void Initialise(Vector3 givenVelocity, float givenSpeed, int givenDamage, Color givenColour)
     {
+        //set the colour
+        colour = givenColour;
+        GetComponent<TrailRenderer>().material.SetColor("_TintColor", givenColour);
+
         velocity = givenVelocity;
         speed = givenSpeed;
         damage = givenDamage;
 
-        //Immediately make the projectile move in the desired direction
-        Rigidbody rb = GetComponent<Rigidbody>();
-        rb.velocity = velocity.normalized * speed;
-
-        //Destroys the projectile afer 2 seconds
-        Destroy(gameObject, 2.0f);
+        Initialise(givenVelocity);
     }
 
     //forces the projectile to ignore a specific collider
@@ -56,7 +60,8 @@ public class Projectile : MonoBehaviour
 		mains.PlayOneShot(collision);
 
         //print("collision player : " + col.gameObject.name + " player who spawned is : " + gameObject.name );
-        if (col.gameObject.GetComponent<UniversalHealth> () && col.gameObject != playerShooting) {
+        if (col.gameObject.GetComponent<UniversalHealth> () && col.gameObject != playerShooting)
+        {
             //Damage whatever collided with the projectile
             GameObject collidedObject = col.gameObject;
 
@@ -74,10 +79,7 @@ public class Projectile : MonoBehaviour
 //			manager.CollideObstacle ();
 //			print ("you should obstacle");
 
-        }
-    }
 
-    void Update()
-    {
+        }
     }
 }

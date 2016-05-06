@@ -18,7 +18,7 @@ public class HomingMissile : MonoBehaviour
     public void Initialise(Vector3 givenVelocity, GameObject givenOtherPlayer)
     {
         otherPlayer = givenOtherPlayer;
-        homingMissile = GetComponent<Rigidbody>();
+        homingMissile = gameObject.GetComponent<Rigidbody>();
         mains = gameObject.GetComponent<AudioSource>();
 
         //Schedule to destroy the missile after 8 seconds
@@ -34,7 +34,7 @@ public class HomingMissile : MonoBehaviour
         damage = givenDamage;
 
         //Immediately make the projectile move in the desired direction
-        Rigidbody rb = GetComponent<Rigidbody>();
+        Rigidbody rb = gameObject.GetComponent<Rigidbody>();
         rb.velocity = velocity.normalized * speed;
 
         Initialise(givenVelocity, givenOtherPlayer);
@@ -46,7 +46,22 @@ public class HomingMissile : MonoBehaviour
         //var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
         //spawnedExplosion.Initialise(4, explosionPower, 30, 10);
         //print("Explosion Successful");
-        Destroy(this.gameObject);
+        if (col.gameObject.tag != "Shield") Destroy(gameObject);
+        else
+        {
+            deflect();
+            Destroy(gameObject, 2.0f);
+        }
+    }
+
+    void deflect()
+    {
+        //Aim towards the player that fired it
+        otherPlayer = GameObject.Find(otherPlayer.name.Contains("2") ? "player1" : "player2");
+
+        //Reverse the direction
+        var targetRotation = Quaternion.LookRotation(otherPlayer.transform.position - transform.position, Vector3.up);
+        transform.rotation = Quaternion.Euler(new Vector3(0, homingMissile.rotation.y + 180f, 0));
     }
 
     void FixedUpdate()

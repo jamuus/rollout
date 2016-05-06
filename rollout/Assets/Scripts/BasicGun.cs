@@ -6,10 +6,14 @@ public class BasicGun : MonoBehaviour
     public Projectile projectile;
     private Vector3 velocity;
     private Vector3 projectilePosition;
-    public float fireRate;
+    public float fireRate = 0.5f;
+    public float bulletSpeed = 40f;
+    public int damage = 7;
+    public Color colour = new Vector4(1, 0, 0, 1);
     public int ammunition = -1;
+    public int maxAmmo = 1;
 
-    public new int ID()
+    public int ID()
     {
         return 100;
     }
@@ -29,7 +33,7 @@ public class BasicGun : MonoBehaviour
         var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
         spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
         spawnedProjectile.ignoreCollider(gameObject.transform.Find("shield").GetComponent<Collider>());
-        spawnedProjectile.Initialise(velocity);
+        spawnedProjectile.Initialise(velocity, bulletSpeed, damage, colour);
     }
 
     public void Fire(Vector3 velocity)
@@ -38,7 +42,8 @@ public class BasicGun : MonoBehaviour
         projectilePosition = transform.position + velocity.normalized;
         var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
         spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
-        spawnedProjectile.Initialise(velocity);
+        spawnedProjectile.ignoreCollider(gameObject.transform.Find("shield").GetComponent<Collider>());
+        spawnedProjectile.Initialise(velocity, bulletSpeed, damage, colour);
     }
 
     // Use this for initialization
