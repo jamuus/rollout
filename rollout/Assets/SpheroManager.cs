@@ -102,6 +102,7 @@ public static class SpheroManager
                 Players[currentPlayerIndex].sphero = sphero;
                 MainThread.EnqueueAction(() =>
                 {
+                    Players[currentPlayerIndex].sphero.UnityObject = Players[currentPlayerIndex].GetComponent<PlayerControl>();
                     Players[currentPlayerIndex].sphero.UnityProjectileControl = Players[currentPlayerIndex].GetComponent<ProjectileControl>();
                     Debug.LogFormat("[SpheroManager] Added Sphero \"{0}\".", deviceName);
                 });
@@ -225,7 +226,7 @@ public class Sphero
 
     public float CorrectAngle(float angle)
     {
-        if (UnityObject.gameObject.name == "player1")
+        if (UnityObject.SpheroName == "player1")
             angle += Mathf.PI / 2.0f;
         else
             angle -= Mathf.PI / 2.0f;

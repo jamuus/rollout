@@ -299,7 +299,7 @@ public static class Server
                 SpheroManager.ParseUpdatedState(bytes, 1);
                 break;
             case ServerMessageType.RollSphero:
-                SpheroManager.Roll(bytes);
+                //SpheroManager.Roll(bytes);
                 break;
             case ServerMessageType.ServerDiscover:
                 message.Type = ServerMessageType.ServerDiscover;

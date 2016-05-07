@@ -28,6 +28,7 @@ public class HomingMissile : MonoBehaviour
     //In case you want to set your own speed and damage
     public void Initialise(Vector3 givenVelocity, float givenSpeed, float givenTurnSpeed, int givenDamage, GameObject givenOtherPlayer)
     {
+        otherPlayer = givenOtherPlayer;
         velocity = givenVelocity;
         speed = givenSpeed;
         turnSpeed = givenTurnSpeed;
@@ -47,7 +48,7 @@ public class HomingMissile : MonoBehaviour
         //spawnedExplosion.Initialise(4, explosionPower, 30, 10);
         //print("Explosion Successful");
         if (col.gameObject.tag != "Shield") Destroy(gameObject);
-        else
+        else if (col.gameObject.GetComponentInParent<GameObject>() == otherPlayer)
         {
             deflect();
             Destroy(gameObject, 2.0f);

@@ -23,7 +23,7 @@ public class DamageSlowRegion : Region
 
     public override void OnPlayerEnter(PlayerControl player)
     {
-        //Debug.LogFormat("PLAYER {0} ENTER REGION", player.name);
+        Debug.LogFormat("PLAYER {0} ENTER REGION", player.name);
 
         outOfRegionClamp = player.sphero.PhysicalForceClamp;
         player.sphero.PhysicalForceClamp = inRegionClamp;
@@ -35,7 +35,7 @@ public class DamageSlowRegion : Region
 
     public override void OnPlayerLeave(PlayerControl player)
     {
-        //Debug.LogFormat("PLAYER {0} LEFT REGION", player.name);
+        Debug.LogFormat("PLAYER {0} LEFT REGION", player.name);
 
         player.sphero.PhysicalForceClamp = outOfRegionClamp;
 

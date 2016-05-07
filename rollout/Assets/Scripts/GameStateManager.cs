@@ -10,7 +10,8 @@ using System.Collections.Generic;
 
 public class GameStateManager : MonoBehaviour {
 	public int gameStateId = 0;
-	public string levelName = "Level";
+	public GameObject level;
+	public GameObject[] levels;
 	private GameObject player1;
 	private GameObject player2;
 	private UniversalHealth player1Health;
@@ -28,7 +29,12 @@ public class GameStateManager : MonoBehaviour {
 		player2Health = player2.GetComponent<UniversalHealth> ();
 		//levelGenerator = GameObject.Find ("Container").GetComponent<GenerateLevel> ();
 		events = GameObject.Find ("Container").GetComponent<Events>();
-		saveLevel (levelName);
+		setRandomLevel ();
+		foreach (GameObject lvl in levels) {
+			lvl.SetActive (false);
+		}
+		level.SetActive (true);
+		saveLevel ();
 		setGameStates ();
 	}
 	
@@ -40,8 +46,8 @@ public class GameStateManager : MonoBehaviour {
 		}
 	}
 
-	private void saveLevel(string levelName){
-		GameObject level = GameObject.Find(levelName);
+	private void saveLevel(){
+		levelObjects.Clear ();
 		Transform[] elements = level.GetComponentsInChildren<Transform>();
 		for(int i = 0; i < elements.Length; i++)
 		{
@@ -59,14 +65,23 @@ public class GameStateManager : MonoBehaviour {
 		events.gameStateId = gameStateId;
 	}
 
-	private void restartLevel(string levelName)
+	private void restartLevel()
 	{
-		GameObject level = GameObject.Find(levelName);
 		Transform[] elements = level.GetComponentsInChildren<Transform>();
 		for(int i = 0; i < elements.Length; i++)
 		{
 			elements[i].position = levelObjects [i];
 		}
+		level.SetActive(false);
+		setRandomLevel ();
+		level.SetActive (true);
+		saveLevel ();
+	}
+
+	private void setRandomLevel () {
+		System.Random random = new System.Random();
+		int randomNumber = random.Next(0, levels.Length);
+		level = levels[randomNumber];
 	}
 
 	public bool checkGameStateChange() {
@@ -100,13 +115,13 @@ public class GameStateManager : MonoBehaviour {
 			if (player2Health.currentHealth <= 0) {
 				victoryMessage.text = ("   2 way tie");
 			} else {
-				victoryMessage.text = ("  Player 2 is win");
+				victoryMessage.text = ("    Player 2 wins");
 			}
 		} else {
 			if (player2Health.currentHealth <= 0) {
-				victoryMessage.text = ("  Player 1 is win");
+				victoryMessage.text = ("    Player 1 wins");
 			} else {
-				victoryMessage.text = ("Press return again\n    to restart");
+				victoryMessage.text = ("    Press enter\n      to restart");
 			} 
 		}
 			
@@ -141,7 +156,7 @@ public class GameStateManager : MonoBehaviour {
             SpheroManager.RestartGame();
             SpheroManager.SendStateToControllers();
 			//levelGenerator.restart ();
-			restartLevel(levelName);
+			restartLevel();
 		}
 	}
 }

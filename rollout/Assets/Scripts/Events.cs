@@ -42,7 +42,7 @@ public class Events : MonoBehaviour {
 
 		random = new System.Random();
 
-        powerups = gameObject.transform.Find("/Level/PowerUps/Special Powerups").gameObject;
+        //powerups = gameObject.transform.Find("/Level/PowerUps/Special Powerups").gameObject;
     }
 
 	void Update () {
@@ -65,7 +65,7 @@ public class Events : MonoBehaviour {
 
 		globalEvent.name = "Hell";
 		globalEvent.description = "Spawn a lot of lava";
-		globalEvent.time = 10000;
+		globalEvent.time = 50000;
 		globalEvent.id = 0;
 		globalEvents.Add (globalEvent);
 
@@ -77,7 +77,7 @@ public class Events : MonoBehaviour {
 
 		globalEvent.name = "Enemy";
 		globalEvent.description = "Spawn a vicious enemy that shoots at players";
-		globalEvent.time = 100000;
+		globalEvent.time = 500000;
 		globalEvent.id = 2;
 		globalEvents.Add (globalEvent);
 
@@ -131,15 +131,15 @@ public class Events : MonoBehaviour {
 	void initialiseLava()
 	{
 
-        DamageSlowRegion newRegion = new DamageSlowRegion();
-		//float radius = gameObject.GetComponent<GenerateLevel> ().levelRadius + 2;
-		//GameObject specialFieldD = gameObject.GetComponent<GenerateLevel> ().specialFieldD;
-		//for (int i = 0; i < 10; i++)
-		//{
-		//	Vector3 pos = randomPosition(radius);
-		//	GameObject spawnedObject = (GameObject)Instantiate(specialFieldD, pos, Quaternion.identity);
-		//	spawnedObjects.Add (spawnedObject);
-		//}
+        //DamageSlowRegion newRegion = new DamageSlowRegion();
+		float radius = gameObject.GetComponent<GenerateLevel> ().levelRadius + 2;
+		GameObject specialFieldD = gameObject.GetComponent<GenerateLevel> ().specialFieldD;
+		for (int i = 0; i < 10; i++)
+		{
+			Vector3 pos = randomPosition(radius);
+			GameObject spawnedObject = (GameObject)Instantiate(specialFieldD, pos, Quaternion.identity);
+			spawnedObjects.Add (spawnedObject);
+		}
 	}
 
 	void initialiseEarthquake()
@@ -155,7 +155,6 @@ public class Events : MonoBehaviour {
 
 	void initialiseEnemy()
 	{
-		float radius = gameObject.GetComponent<GenerateLevel> ().levelRadius + 2;
 		Vector3 pos = new Vector3 (0f, 1f, 0f);
 		GameObject spawnedObject = (GameObject)Instantiate (enemy, pos, Quaternion.identity);
 		spawnedObjects.Add (spawnedObject);
