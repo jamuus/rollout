@@ -48,10 +48,10 @@ public class ProjectileControl : MonoBehaviour
         //Set the initial weapon to the basic gun
         activeWeapon = (int)Weapons.basicGun;
         ammunition[(int)Weapons.basicGun] = -1;
-        ammunition[(int)Weapons.homingLauncher] = 0;
-        ammunition[(int)Weapons.grenadeThrower] = 0;
-        ammunition[(int)Weapons.machineGun] = 0;
-        ammunition[(int)Weapons.shotgun] = 0;
+        ammunition[(int)Weapons.homingLauncher] = 10;
+        ammunition[(int)Weapons.grenadeThrower] = 10;
+        ammunition[(int)Weapons.machineGun] = 50;
+        ammunition[(int)Weapons.shotgun] = 20;
 
         //access the weapons
         basicGun = GetComponent<BasicGun>();
