@@ -1,12 +1,14 @@
+var lastEventTime = new Date().getTime();
+
 $(function() {
     setEventButtonSize();
     finaliseEventButtonSize();
     $(window).resize(setEventButtonSize);
 
-    $(".event-btn").click(function(e) {
-        e.preventDefault();
-        startTimer(5000);
-    });
+    //$(".event-btn").click(eventButtonClick);
+    
+    onTimerEnd();
+    setInterval(pollEvents, 500);
 });
 
 function setEventButtonSize() {
@@ -22,7 +24,7 @@ function finaliseEventButtonSize() {
 
 function startTimer(ms) {
     var timer = $("#event-timer > p");
-    timer.text(ms / 1000);
+    timer.text(Math.floor(ms / 1000));
 
     var id = setInterval(function() {
         ms -= 1000;
@@ -31,7 +33,7 @@ function startTimer(ms) {
             ms = 0;
             onTimerEnd();
         }
-        timer.text(ms / 1000);
+        timer.text(Math.floor(ms / 1000));
     }, 1000);
 }
 
@@ -39,4 +41,30 @@ function onTimerEnd() {
     var btns = $(".event-btn");
     btns.css("background", "rgba(80,80,80,80)");
     btns.children("p").text("WAITING FOR NEXT VOTE.");
+}
+
+function eventButtonClick(e) {
+    e.preventDefault();
+    //startTimer(5000);
+    
+    $.post("/webapp/vote", e.target.id);
+    $(".event-btn").unbind("click");
+}
+
+function pollEvents() {
+    $.get("/webapp/events", "", function(data) {
+        var obj = JSON.parse(data);
+        
+        // If our time < event time, new events.
+        if (lastEventTime < obj.time)
+            setEvents(obj);
+    });
+}
+
+function setEvents(json) {
+    lastEventTime = json.time;
+    $("#event-btn-left").text(json.event0);
+    $("#event-btn-right").text(json.event1);
+    $(".event-btn").click(eventButtonClick);
+    startTimer(10000 - (new Date().getTime() - lastEventTime));
 }

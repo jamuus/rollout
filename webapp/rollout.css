@@ -6,7 +6,7 @@
 
 html, body {
     background: #eee;
-    font-family: 'Roboto';
+    font-family: 'Roboto', sans-serif;
     color: #fff;
 }
 
@@ -62,4 +62,8 @@ td.event-btn-container {
 h1 {
     font-size: 2em;
     color: #329886;
+}
+
+.center {
+    text-align: center;
 }

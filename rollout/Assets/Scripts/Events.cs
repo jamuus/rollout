@@ -38,6 +38,8 @@ public class Events : MonoBehaviour {
         timeUntilNextEvent = timeUntilFirstEvent;
         timeOfLastEvent = 0;
 
+        SpectatorManager.EventsLastUpdated = -1;
+
 		random = new System.Random();
 
         powerups = gameObject.transform.Find("/Level/PowerUps/Special Powerups").gameObject;
@@ -49,7 +51,8 @@ public class Events : MonoBehaviour {
 
 		if (Time.time > timeOfLastEvent + timeUntilNextEvent && gameStateId == 0) {
 			timeOfLastEvent = float.MaxValue;
-			var selected = globalEvents.OrderBy (x => random.Next (0, globalEvents.Count)).Take (2).ToList ();
+            SpectatorManager.EventsLastUpdated = (long)(System.DateTime.UtcNow.Subtract(new System.DateTime(1970, 1, 1))).TotalMilliseconds;
+            var selected = globalEvents.OrderBy (x => random.Next (0, globalEvents.Count)).Take (2).ToList ();
 			SpectatorManager.SendNewEvents (selected [0].id, selected [1].id, 10000);
 		} else if (gameStateId != 0) {
 			resetOldState ();

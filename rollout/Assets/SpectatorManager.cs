@@ -27,6 +27,10 @@ public static class SpectatorManager
     private static int[]            eventVoteCounts;
     private static System.Object    lockSync;
 
+    public static int[] ActiveEventIDs { get; private set; }
+
+    public static long EventsLastUpdated { get; set; }
+
     static SpectatorManager()
     {
         Instances = new List<Spectator>();
@@ -36,6 +40,8 @@ public static class SpectatorManager
         eventVoteCounts = new int[3];
 
         lockSync = new System.Object();
+
+        ActiveEventIDs = new int[2];
     }
 
     public static void Initialise()
@@ -52,6 +58,9 @@ public static class SpectatorManager
 
     public static void SendNewEvents(int event0, int event1, int time)
     {
+        ActiveEventIDs[0] = event0;
+        ActiveEventIDs[1] = event1;
+
         // Set up message.
         ServerMessage message = new ServerMessage(ServerMessageType.SetEvents);
         message.AddContent((byte)event0);
