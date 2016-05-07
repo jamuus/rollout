@@ -25,8 +25,8 @@ public class DamageSlowRegion : Region
     {
         Debug.LogFormat("PLAYER {0} ENTER REGION", player.name);
 
-        outOfRegionClamp = player.sphero.PhysicalForceClamp;
-        player.sphero.PhysicalForceClamp = inRegionClamp;
+        //outOfRegionClamp = player.sphero.PhysicalForceClamp;
+        //player.sphero.PhysicalForceClamp = inRegionClamp;
 
         #if SOFTWARE_MODE
         player.GetComponent<Rigidbody>().drag *= DragMultiplier;
@@ -37,7 +37,7 @@ public class DamageSlowRegion : Region
     {
         Debug.LogFormat("PLAYER {0} LEFT REGION", player.name);
 
-        player.sphero.PhysicalForceClamp = outOfRegionClamp;
+        //player.sphero.PhysicalForceClamp = outOfRegionClamp;
 
         #if SOFTWARE_MODE
         player.GetComponent<Rigidbody>().drag /= DragMultiplier;
