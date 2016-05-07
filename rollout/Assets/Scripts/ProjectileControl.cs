@@ -7,7 +7,7 @@ public class ProjectileControl : MonoBehaviour
     private Vector3 velocity;
     public Projectile projectile;
     private GameObject music;
-
+	private SoundManager manager;
     //***TO ADD WEAPONS***
     //1) Write the weapon behaviour in a separate script
     //2) Add the weapon script as a component to each player, using projectile prefabs as needed
@@ -73,6 +73,10 @@ public class ProjectileControl : MonoBehaviour
         shotgun = GetComponent<Shotgun>();
         fireRates[ConvertID(104)] = shotgun.fireRate;
         maxAmmo[ConvertID(104)] = shotgun.maxAmmo;
+
+		music = gameObject.transform.Find("sound").gameObject;
+		manager = (SoundManager) music.GetComponent(typeof(SoundManager));
+
     }
 
     public void Update()
@@ -117,10 +121,6 @@ public class ProjectileControl : MonoBehaviour
         //Checks if the weapon has ammunition and shoots according to fire rate
         if (ammunition[activeWeapon] != 0 && sinceLastShot >= (float)fireRates[activeWeapon])
         {
-            //play the shooting sound
-			music = gameObject.transform.Find("sound").gameObject;
-			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-
             //fire the weapon and reduce ammunition as needed
             switch (activeWeapon)
             {
@@ -133,23 +133,25 @@ public class ProjectileControl : MonoBehaviour
                 case (int)Weapons.homingLauncher:
                     homingLauncher.Fire(otherPlayer);
 					manager.Shoot ();
-
+			
                     ReduceAmmo(101, 1);
                     break;
 
                 case (int)Weapons.grenadeThrower:
                     grenadeThrower.Fire();
-					manager.GrenadeShoot ();
+					manager.Shoot ();
 
                     ReduceAmmo(102, 1);
                     break;
 
                 case (int)Weapons.machineGun:
+					manager.Shoot ();
                     machineGun.Fire();
                     ReduceAmmo(103, 1);
                     break;
 
                 case (int)Weapons.shotgun:
+					manager.Shoot ();
                     shotgun.Fire();
                     ReduceAmmo(104, 1);
                     break;
@@ -168,9 +170,6 @@ public class ProjectileControl : MonoBehaviour
         if (ammunition[activeWeapon] != 0 && sinceLastShot >= (float)fireRates[activeWeapon])
         {
             //play the shooting sound
-			music = gameObject.transform.Find("sound").gameObject;
-			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-			manager.Shoot ();
 
             //fire the weapon and reduce ammunition as needed
             switch (activeWeapon)
@@ -190,7 +189,7 @@ public class ProjectileControl : MonoBehaviour
 
                 case (int)Weapons.grenadeThrower:
                     grenadeThrower.Fire(velocity);
-					manager.GrenadeShoot ();
+					manager.Shoot ();
 
                     ReduceAmmo(102, 1);
                     break;

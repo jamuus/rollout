@@ -4,6 +4,8 @@ using System.Collections;
 public class Grenade : MonoBehaviour {
     private float explosionRadius, explosionPower, maxDamage, minDamage;
     public Explosion explosion;
+	private AudioSource music;
+	public AudioClip bang;
 
     public void Initialise(Vector3 velocity, float speed, float givenRadius, float givenPower, float givenMaxDamage, float givenMinDamage)
     {
@@ -11,7 +13,7 @@ public class Grenade : MonoBehaviour {
         explosionPower = givenPower;
         maxDamage = givenMaxDamage;
         minDamage = givenMinDamage;
-
+		AudioSource music = GetComponent<AudioSource>();
         //Apply force to move the grenade
         Rigidbody rb = GetComponent<Rigidbody>();
         //rb.AddForce(velocity.normalized * speed); 
@@ -27,5 +29,6 @@ public class Grenade : MonoBehaviour {
         var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
         spawnedExplosion.Initialise(explosionRadius, explosionPower, maxDamage, minDamage);
         print("Explosion Successful");
-    }
+		music.PlayOneShot (bang);
+	}
 }
