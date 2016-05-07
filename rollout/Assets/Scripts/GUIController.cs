@@ -58,8 +58,6 @@ public class GUIController : MonoBehaviour
             drawArc ((float)getPlayerHealth(), -1f);
         } else if (player && player.name == "player2") {
             drawArc ((float)getPlayerHealth(), 1f);
-        } else {
-            Destroy(gameObject);
         }
         //this.GetComponent<TextMesh> ().text = playerHealth.currentHealth.ToString(); //updates value on health bar
     }
@@ -112,6 +110,7 @@ public class GUIController : MonoBehaviour
 
     void drawArc(float healthPercentage, float boardSide)
     {
+		print ("hp = " + 100 * healthPercentage + "%");
         float theta_scale = 0.01f;
         int size = (int)((1f * 3f) * healthPercentage / theta_scale); //Total number of points in circle.
 

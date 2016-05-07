@@ -7,6 +7,8 @@ public class EnemyAttack : MonoBehaviour
     GameObject player1;
     GameObject player2;
     public Projectile projectile;
+	private float lastShot = 0f;
+	public float rate = 1f;
 
     // Use this for initialization
     void Start ()
@@ -18,17 +20,20 @@ public class EnemyAttack : MonoBehaviour
     // Update is called once per frame
     void Update ()
     {
-        if (Random.Range (0, 24) < 1) {
-            shoot ();
-        }
+		if (Time.time > lastShot + rate)
+		{
+			shoot ();
+			lastShot = Time.time;
+		}
     }
 
     void shoot ()
     {
         Vector3 shotVector = calculateShotVector ();
         shotVector.y = 0;
-        Projectile spawnedProjectile = (Projectile)Instantiate(projectile, transform.position + shotVector.normalized, transform.rotation);
+        Projectile spawnedProjectile = (Projectile)Instantiate(projectile, transform.position + 1.5f * shotVector.normalized, transform.rotation);
         spawnedProjectile.Initialise(shotVector);
+
 
     }
 
@@ -48,8 +53,8 @@ public class EnemyAttack : MonoBehaviour
         GameObject player = getRandomPlayer ();
         Rigidbody playerRB = player.GetComponent<Rigidbody> ();
         Vector3 playerVelocity = playerRB.velocity;
-        Vector3 positionVector = transform.position + player.transform.position * 2;
-        Vector3 shotVector = (positionVector + playerVelocity);
+        Vector3 positionVector = transform.position + player.transform.position;
+		Vector3 shotVector = (positionVector + playerVelocity * 0.5f * ((positionVector + playerVelocity).magnitude + positionVector.magnitude) /20);
         return shotVector;
     }
 }

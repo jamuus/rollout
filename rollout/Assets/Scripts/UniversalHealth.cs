@@ -4,29 +4,32 @@ using System;
 
 public class UniversalHealth : MonoBehaviour
 {
-    public static int maxHealth = 100;
+    public static int maxHealth = 200;
     public static int minHealth = 1;
-    public int currentHealth = maxHealth;
+    public int currentHealth = 200;
 
     // Use this for initialization
     void Start ()
     {
-        int currentHealth = maxHealth;
+		if (this.gameObject.CompareTag("Player")) {
+			maxHealth = currentHealth;
+		}
     }
 
     // Update is called once per frame
     void Update ()
     {
-
     }
 
     void updateSphero()
     {
+		if (gameObject.CompareTag("Player")) {
         //Get the sphero
         Sphero sphero = ((PlayerControl)gameObject.GetComponent<PlayerControl>()).sphero;
 
         //Set properties
-        if(sphero != null) sphero.Health = currentHealth; 
+        	if(sphero != null) sphero.Health = currentHealth;
+		}
     }
 
     public void damagePlayer(int damage)
@@ -44,11 +47,10 @@ public class UniversalHealth : MonoBehaviour
         }
 
         //Destroy the player if their health drops too low
-//        if (currentHealth < minHealth)
-//        {
-//            print("Destroying Sphero");
-//            Destroy(gameObject);
-//        }
+		if (currentHealth < minHealth && gameObject.CompareTag("Enemy"))
+        {
+            Destroy(gameObject);
+        }
     }
     public void healPlayer(int healValue)
     {

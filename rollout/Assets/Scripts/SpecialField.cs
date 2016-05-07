@@ -115,7 +115,7 @@ public class SpecialField : MonoBehaviour
 		SoundManager manager = (SoundManager)music.GetComponent (typeof(SoundManager));
 		manager.PickPowerUp ();
         //Add the weapon to the app
-        player.GetComponent<PlayerControl>().sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)randomWepID));
+        //player.GetComponent<PlayerControl>().sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)randomWepID));
     }
 
     public void setPowerUpID(int id)

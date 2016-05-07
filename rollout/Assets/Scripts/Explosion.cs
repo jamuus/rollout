@@ -47,7 +47,7 @@ public class Explosion : MonoBehaviour
             if (rb != null)
                 rb.AddExplosionForce(explosionPower, transform.position, explosionRadius);
 
-            if (objectInExplosion.name == "player1" || objectInExplosion.name == "player2")
+			if (objectInExplosion.CompareTag("Enemy") || objectInExplosion.CompareTag("Player"))
             {
                 distance = Vector3.Distance(transform.position, body.transform.position);
 
@@ -57,10 +57,12 @@ public class Explosion : MonoBehaviour
                 UniversalHealth health = objectInExplosion.GetComponent<UniversalHealth>();
                 proportionalDistance = distance / explosionRadius;
                 damage = (int)Mathf.Round(Mathf.Lerp(maxDamage, minDamage, proportionalDistance));
-                if (objectInExplosion.CompareTag("Player"))
+
+                if (objectInExplosion.CompareTag("Player") || objectInExplosion)
                 {
                     GameObject shield = objectInExplosion.transform.Find("shield").gameObject;
                     if (shield.activeSelf) shield.GetComponent<Shield>().shieldCharge(damage);
+					else health.damagePlayer (damage);
                 }
             }
         }
