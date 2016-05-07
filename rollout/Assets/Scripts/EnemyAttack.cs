@@ -54,7 +54,7 @@ public class EnemyAttack : MonoBehaviour
         Rigidbody playerRB = player.GetComponent<Rigidbody> ();
         Vector3 playerVelocity = playerRB.velocity;
         Vector3 positionVector = transform.position + player.transform.position;
-		Vector3 shotVector = (positionVector + playerVelocity * 0.5f * ((positionVector + playerVelocity).magnitude + positionVector.magnitude) /20);
+		Vector3 shotVector = (positionVector + playerVelocity * 0.5f * ((positionVector + playerVelocity).magnitude + positionVector.magnitude) /40);
         return shotVector;
     }
 }
