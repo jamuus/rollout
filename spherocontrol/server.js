@@ -123,6 +123,8 @@ function connectToUnity(server) {
                 // console.log("Received roll for sphero", name, ", direction:", direction, ", force:", force, ".");
                 if (state[name]) {
                     state[name].force(direction, force);
+                } else {
+                    console.log('rip');
                 }
                 break;
             default:
@@ -164,6 +166,7 @@ function startVisServer() {
         socket.on('transform', transform);
         socket.on('scale', spheroScale);
         socket.on('control', control);
+        socket.on('move', move);
     });
 
     http.listen(3000, function() {
@@ -177,6 +180,8 @@ function startVisServer() {
     function spheroScale() {}
 
     function control() {}
+
+    function move() {}
 
     return {
         dataOut: function(data) {
@@ -193,6 +198,9 @@ function startVisServer() {
         },
         controlCallback: function(callback) {
             control = callback;
+        },
+        moveCallback: function(callback) {
+            move = callback;
         }
     }
 }

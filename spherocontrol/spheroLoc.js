@@ -13,8 +13,8 @@ var Filter = filters.Filter;
 var spheroIds = [
     'boo',
     'gwo',
-    'rob',
-    'wyp',
+    // 'rob',
+    // 'wyp',
 ];
 
 var spheros = {};
@@ -86,8 +86,8 @@ function initSphero(dataOut) {
 
     // noise
     var R_k = $M([
-        [5, 0, 0, 0],
-        [0, 5, 0, 0],
+        [3, 0, 0, 0],
+        [0, 3, 0, 0],
         [0, 0, 0.1, 0],
         [0, 0, 0, 0.1],
     ]);
@@ -115,7 +115,7 @@ function initSphero(dataOut) {
     });
 
     var ret = {
-        ipPos: vec2log(50),
+        ipPos: vec2log(40),
         spheroVel: vec2log(100),
         spheroPos,
         batteryVoltage: -1,
@@ -134,7 +134,7 @@ function initSphero(dataOut) {
         kalmanModel: KM,
         kSpheroObservation: Ksphero,
         kIPObservation: Kimage,
-        angleVecLog: vec2log(20),
+        angleVecLog: vec2log(10),
         scaleLog,
         scale: 15,
         lastCalib: new Date().getTime(),
@@ -149,10 +149,10 @@ function initSphero(dataOut) {
 
         var x = KM.x_k.elements[0];
         var y = KM.x_k.elements[1];
-        if (x < -20) x = -20;
-        if (x > 20) x = 20;
-        if (y < -20) y = -20;
-        if (y > 20) y = 20;
+        if (x < -22) x = -22;
+        if (x > 22) x = 22;
+        if (y < -22) y = -22;
+        if (y > 22) y = 22;
 
         ret.pos = {
             x: -x,
@@ -177,13 +177,13 @@ var imageSize = {
     y: 720.0,
 };
 
-var spheroScale = 0.43;
-var outputScale = 1.9;
+var spheroScale = 0.45;
+var outputScale = 1.8;
 
 var debugLog = console.log;
 var offset = {
-    x: -1.5,
-    y: -18,
+    x: -4,
+    y: -19.5,
 };
 
 function updateSpheroDrift(sphero, result) {
@@ -201,7 +201,21 @@ function updateSpheroDrift(sphero, result) {
     }
 }
 
-var exclusiveControl = false;
+function negVec(a, b) {
+    return {
+        x: a.x - b.x,
+        y: a.y - b.y,
+    };
+}
+
+function vecCMul(a, b) {
+    return {
+        x: a.x * b,
+        y: a.y * b
+    };
+}
+
+var exclusiveControl = true;
 
 module.exports = function(fn, workers) {
     var dataOut = fn.dataOut;
@@ -246,9 +260,6 @@ module.exports = function(fn, workers) {
 
     // called by web client to test forces
     fn.forceCallback(function(data) {
-        // for (var i in spheros) {
-        //     spheros[i].force(data.direction, data.force);
-        // }
         spheros[spheroIds[0]].force(data.direction1, data.force1, true);
         spheros[spheroIds[1]].force(data.direction2, data.force2, true);
     });
@@ -274,6 +285,39 @@ module.exports = function(fn, workers) {
         if (data.outputScale)
             outputScale = data.outputScale;
     });
+
+
+    var p = 0.03;
+    fn.moveCallback(function(data) {
+        exclusiveControl = true;
+        var sphero = spheros[spheroIds[0]];
+        var target = {
+            x: -18,
+            y: 0
+        };
+        var startTime = new Date().getTime();
+
+        var intervalRef = setInterval(() => {
+            var currentPos = sphero.pos;
+            var spherodt = sphero.absSpheroVel;
+
+            var diffToTarget = negVec(currentPos, target);
+            var velocity = vecCMul(diffToTarget, p);
+
+            var forceangle = Math.atan2(-velocity.y, velocity.x) + Math.PI / 2;
+            var force = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+            sphero.force(forceangle, force, true);
+
+            console.log(velocity, forceangle * 180 / Math.PI, force);
+
+            if ((new Date().getTime() - startTime) > 5000) {
+                sphero.force(0, 0, true);
+                exclusiveControl = false;
+                clearInterval(intervalRef);
+            }
+        }, 1000 / 30);
+    });
+
 
     setupSpheroManager(dataOut);
     setupIp(dataOut, workers);
@@ -543,7 +587,7 @@ function pathSparseness(path) {
 
     for (var i = 1; i < path.length; i++) {
         var pos = path[i][0];
-        // console.log(pos);
+
         var d = distance(pos, path[0][0]);
         if (d > maxD) {
             maxD = d;

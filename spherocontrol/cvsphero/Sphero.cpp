@@ -33,7 +33,7 @@ Sphero::Sphero(string name)
         // V_MAX 230
 
 
-        // red tape light
+        // red light
         setHSVmin(Scalar(0, 75, 196));
         setHSVmax(Scalar(51, 256, 256));
         // H_MIN 0
@@ -44,6 +44,15 @@ Sphero::Sphero(string name)
         // V_MAX 256
 
 
+        // yellow light
+        // setHSVmin(Scalar(0, 0, 205));
+        // setHSVmax(Scalar(51, 67, 256));
+        // H_MIN 0
+        // H_MAX 51
+        // S_MIN 0
+        // S_MAX 67
+        // V_MIN 205
+        // V_MAX 256
 
         //BGR value for Orange:
         setColour(Scalar(0, 128, 256));
@@ -59,7 +68,7 @@ Sphero::Sphero(string name)
         // setHSVmax(Scalar(120, 186, 256));
 
 
-        // blue light
+        // blue light 
         setHSVmin(Scalar(70, 173, 151));
         setHSVmax(Scalar(146, 256, 256));
         // H_MIN 70
@@ -70,26 +79,14 @@ Sphero::Sphero(string name)
         // V_MAX 256
 
 
-
-        // not sure
-        // setHSVmin(Scalar(22, 77, 147));
-        // setHSVmax(Scalar(98, 192, 220));
-        // H_MIN 22
-        // H_MAX 98
-        // S_MIN 77
-        // S_MAX 192
-        // V_MIN 147
-        // V_MAX 220
-
-
-        // white no nothing
-        // setHSVmin(Scalar(0, 0, 241));
-        // setHSVmax(Scalar(256, 30, 256));
-        // H_MIN 0
-        // H_MAX 256
-        // S_MIN 0
-        // S_MAX 30
-        // V_MIN 241
+        // green light
+        // setHSVmin(Scalar(68, 126, 91));
+        // setHSVmax(Scalar(90, 256, 256));
+        // H_MIN 68
+        // H_MAX 90
+        // S_MIN 126
+        // S_MAX 256
+        // V_MIN 91
         // V_MAX 256
 
 

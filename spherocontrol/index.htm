@@ -65,6 +65,9 @@ div {
         <input oninput="outputScaleChange(this.value)" type="range" min="0" max="5" step="0.001" value="1" style="width: 800px" />
         <br />
         <input id="takecontrol" onclick="changeControl(this.value)" type="button" value="Take control" />
+        <br />
+        <input id="move" onclick="move(this.value)" type="button" value="Move" />
+        <br/>
         <div class="spheroData" id="spheroData1"></div>
         <div class="spheroData" id="spheroData2"></div>
         <div class="spheroData" id="spheroData3"></div>
@@ -90,6 +93,12 @@ div {
             controlbtn.value = "Take control";
             socket.emit('control', 'release');
         }
+    }
+
+    function move(val) {
+        var data = {x: 0, y: 0};
+
+        socket.emit('move', data);
     }
 
     function createSpheroLayout(name, id) {
