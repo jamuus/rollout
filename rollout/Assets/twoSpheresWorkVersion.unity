@@ -4122,6 +4122,7 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -9911,7 +9912,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &710898653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10021,7 +10022,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &736386273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17762,7 +17763,11 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
+<<<<<<< HEAD
   field of view: 41
+=======
+  field of view: 43
+>>>>>>> origin/dev
   orthographic: 0
   orthographic size: 15
   m_Depth: -1
@@ -17784,8 +17789,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1198940673}
+<<<<<<< HEAD
   m_LocalRotation: {x: 0.42261833, y: 0, z: 0, w: 0.9063078}
   m_LocalPosition: {x: 0, y: 30.4, z: -30.4}
+=======
+  m_LocalRotation: {x: 0.45399055, y: 0, z: 0, w: 0.8910065}
+  m_LocalPosition: {x: 0, y: 30.4, z: -27}
+>>>>>>> origin/dev
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
