@@ -230,7 +230,7 @@ public class Sphero
             angle += Mathf.PI / 2.0f;
         else
             angle -= Mathf.PI / 2.0f;
-        return angle;
+		return angle + Mathf.PI / 2.0f;
     }
 
     // RollSphero message format:
@@ -264,7 +264,7 @@ public class Sphero
         //ProjectileControl playerProjectile = GameObject.Find(playerName).GetComponent<ProjectileControl>();
 
         //Put the direction into the correct range
-        direction += (float)Math.PI;
+        direction += (float)Math.PI * 1.5f;
 
         //Covert the direction into a vector
 #if SOFTWARE_MODE
@@ -284,9 +284,9 @@ public class Sphero
 
     public void SendMove()
     {
-        Vector3 resultant = MoveForce + EnvironmentForce;
+		Vector3 resultant = MoveForce + EnvironmentForce;
 
-        float force = Mathf.Clamp(resultant.magnitude, 0.0f, PhysicalForceClamp);
+		float force = Mathf.Clamp(resultant.magnitude, 0.0f, PhysicalForceClamp);
         float direction = Mathf.Atan2(-resultant.x, resultant.z);
 
         //Debug.LogFormat("MV: {2} DIR: {0} FRC: {1}", direction, force, MoveForce);
