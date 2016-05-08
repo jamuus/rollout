@@ -24,6 +24,8 @@ public final class Sphero {
     private static boolean      updateThreadIsRunning;
     private static boolean      recentDamage;
 
+    private static int count = 0;
+
     static {
         powerUps = new byte[0];
     }
@@ -31,7 +33,7 @@ public final class Sphero {
     private Sphero() { }
 
     public static void parseState(byte[] bytes) {
-        Log.d(TAG, "Parsing received Sphero state.");
+        //Log.d(TAG, "Parsing received Sphero state.");
 
         synchronized (LOCK) {
             float oldHealth = health;
@@ -62,7 +64,10 @@ public final class Sphero {
             if ((oldHealth > health) || (oldShiled > shield))
                 recentDamage = true;
 
-            Log.d(TAG, "Health: " + health + ", Shield: " + shield + ", Voltage: " + voltage);
+            if (count == 0) {
+                Log.d(TAG, "Health: " + health + ", Shield: " + shield + ", Voltage: " + voltage);
+                ++count;
+            }
         }
     }
 
