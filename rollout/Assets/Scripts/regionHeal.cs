@@ -9,8 +9,6 @@ public class RegionHeal : Region
 	public int magnitude = 0;
 
 	// Use this for initialization
-
-
 	public override void ApplyEffect(PlayerControl player)
 	{
 		if (Time.time > lastEffectCall + Rate)
@@ -19,7 +17,7 @@ public class RegionHeal : Region
 			lastEffectCall = Time.time;
 			music = player.gameObject.transform.Find("sound").gameObject;
 			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-			manager.Heal ();
+			manager.Stun ();
 		}
 	}
 
