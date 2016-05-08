@@ -7386,7 +7386,7 @@ ParticleSystem:
         rgba: 4294967295
       maxColor:
         serializedVersion: 2
-        rgba: 4288667135
+        rgba: 4292598783
       minMaxState: 0
     startSize:
       scalar: 2
@@ -9729,7 +9729,7 @@ TextMesh:
   m_Font: {fileID: 12800000, guid: eb8da70031ff64c2a9875b4ed5d7b7d0, type: 3}
   m_Color:
     serializedVersion: 2
-    rgba: 4286314978
+    rgba: 2617245695
 --- !u!23 &682291285
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -18986,7 +18986,7 @@ ParticleSystem:
         rgba: 4294967295
       maxColor:
         serializedVersion: 2
-        rgba: 4288667135
+        rgba: 4292598783
       minMaxState: 0
     startSize:
       scalar: 2
