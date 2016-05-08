@@ -63,8 +63,24 @@ function pollEvents() {
 
 function setEvents(json) {
     lastEventTime = json.time;
-    $("#event-btn-left").text(json.event0);
-    $("#event-btn-right").text(json.event1);
+    $("#event-btn-left").text(getEventNameById(json.event0));
+    $("#event-btn-right").text(getEventNameById(json.event1));
     $(".event-btn").click(eventButtonClick);
     startTimer(10000 - (new Date().getTime() - lastEventTime));
+}
+
+function getEventNameById(id) {
+    console.log("EVENT " + id);
+    switch (id) {
+        case 0:
+            return "Hell";
+        case 1:
+            return "Earthquake";
+        case 2:
+            return "Enemy";
+        case 3:
+            return "Weapons";
+        default:
+            return "Unknown";
+    }
 }
