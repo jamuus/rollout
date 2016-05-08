@@ -17,7 +17,7 @@ public class BasicGun : MonoBehaviour
 
 	void Start()
 	{
-		shield = gameObject.Find("shield");
+		shield = gameObject.transform.Find("shield").gameObject;
 	}
 
     public int ID()
