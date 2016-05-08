@@ -172,11 +172,7 @@ public class ProjectileControl : MonoBehaviour
         if (ammunition[activeWeapon] != 0 && sinceLastShot >= (float)fireRates[activeWeapon])
         {
             //play the shooting sound
-<<<<<<< HEAD
 			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-			manager.Shoot ();
-=======
->>>>>>> music
 
             //fire the weapon and reduce ammunition as needed
             switch (activeWeapon)

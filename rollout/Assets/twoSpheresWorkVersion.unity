@@ -10034,10 +10034,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Regions:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 262695862}
+  - {fileID: 111289566}
+  - {fileID: 2001021951}
+  - {fileID: 103826172}
   Player1: {fileID: 317907527}
   Player2: {fileID: 796036337}
 --- !u!4 &736386274
