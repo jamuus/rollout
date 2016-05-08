@@ -8,11 +8,10 @@ public class SoundManager : MonoBehaviour {
 	public AudioClip slowDown;
 	public AudioClip collideProjectile;
 	public AudioClip collidePlayer;
-	public AudioClip collideDamageField;
-	public AudioClip collideHealthField;
 	public AudioClip collideObstacle;
 	public AudioClip pickPowerUp;
-	public AudioClip grenadeShoot;
+	public AudioClip shootBurst;
+	public AudioClip heal;
 	public AudioClip stun;
 	private AudioSource mains;
 	private GameObject player;
@@ -23,8 +22,12 @@ public class SoundManager : MonoBehaviour {
 	}
 	public void SetSteroPan(AudioSource source){
 		float gridX = GetPosition ();
-		float posX = (gridX)/16.5f;
+		float posX = (gridX)/18.0f;
 		source.panStereo = posX;
+		float vol = (float) System.Math.Abs (posX) + 0.25f;
+		if (vol > 1.0f) vol = 1.0f;
+		else if (vol < 0.25f) vol = 0.25f;
+		source.volume = vol;
 	}
 
 	public void PickPowerUp(){
@@ -35,14 +38,21 @@ public class SoundManager : MonoBehaviour {
 		SetSteroPan (mains);
 		mains.PlayOneShot (shoot);
 	}
+	public void ShootBurst(){
+		SetSteroPan (mains);
+		mains.PlayOneShot (shootBurst);
+	}
 	public void SlowDown(){
+		SetSteroPan (mains);
 		mains.PlayOneShot (slowDown);
 	}
 	public void Stun(){
 		mains.volume= (0.4f);
+		SetSteroPan (mains);
 		mains.PlayOneShot (stun);
 	}
 	public void CollideProjectile(Vector3 impact){
+		SetSteroPan (mains);
 		mains.PlayOneShot (collideProjectile);
 	}
 
@@ -50,34 +60,23 @@ public class SoundManager : MonoBehaviour {
 		float volume = (impact.magnitude / 8f);
 		mains.volume = volume;
 		print (volume);
+		SetSteroPan (mains);
 		mains.PlayOneShot (collidePlayer);
 	}
-
-	public void CollideDamageField(Vector3 impact){
-		float volume = (impact.magnitude / 8f);
-		mains.volume = volume;
-		print (volume);
-		mains.PlayOneShot (collideDamageField);
+		
+	public void Heal(){
+		SetSteroPan (mains);
+		mains.PlayOneShot (heal);
 	}
-
-	public void CollideHealthField(Vector3 impact){
-		float volume = (impact.magnitude / 8f);
-		mains.volume = volume;
-		print (volume);
-		mains.PlayOneShot (collideHealthField);
-
-	}
+		
 	public void CollideObstacle(Vector3 impact){
 		float volume = (impact.magnitude / 8f);
 		mains.volume = volume;
 		print (volume);
+		SetSteroPan (mains);
 		mains.PlayOneShot (collideObstacle);
 
 	}
-	public void GrenadeShoot(){
-		mains.PlayOneShot (grenadeShoot);
-	}
-
 	void Start () {
 		mains = GetComponent<AudioSource>();
 		player = this.transform.parent.gameObject;

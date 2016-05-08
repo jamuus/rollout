@@ -8,12 +8,24 @@ public class Explosion : MonoBehaviour
     private float maxDamage;
     private float minDamage;
     //private UniversalHealth health;
-
+	private AudioSource music;
+	public AudioClip bang;
     // Use this for initialization
     void Start()
     {
 
     }
+
+
+	public void SetSteroPan(AudioSource source, float x){
+		float gridX = x;
+		float posX = (gridX)/18.0f;
+		source.panStereo = posX;
+		float vol = (float) System.Math.Abs (posX) + 0.25f;
+		if (vol > 1.0f) vol = 1.0f;
+		else if (vol < 0.25f) vol = 0.25f;
+		source.volume = vol;
+	}
 
     public void Initialise(float givenRadius, float givenPower, float givenMaxDamage, float givenMinDamage)
     {
@@ -24,7 +36,7 @@ public class Explosion : MonoBehaviour
         minDamage = givenMinDamage;
         float distance, proportionalDistance;
         int damage;
-
+		music = GetComponent<AudioSource>();
         print("Explosion Initialised");
 
         //Get all nearby objects
@@ -36,8 +48,11 @@ public class Explosion : MonoBehaviour
         print("Particle System: " + particles.maxParticles);
         particles.Stop();
         particles.Play();
-
-        foreach (Collider body in nearbyObjects)
+		float x = particles.transform.position.x;
+		SetSteroPan (music, x);
+		music.PlayOneShot(bang);
+		Debug.LogFormat ("{0} explosion", x);
+		foreach (Collider body in nearbyObjects)
         {
             print("found collider");
             GameObject objectInExplosion = body.gameObject;

@@ -11,7 +11,6 @@ public class Grenade : MonoBehaviour {
         explosionPower = givenPower;
         maxDamage = givenMaxDamage;
         minDamage = givenMinDamage;
-
         //Apply force to move the grenade
         Rigidbody rb = GetComponent<Rigidbody>();
         //rb.AddForce(velocity.normalized * speed); 
@@ -27,5 +26,7 @@ public class Grenade : MonoBehaviour {
         var spawnedExplosion = (Explosion)Instantiate(explosion, transform.position, transform.rotation);
         spawnedExplosion.Initialise(explosionRadius, explosionPower, maxDamage, minDamage);
         print("Explosion Successful");
-    }
+
+
+	}
 }

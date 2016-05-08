@@ -331,7 +331,11 @@ PlayerSettings:
   psmSplashimage: {fileID: 0}
   spritePackerPolicy: 
   scriptingDefineSymbols:
+<<<<<<< HEAD
     1: 
+=======
+    1: CROSS_PLATFORM_INPUT;SOFTWARE_MODE
+>>>>>>> music
   metroPackageName: rollout
   metroPackageVersion: 
   metroCertificatePath: 

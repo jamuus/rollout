@@ -3,6 +3,8 @@ using System.Collections;
 
 public class RegionHeal : Region
 {
+	private GameObject music;
+
 
 	public int magnitude = 0;
 
@@ -13,6 +15,9 @@ public class RegionHeal : Region
 		{
 			player.GetComponent<UniversalHealth>().healPlayer(magnitude);
 			lastEffectCall = Time.time;
+			music = player.gameObject.transform.Find("sound").gameObject;
+			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
+			manager.Stun ();
 		}
 	}
 

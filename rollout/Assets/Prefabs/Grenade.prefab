@@ -92,6 +92,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   explosion: {fileID: 11498218, guid: 1c886662c014c294d94b33f112640f46, type: 2}
+  bang: {fileID: 8300000, guid: b447135ca469749059481c2bb5f1aa49, type: 3}
 --- !u!135 &13541188
 SphereCollider:
   m_ObjectHideFlags: 1
