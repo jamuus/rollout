@@ -61,7 +61,6 @@ public class CollisionAttack : MonoBehaviour
 		} else if (col.gameObject.tag == "Projectile") {
 			manager.CollideProjectile (col.relativeVelocity);
 		} else if (col.gameObject.tag == "DamageField") {
-			manager.CollideDamageField (col.relativeVelocity);
 		}
     }
 

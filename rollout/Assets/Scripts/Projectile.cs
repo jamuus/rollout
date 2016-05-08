@@ -12,9 +12,18 @@ public class Projectile : MonoBehaviour
     private GameObject music;
 	private AudioSource mains;
 	public AudioClip collision;
+	public AudioClip shield;
 
     //private ParticleSystem particles;
-    
+	public void SetSteroPan(AudioSource source, float x){
+		float gridX = x;
+		float posX = (gridX)/18.0f;
+		source.panStereo = posX;
+		float vol = (float) System.Math.Abs (posX) + 0.25f;
+		if (vol > 1.0f) vol = 1.0f;
+		else if (vol < 0.25f) vol = 0.25f;
+		source.volume = vol;
+	}
 
     public void Initialise(Vector3 givenVelocity)
     {
@@ -55,9 +64,15 @@ public class Projectile : MonoBehaviour
     void OnCollisionEnter(Collision col)
     {
         //Destroy the game object
-        if (col.gameObject.tag != "Shield") Destroy(gameObject, 0.05f);
-        else Destroy(gameObject, 2.0f);
-		mains.PlayOneShot(collision);
+		float x = gameObject.transform.position.x;
+		SetSteroPan (mains, x);
+		if (col.gameObject.tag != "Shield") {
+			Destroy (gameObject, 0.05f);
+			mains.PlayOneShot (shield);
+		} else {
+			Destroy (gameObject, 2.0f);
+			mains.PlayOneShot (collision);
+		}
 
         //print("collision player : " + col.gameObject.name + " player who spawned is : " + gameObject.name );
         if (col.gameObject.GetComponent<UniversalHealth> () && col.gameObject != playerShooting)
@@ -68,18 +83,7 @@ public class Projectile : MonoBehaviour
             health = collidedObject.GetComponent<UniversalHealth> ();
             health.damagePlayer (damage);
 
-//			music = gameObject.transform.GetChild(0).gameObject;
-//			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-//			manager.CollideProjectile ();
-//			print ("you should projectile");
-
         } else {
-//			music = gameObject.transform.GetChild(0).gameObject;
-//			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-//			manager.CollideObstacle ();
-//			print ("you should obstacle");
-
-
         }
     }
 }

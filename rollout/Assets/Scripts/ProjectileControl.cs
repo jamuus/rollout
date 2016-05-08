@@ -151,7 +151,7 @@ public class ProjectileControl : MonoBehaviour
                     break;
 
                 case (int)Weapons.shotgun:
-					manager.Shoot ();
+					manager.ShootBurst ();
                     shotgun.Fire();
                     ReduceAmmo(104, 1);
                     break;
