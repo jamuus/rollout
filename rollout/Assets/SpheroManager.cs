@@ -382,9 +382,12 @@ public enum SpheroPowerUpType : byte {
     StunEnemey      = 2,
     SlowDownEnemy   = 3,
     Regeneration    = 4,
+    Shield          = 5,
     Gun             = 100,
     Homing_Launcher = 101,
     Grenade         = 102,
+    MachineGun      = 103,
+    Shotgun         = 104
 }
 
 public class SpheroPowerUp : IEquatable<SpheroPowerUp>

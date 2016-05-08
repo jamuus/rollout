@@ -257,7 +257,9 @@ public class PlayerControl : MonoBehaviour
 		try {
 			sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)powerUp.id));//allPowerUps.IndexOf(powerUp)));
 		}
-		catch {}
+		catch (Exception ex) {
+            Debug.LogFormat("THIS IS VERY BAD: {0}.", ex.Message);
+        }
 		SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
 		manager.PickPowerUp ();
         print("PowerUp " + powerUp.name + " added to " + gameObject.name);
