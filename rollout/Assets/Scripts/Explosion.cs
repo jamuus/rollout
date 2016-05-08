@@ -23,7 +23,7 @@ public class Explosion : MonoBehaviour
 		source.panStereo = posX;
 		float vol = (float) System.Math.Abs (posX) + 0.25f;
 		if (vol > 1.0f) vol = 1.0f;
-		else if (vol < 0.25f) vol = 0.25f;
+		else if (vol < 0.25f) vol = 0.5f;
 		source.volume = vol;
 	}
 

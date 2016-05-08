@@ -5,7 +5,6 @@ public class SoundManager : MonoBehaviour {
 
 	private AudioSource[] sources;
 	public AudioClip shoot;
-	public AudioClip slowDown;
 	public AudioClip collideProjectile;
 	public AudioClip collidePlayer;
 	public AudioClip collideObstacle;
@@ -42,12 +41,8 @@ public class SoundManager : MonoBehaviour {
 		SetSteroPan (mains);
 		mains.PlayOneShot (shootBurst);
 	}
-	public void SlowDown(){
-		SetSteroPan (mains);
-		mains.PlayOneShot (slowDown);
-	}
 	public void Stun(){
-		mains.volume= (0.4f);
+		mains.volume= (0.6f);
 		SetSteroPan (mains);
 		mains.PlayOneShot (stun);
 	}
@@ -65,6 +60,7 @@ public class SoundManager : MonoBehaviour {
 	}
 		
 	public void Heal(){
+		mains.volume= (0.6f);
 		SetSteroPan (mains);
 		mains.PlayOneShot (heal);
 	}

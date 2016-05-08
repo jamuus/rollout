@@ -48,7 +48,7 @@ public class HomingMissile : MonoBehaviour
         //spawnedExplosion.Initialise(4, explosionPower, 30, 10);
         //print("Explosion Successful");
         if (col.gameObject.tag != "Shield") Destroy(gameObject);
-        else if (col.gameObject.GetComponentInParent<GameObject>() == otherPlayer)
+		else if (col.gameObject.transform.parent.gameObject == otherPlayer)
         {
             deflect();
             Destroy(gameObject, 2.0f);
