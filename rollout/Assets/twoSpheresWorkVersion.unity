@@ -16045,7 +16045,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 317907519}
-  health: 50
+  health: 0
 --- !u!64 &1150058614
 MeshCollider:
   m_ObjectHideFlags: 0

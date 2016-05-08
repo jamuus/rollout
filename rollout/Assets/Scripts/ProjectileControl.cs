@@ -45,6 +45,8 @@ public class ProjectileControl : MonoBehaviour
             otherPlayer = GameObject.Find("player1");
         }
 
+		music = gameObject.transform.Find("sound").gameObject;
+
         //Set the initial weapon to the basic gun
         activeWeapon = (int)Weapons.basicGun;
         ammunition[(int)Weapons.basicGun] = -1;
@@ -118,7 +120,6 @@ public class ProjectileControl : MonoBehaviour
         if (ammunition[activeWeapon] != 0 && sinceLastShot >= (float)fireRates[activeWeapon])
         {
             //play the shooting sound
-			music = gameObject.transform.Find("sound").gameObject;
 			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
 
             //fire the weapon and reduce ammunition as needed
@@ -168,7 +169,6 @@ public class ProjectileControl : MonoBehaviour
         if (ammunition[activeWeapon] != 0 && sinceLastShot >= (float)fireRates[activeWeapon])
         {
             //play the shooting sound
-			music = gameObject.transform.Find("sound").gameObject;
 			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
 			manager.Shoot ();
 

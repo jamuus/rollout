@@ -13,6 +13,13 @@ public class BasicGun : MonoBehaviour
     public int ammunition = -1;
     public int maxAmmo = 1;
 
+	private GameObject shield;
+
+	void Start()
+	{
+		shield = gameObject.transform.Find("shield").gameObject;
+	}
+
     public int ID()
     {
         return 100;
@@ -32,7 +39,7 @@ public class BasicGun : MonoBehaviour
         projectilePosition = transform.position + velocity.normalized;
         var spawnedProjectile = (Projectile)Instantiate(projectile, projectilePosition, transform.rotation);
         spawnedProjectile.ignoreCollider(gameObject.GetComponent<Collider>());
-        spawnedProjectile.ignoreCollider(gameObject.transform.Find("shield").GetComponent<Collider>());
+        spawnedProjectile.ignoreCollider(shield.GetComponent<Collider>());
         spawnedProjectile.Initialise(velocity, bulletSpeed, damage, colour);
     }
 
@@ -45,11 +52,6 @@ public class BasicGun : MonoBehaviour
         spawnedProjectile.ignoreCollider(gameObject.transform.Find("shield").GetComponent<Collider>());
         spawnedProjectile.Initialise(velocity, bulletSpeed, damage, colour);
     }
-
-    // Use this for initialization
-    void Start () {
-	
-	}
 	
 	// Update is called once per frame
 	void Update () {

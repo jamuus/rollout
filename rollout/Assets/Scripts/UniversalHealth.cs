@@ -7,6 +7,7 @@ public class UniversalHealth : MonoBehaviour
     public static int maxHealth = 200;
     public static int minHealth = 1;
     public int currentHealth = 200;
+	private GameObject shield;
 
     // Use this for initialization
     void Start ()
@@ -14,6 +15,7 @@ public class UniversalHealth : MonoBehaviour
 		if (this.gameObject.CompareTag("Player")) {
 			maxHealth = currentHealth;
 		}
+		shield = gameObject.transform.Find("shield").gameObject;
     }
 
     // Update is called once per frame
@@ -37,7 +39,11 @@ public class UniversalHealth : MonoBehaviour
         print("Health = " + currentHealth + " and min health = " + minHealth);
         if (damage > 0)
         {
-            currentHealth -= damage;
+			
+			if (!shield.activeSelf)
+				currentHealth -= damage;
+			else
+				shield.GetComponent<Shield> ().shieldCharge (-damage);
 
             //Update the spheros health
             updateSphero();
