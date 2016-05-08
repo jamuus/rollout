@@ -191,7 +191,6 @@ public class Events : MonoBehaviour {
             if (powerups != null) powerups.SetActive(false);
 		}
 		recurringID = 0;
-		BGM = GameObject.Find("BGM");
 		BGMManager manager = (BGMManager) BGM.GetComponent(typeof(BGMManager));
 		manager.reset ();
 	}

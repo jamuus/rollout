@@ -38,8 +38,7 @@ public class UniversalHealth : MonoBehaviour
     {
         print("Health = " + currentHealth + " and min health = " + minHealth);
         if (damage > 0)
-        {
-			
+        {			
 			if (!shield.activeSelf)
 				currentHealth -= damage;
 			else
