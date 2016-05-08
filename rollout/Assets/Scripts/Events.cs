@@ -38,6 +38,9 @@ public class Events : MonoBehaviour {
         timeUntilNextEvent = timeUntilFirstEvent;
         timeOfLastEvent = 0;
 
+		//Get the BGM
+		BGM = GameObject.Find("BGM");
+
         SpectatorManager.EventsLastUpdated = -1;
 
 		random = new System.Random();
@@ -91,7 +94,6 @@ public class Events : MonoBehaviour {
 	public void triggerEvent(int id)
 	{
 		resetOldState();
-		BGM = GameObject.Find("BGM");
 		BGMManager manager = (BGMManager) BGM.GetComponent(typeof(BGMManager));
 		if (id == 0){
 			initialiseLava ();
