@@ -37,3 +37,5 @@ rollout_app/build
 
 
 rollout/Assets/Scripts/GameStateManager.cs
+
+rollout/Assets/Scripts/regionHeal.cs
