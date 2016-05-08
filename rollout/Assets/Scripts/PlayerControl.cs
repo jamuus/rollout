@@ -42,6 +42,7 @@ public class PlayerControl : MonoBehaviour
         SpheroName = gameObject.name;
 		startingPosition = gameObject.transform.position;
         speed = baseSpeed;
+		music = gameObject.transform.Find("sound").gameObject;
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
         shield = gameObject.transform.Find("shield").gameObject;
@@ -94,7 +95,7 @@ public class PlayerControl : MonoBehaviour
 			float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
 
-            position = new Vector3(moveHorizontal, 1.5f, moveVertical);
+            position = new Vector3(moveHorizontal, 0.8f, moveVertical);
             //rb.position = position;
             rb.MovePosition(position);
 
@@ -122,7 +123,7 @@ public class PlayerControl : MonoBehaviour
     {
         if (sphero != null)
         {
-            sphero.MoveForce = new Vector3(0,0,0);
+            //sphero.MoveForce = new Vector3(0,0,0);
         }
 
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -133,7 +134,7 @@ public class PlayerControl : MonoBehaviour
 
         if (sphero != null)
         {
-            sphero.MoveForce = new Vector3(-moveHorizontal, 0.0f,moveVertical);
+            //sphero.MoveForce = new Vector3(-moveHorizontal, 0.0f,moveVertical);
         }
 
 #if SOFTWARE_MODE
@@ -257,7 +258,6 @@ public class PlayerControl : MonoBehaviour
 			sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)powerUp.id));//allPowerUps.IndexOf(powerUp)));
 		}
 		catch {}
-		music = gameObject.transform.Find("sound").gameObject;
 		SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
 		manager.PickPowerUp ();
         print("PowerUp " + powerUp.name + " added to " + gameObject.name);
