@@ -90,7 +90,7 @@ public class PlayerControl : MonoBehaviour
 
         // move ingame sphero
         #if !SOFTWARE_MODE
-        if (sphero != null) {
+		if (sphero != null && gameStateId != 2) {
             float moveHorizontal = sphero.Position.x;
 			float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
