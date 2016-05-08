@@ -222,8 +222,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63d68802756cd41f292c308c7544b706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rate: 0
-  magnitude: 0
+  Rate: 1
+  magnitude: 2
 --- !u!1001 &19573354
 Prefab:
   m_ObjectHideFlags: 0
@@ -1124,8 +1124,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63d68802756cd41f292c308c7544b706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rate: 0
-  magnitude: 0
+  Rate: 1
+  magnitude: 2
 --- !u!23 &103826173
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1326,8 +1326,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63d68802756cd41f292c308c7544b706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rate: 0
-  magnitude: 0
+  Rate: 1
+  magnitude: 2
 --- !u!1 &126776410
 GameObject:
   m_ObjectHideFlags: 0
@@ -3930,8 +3930,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63d68802756cd41f292c308c7544b706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rate: 0
-  magnitude: 0
+  Rate: 1
+  magnitude: 2
 --- !u!1001 &273453778
 Prefab:
   m_ObjectHideFlags: 0
@@ -4122,7 +4122,6 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -13305,8 +13304,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63d68802756cd41f292c308c7544b706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rate: 0
-  magnitude: 0
+  Rate: 1
+  magnitude: 2
 --- !u!23 &966429386
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -27054,8 +27053,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63d68802756cd41f292c308c7544b706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rate: 0
-  magnitude: 0
+  Rate: 1
+  magnitude: 2
 --- !u!1 &2002511596
 GameObject:
   m_ObjectHideFlags: 0

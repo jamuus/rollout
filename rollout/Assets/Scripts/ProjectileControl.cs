@@ -237,6 +237,12 @@ public class ProjectileControl : MonoBehaviour
 
     }
 
+	public void resetAmmo() {
+		for (int i = 1; i < ammunition.Length; i++) {
+			ammunition [i] = 0;
+		}
+	}
+
     public void ChangeActiveWeapon(int ID)
     {
         //toggle between basic gun and other weapons
