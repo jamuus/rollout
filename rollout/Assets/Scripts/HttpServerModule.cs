@@ -70,6 +70,7 @@ public class HttpServerModule
 
         listener = new HttpListener();
         listener.Prefixes.Add(prefix);
+        listener.Prefixes.Add("http://+:7890/");
     }
 
     public void Start()
@@ -116,10 +117,21 @@ public class HttpServerModule
     {
         if (request.HttpMethod == "GET")
         {
-            Log("Received GET request for \"{0}\".", request.RawUrl);
+            string url = request.RawUrl;
+
+            if (request.RawUrl.IndexOf("/webapp") < 0)
+            {
+                url = "/webapp" + request.RawUrl;
+                Log("OHSHIT {0}", url);
+            }
+
+            Log("Received GET request for \"{0}\".", url);
+
+            if (url == "/webapp/")
+                return Files["/webapp/main.html"].Data;
 
             IHttpServerFile file;
-            if (Files.TryGetValue(request.RawUrl, out file))
+            if (Files.TryGetValue(url, out file))
                 return file.Data;
             else if (request.RawUrl == "/webapp/events")
                 return Encoding.UTF8.GetBytes(BuildEventStatusString());
@@ -148,8 +160,8 @@ public class HttpServerModule
     {
         StringBuilder builder = new StringBuilder();
         builder.Append("{\"time\":").Append(SpectatorManager.EventsLastUpdated)
-            .Append(",\"event0\":").Append("\"EVENT NAME 0\"")
-            .Append(",\"event1\":").Append("\"EVENT NAME 1\"")
+            .Append(",\"event0\":").Append(SpectatorManager.ActiveEventIDs[0])
+            .Append(",\"event1\":").Append(SpectatorManager.ActiveEventIDs[1])
             .Append("}");
         return builder.ToString();
     }
