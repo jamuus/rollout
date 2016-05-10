@@ -42,7 +42,7 @@ public class SoundManager : MonoBehaviour {
 		mains.PlayOneShot (shootBurst);
 	}
 	public void Stun(){
-		mains.volume= (0.6f);
+		mains.volume= (0.7f);
 		SetSteroPan (mains);
 		mains.PlayOneShot (stun);
 	}
@@ -60,7 +60,7 @@ public class SoundManager : MonoBehaviour {
 	}
 		
 	public void Heal(){
-		mains.volume= (0.6f);
+		mains.volume= (0.7f);
 		SetSteroPan (mains);
 		mains.PlayOneShot (heal);
 	}

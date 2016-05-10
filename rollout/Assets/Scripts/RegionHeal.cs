@@ -17,7 +17,7 @@ public class RegionHeal : Region
 			lastEffectCall = Time.time;
 			music = player.gameObject.transform.Find("sound").gameObject;
 			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-			manager.Stun ();
+			manager.Heal ();
 		}
 	}
 
