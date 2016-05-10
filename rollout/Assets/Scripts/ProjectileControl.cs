@@ -134,14 +134,14 @@ public class ProjectileControl : MonoBehaviour
 
                 case (int)Weapons.homingLauncher:
                     homingLauncher.Fire(otherPlayer);
-					manager.Shoot ();
+					manager.Homing ();
 			
                     ReduceAmmo(101, 1);
                     break;
 
                 case (int)Weapons.grenadeThrower:
                     grenadeThrower.Fire();
-					manager.Shoot ();
+					manager.Grenade ();
 
                     ReduceAmmo(102, 1);
                     break;
