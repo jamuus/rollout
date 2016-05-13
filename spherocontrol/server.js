@@ -63,7 +63,8 @@ function discover() {
         discoverSocket.setBroadcast(true);
         var buf = new Buffer(1);
         buf[0] = MessageType.SERVER_DISCOVER;
-        discoverSocket.send(buf, 0, buf.length, UNITY_PORT, "localhost", function() {
+        discoverSocket.send(buf, 0, buf.length, UNITY_PORT, "255.255.255.255", function() {
+
             discoverSocket.close();
         });
     });
@@ -99,7 +100,7 @@ function discover() {
             console.log("No unity instance found.");
             // process.exit();
         }
-    }, 2000);
+    }, 1000);
 }
 
 function connectToUnity(server) {
@@ -119,9 +120,11 @@ function connectToUnity(server) {
                 var direction = data.readFloatLE(1);
                 var force = data.readFloatLE(5);
                 var name = data.toString("ascii", 10);
-                console.log("Received roll for sphero", name, ", direction:", direction, ", force:", force, ".");
+                // console.log("Received roll for sphero", name, ", direction:", direction, ", force:", force, ".");
                 if (state[name]) {
                     state[name].force(direction, force);
+                } else {
+                    console.log('rip');
                 }
                 break;
             default:
@@ -138,7 +141,7 @@ function connectToUnity(server) {
     udpOutgoing.bind(PORT, function() {
         var buf = new Buffer(1);
         buf[0] = MessageType.NODE_INIT;
-        udpOutgoing.send(buf, 0, buf.length, UNITY_PORT, server.ip);
+        udpOutgoing.send(buf, 0, buf.length, UNITY_PORT, server._ip);
         connectedServer = server;
 
         setInterval(sendState, 1000 / 60);
@@ -160,15 +163,28 @@ function startVisServer() {
     io.on('connection', function(socket) {
         console.log('socket.io connection');
         socket.on('force', force);
+        socket.on('transform', transform);
+        socket.on('scale', spheroScale);
+        socket.on('control', control);
+        socket.on('move', move);
+        socket.on('freeze', freeze);
     });
 
     http.listen(3000, function() {
         console.log('http listening on *:3000');
     });
 
-    function force() {
+    function force() {}
 
-    }
+    function transform() {}
+
+    function spheroScale() {}
+
+    function control() {}
+
+    function move() {}
+
+    function freeze() {}
 
     return {
         dataOut: function(data) {
@@ -176,17 +192,23 @@ function startVisServer() {
         },
         forceCallback: function(callback) {
             force = callback;
+        },
+        transformCallback: function(callback) {
+            transform = callback;
+        },
+        spheroScaleCallback: function(callback) {
+            spheroScale = callback;
+        },
+        controlCallback: function(callback) {
+            control = callback;
+        },
+        moveCallback: function(callback) {
+            move = callback;
+        },
+        freezeCallback: function(callback) {
+            freeze = callback;
         }
     }
-}
-
-function spheroState(dataOut) {
-    var api = {};
-
-    var manager = require('./spheroManager')();
-    var spheroLoc = require('./spheroLoc.js')(manager, dataOut);
-
-    return spheroLoc;
 }
 
 function sendState() {
@@ -195,7 +217,7 @@ function sendState() {
 
     for (var name in state) {
         var sphero = state[name];
-        // console.log(sphero.x, sphero.y);
+        // console.log(name);
         var buf = new Buffer(1 + name.length + 5 * 4);
         buf[0] = name.length;
         buf.write(name, 1, name.length, "ascii");
@@ -206,6 +228,7 @@ function sendState() {
             idx += 4;
             buf.writeFloatLE(sphero.dy, idx);
             idx += 4;
+            // console.log(sphero.pos);
             buf.writeFloatLE(sphero.pos.x, idx);
             idx += 4;
             buf.writeFloatLE(sphero.pos.y, idx);
@@ -217,12 +240,26 @@ function sendState() {
 
         message = Buffer.concat([message, buf]);
     }
-
-    udpOutgoing.send(message, 0, message.length, UNITY_PORT, connectedServer.ip, function(err) {
+    udpOutgoing.send(message, 0, message.length, UNITY_PORT, connectedServer._ip, function(err) {
         if (err) throw err;
     });
 }
 
-var dataOut = startVisServer();
-state = spheroState(dataOut);
-discover();
+
+var cluster = require('cluster');
+if (cluster.isMaster) {
+    var workers = [cluster.fork(), cluster.fork()];
+
+    var dataOut = startVisServer();
+    state = require('./spheroLoc.js')(dataOut, workers); //spheroState(dataOut, worker);
+    discover();
+} else {
+    console.log('worker spawned');
+    var calcSpheroTransform = require('./spheroLoc.js').calcSpheroTransform;
+
+    process.on('message', args => {
+        // console.log(args);
+        var res = calcSpheroTransform.apply(null, args);
+        process.send(res);
+    });
+}

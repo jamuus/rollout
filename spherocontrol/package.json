@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.13.4",
+    "opencv": "^5.0.0",
     "socket.io": "^1.4.5"
   }
 }

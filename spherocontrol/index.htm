@@ -1,62 +1,453 @@
 <html>
 
 <head>
+    <style type="text/css">
+div {
+        box-sizing: border-box;
+    }
+    
+    .spheroData {
+        outline: 1px solid;
+        width: 400px;
+        position: relative;
+        margin-top: 40px;
+    }
+    
+    #spheroData1 {
+        float: left;
+    }
+    
+    #spheroData2 {
+        float: right;
+    }
+    #spheroData3 {
+        float: left;
+    }
+    #spheroData4 {
+        float: right;
+    }
+    
+    .container {
+        width: 900px;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        /*outline: green 1px solid;*/
+    }
+    
+    #absoluteCvs {
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    
+    .name {
+        font-size: 20px;
+    }
+    
+    .driftGraph {
+        outline: 1px solid;
+    }
+}
+    </style>
 </head>
 
 <body>
-    <center>
-        <canvas id="absoluteCvs" width="600" height="400" style="border:1px solid #000000;">
-        </canvas>
-        <canvas id="spheroAngleCvs" width="200" height="200" style="border:1px solid #000000;">
-        </canvas>
-        <canvas id="mycanvas" width="400" height="100"></canvas>
-    </center>
+    <div class="container">
+        <canvas id="absoluteCvs" width="800" height="600" style="border:1px solid #000000;"></canvas>
+        <br/> Sphero scale: <span id="spheroScale">1</span>
+        <input oninput="spheroScaleChange(this.value)" type="range" min="0" max="5" step="0.001" value="1" style="width: 800px" />
+        <br/> Output scale: <span id="outputScale">1</span>
+        <input oninput="outputScaleChange(this.value)" type="range" min="0" max="5" step="0.001" value="1" style="width: 800px" />
+        <br />
+        <input id="takecontrol" onclick="changeControl(this.value)" type="button" value="Take control" />
+        <br />
+        <input id="move" onclick="move(this.value)" type="button" value="Reset Positions" />
+        <br/>
+        <input id="freeze" onclick="freeze(this.value)" type="button" value="Freeze" />
+        <br/>
+        <div class="spheroData" id="spheroData1"></div>
+        <div class="spheroData" id="spheroData2"></div>
+        <div class="spheroData" id="spheroData3"></div>
+        <div class="spheroData" id="spheroData4"></div>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="smoothie.js"></script>
     <script>
-    var smoothie = new SmoothieChart();
-    smoothie.streamTo(document.getElementById("mycanvas"));
-    var spheroIPAngle = new TimeSeries();
-    var spheroDataAngle = new TimeSeries();
-    var spheroDrift = new TimeSeries();
+    var canvas1 = document.getElementById('absoluteCvs');
+    var ctx1 = canvas1.getContext('2d');
 
-    smoothie.addTimeSeries(spheroIPAngle, {
-        strokeStyle: 'rgb(0, 255, 0)',
-        lineWidth: 1
-    });
-    smoothie.addTimeSeries(spheroDataAngle, {
-        strokeStyle: 'rgb(255, 0, 0)',
-        lineWidth: 1
-    });
-    smoothie.addTimeSeries(spheroDrift, {
-        strokeStyle: 'rgb(0, 0, 255)',
-        lineWidth: 1
-    });
+    function driftChange(val) {
+        console.log(val);
+    }
+
+    var controlbtn = document.getElementById("takecontrol");
+    function changeControl(val) {
+        if(val === "Take control") {
+            controlbtn.value = "Release";
+            socket.emit('control', 'take');
+        } else {
+            controlbtn.value = "Take control";
+            socket.emit('control', 'release');
+        }
+    }
+
+    var freezebtn = document.getElementById("freeze");
+    function freeze(val) {
+        if(val === "Freeze") {
+            freezebtn.value = "Unfreeze";
+            socket.emit('freeze', 'take');
+        } else {
+            freezebtn.value = "Freeze";
+            socket.emit('freeze', 'release');
+        }
+    }
+
+    function move(val) {
+        var data = {x: 0, y: 0};
+
+        socket.emit('move', data);
+    }
+
+    function createSpheroLayout(name, id) {
+        var container = document.querySelector(id);
+        var nameSpan = document.createElement('span');
+        nameSpan.className = 'name';
+        nameSpan.innerHTML = name;
+
+
+        var ipPosTag = document.createElement('div');
+        ipPosTag.innerHTML = 'ipPos';
+
+        var spheroPosTag = document.createElement('div');
+        spheroPosTag.innerHTML = 'spheroPos';
+
+        var scaleTag = document.createElement('div');
+        scaleTag.innerHTML = 'scale';
+
+        var driftTag = document.createElement('div');
+        driftTag.innerHTML = 'drift';
+
+
+        var batteryTag = document.createElement('div');
+        batteryTag.innerHTML = 'battery';
+
+        var driftBar = document.createElement('input');
+        driftBar.type = "range";
+        driftBar.min = 0;
+        driftBar.max = 360;
+        driftBar.step = 0.1;
+        driftBar.setAttribute("oninput", "driftChange(this.value)");
+
+        // var driftGraph = document.createElement('canvas');
+        // driftGraph.width = "400";
+        // driftGraph.height = "200";
+        // driftGraph.className = "driftGraph";
+
+        // var smoothie = new SmoothieChart();
+        // smoothie.streamTo(driftGraph);
+
+        // var spheroIPAngle = new TimeSeries();
+        // var spheroDataAngle = new TimeSeries();
+        // var spheroDrift = new TimeSeries();
+
+        // smoothie.addTimeSeries(spheroIPAngle, {
+        //     strokeStyle: 'rgb(0, 255, 0)',
+        //     lineWidth: 1
+        // });
+        // smoothie.addTimeSeries(spheroDataAngle, {
+        //     strokeStyle: 'rgb(255, 0, 0)',
+        //     lineWidth: 1
+        // });
+        // smoothie.addTimeSeries(spheroDrift, {
+        //     strokeStyle: 'rgb(0, 191, 255)',
+        //     lineWidth: 1
+        // });
+
+
+
+        container.appendChild(nameSpan);
+        container.appendChild(ipPosTag);
+        container.appendChild(spheroPosTag);
+        container.appendChild(scaleTag);
+        container.appendChild(driftTag);
+        container.appendChild(batteryTag);
+        container.appendChild(driftBar);
+
+        // container.appendChild(driftGraph);
+
+        return {
+            // spheroIPAngle,
+            // spheroDataAngle,
+            // spheroDrift,
+            ipPosTag,
+            spheroPosTag,
+            scaleTag,
+            driftTag,
+            batteryTag,
+        }
+    }
+
+    var vis = {
+        boo: createSpheroLayout('boo', '#spheroData1'),
+        gwo: createSpheroLayout('gwo', '#spheroData2'),
+        rob: createSpheroLayout('rob', '#spheroData3'),
+        wyp: createSpheroLayout('wyp', '#spheroData4')
+    };
+
+    var state = {};
+
+    function rad2deg(radians){
+        degrees = radians * (180/Math.PI);
+        return degrees;
+    }
 
     var socket = io();
     socket.on('data', function(msg) {
-        for (var dtype in msg) {
-            switch (dtype) {
-                case 'spheroData':
-                    updateSpheroData(msg[dtype]);
-                    break;
-                case 'ipData':
-                    updateIpData(msg[dtype]);
-                    break;
-                default:
-                    console.log('rip');
+        for (var dtype in msg.data) {
+            if (!state[msg.name])
+                state[msg.name] = {};
+            state[msg.name][dtype] = msg.data[dtype];
+
+            if (dtype === 'spheroAngle') {
+                // vis[msg.name].spheroDataAngle.append(new Date().getTime(), msg.data[dtype]);
+            } else if (dtype === 'ipAngle') {
+                // vis[msg.name].spheroIPAngle.append(new Date().getTime(), msg.data[dtype]);
+            } else if (dtype === 'driftAngle') {
+                vis[msg.name].driftTag.innerHTML = 'Drift angle: ' + rad2deg(msg.data[dtype]);
+                // vis[msg.name].spheroDrift.append(new Date().getTime(), msg.data[dtype]);
+            } else if (dtype === 'ipPosTransformed') {
+                vis[msg.name].ipPosTag.innerHTML = 'Last detected visual pos: ' + posToString(msg.data[dtype]);
+            } else if(dtype === 'kalmanPos') {
+                vis[msg.name].spheroPosTag.innerHTML = 'Last calculated pos: ' + posToString(msg.data[dtype]);
+            } else if (dtype === 'scale') {
+                vis[msg.name].scaleTag.innerHTML = 'Scale: ' + msg.data[dtype];
+            } else if(dtype === 'batteryVoltage') {
+                vis[msg.name].batteryTag.innerHTML = 'Battery: ' + parseInt(msg.data[dtype])/100 + 'V';
             }
         }
     });
+
+    function posToString(pos) {
+        var str = '(' + pos.x.toFixed(2) + ', ' + pos.y.toFixed(2);
+        if(pos.z)
+            return str + ', ' + pos.z.toFixed(2) + ')';
+        else
+            return str + ')';
+    }
+
+    var center = {
+        x: 0,
+        y: 0
+    };
+
+    var points = [
+        center
+    ];
+
+    var selected = -1;
+
+    canvas1.addEventListener('mousedown', function(event) {
+        var mousePos = getMousePos(canvas1, event);
+
+        for (var i in points) {
+            var corner = coordToScreen(points[i]);
+            var xdiff = (mousePos.x - corner.x);
+            var ydiff = (mousePos.y - corner.y);
+            if (xdiff * xdiff + ydiff * ydiff < 100) {
+                selected = i;
+            }
+        }
+    });
+    canvas1.addEventListener('mousemove', function(event) {
+        var mousePos = getMousePos(canvas1, event);
+        if (selected !== -1) {
+            points[selected] = screenToCoord(mousePos);
+            socket.emit('transform', {
+                points: points
+            });
+        }
+    });
+    canvas1.addEventListener('mouseup', function(event) {
+        selected = -1;
+    });
+
+    function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    }
+
+
+    var anglef = 0;
+
+    function circles() {
+        anglef += 2 / 20;
+        socket.emit('force', {
+            force: 0.4,
+            direction: anglef
+        });
+    }
+    // setInterval(circles, 1000 / 20);
+
+    function spheroScaleChange(value) {
+        var spheroScaleOutput = document.querySelector("#spheroScale");
+        spheroScaleOutput.innerHTML = value;
+
+        socket.emit('scale', {
+            spheroScale: parseFloat(value)
+        });
+    }
+
+    function outputScaleChange(value) {
+        var outputScale = document.querySelector("#outputScale");
+        outputScale.innerHTML = value;
+
+        socket.emit('scale', {
+            outputScale: parseFloat(value)
+        });
+    }
+
+
+    function drawPolygon(ctx, edges) {
+        ctx.beginPath();
+        ctx.moveTo(edges[0].x, edges[0].y);
+        for (var i = 1; i < edges.length; i++) {
+            ctx.lineTo(edges[i].x, edges[i].y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+    }
+
+    function drawCircle(pos, r, fill) {
+        fill = fill || false;
+        ctx1.beginPath();
+        ctx1.arc(
+            pos.x,
+            pos.y,
+            r,
+            0, 2 * Math.PI
+        );
+        if (fill)
+            ctx1.fill();
+        else
+            ctx1.stroke();
+    }
+
+    function drawLine(ctx, x1, y1, x2, y2, thickness) {
+        ctx.lineWidth = thickness || 1;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    }
+
+    function draw(dt) {
+        ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+        drawIp();
+        requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+
+
+    var height = 600,
+        width = 800,
+        left = -40,
+        right = 40,
+        screenTop = -30,
+        bottom = 30;
+
+    function coordToScreen(pos) {
+        return {
+            x: (pos.x - left) / (right - left) * width,
+            y: (-pos.y - screenTop) / (bottom - screenTop) * height
+        }
+    }
+
+    function screenToCoord(pos) {
+        return {
+            x: pos.x / width * (right - left) + left,
+            y: -(pos.y / height * (bottom - screenTop) + screenTop)
+        }
+    }
+
+    var gameCoords = [{
+        x: -18,
+        y: -18
+    }, {
+        x: -18,
+        y: 18
+    }, {
+        x: 18,
+        y: 18
+    }, {
+        x: 18,
+        y: -18
+    }];
+
+    function drawIp() {
+        for (var i in state) {
+            var sphero = state[i];
+
+            if (sphero.ipPosTransformed) {
+                var pos = coordToScreen(sphero.ipPosTransformed);
+                drawCircle(pos, 5);
+            }
+
+            if (sphero.kalmanPos) {
+                var pos = coordToScreen(sphero.kalmanPos);
+                drawCircle(pos, 2, true);
+            }
+
+            var cameraBounds = sphero.cameraBounds;
+            if (cameraBounds) {
+                var bottomLeft = coordToScreen(cameraBounds.bottomLeft);
+                var topRight = coordToScreen(cameraBounds.topRight);
+                var bottomRight = coordToScreen(cameraBounds.bottomRight);
+                var topLeft = coordToScreen(cameraBounds.topLeft);
+
+                drawPolygon(ctx1, [bottomLeft, bottomRight, topRight, topLeft]);
+            }
+        }
+        for (var i in points) {
+            var point = points[i];
+            drawCircle(coordToScreen(point), 4, true);
+        }
+
+        drawPolygon(ctx1, gameCoords.map(coordToScreen));
+    }
+
+
     var control = {
         force: 0,
         direction: 0
     };
+    var angle = 0;
+
+    function circles() {
+        angle += 2 * Math.PI / 100;
+        socket.emit('force', {
+            force: 0.1,
+            direction: angle
+        })
+    }
+
     var pressedKeys = {
         w: false,
         a: false,
         s: false,
         d: false,
+        up: false,
+        down: false,
+        left: false,
+        right: false,
     }
     document.addEventListener('keydown', function(event) {
         if (event.keyCode === 87) {
@@ -70,6 +461,19 @@
         }
         if (event.keyCode === 68) {
             pressedKeys.d = true;
+        }
+
+        if (event.keyCode === 38) {
+            pressedKeys.up = true;
+        }
+        if (event.keyCode === 40) {
+            pressedKeys.down = true;
+        }
+        if (event.keyCode === 37) {
+            pressedKeys.left = true;
+        }
+        if (event.keyCode === 39) {
+            pressedKeys.right = true;
         }
         calcNewForce();
     });
@@ -86,148 +490,41 @@
         if (event.keyCode === 68) {
             pressedKeys.d = false;
         }
+
+        if (event.keyCode === 38) {
+            pressedKeys.up = false;
+        }
+        if (event.keyCode === 40) {
+            pressedKeys.down = false;
+        }
+        if (event.keyCode === 37) {
+            pressedKeys.left = false;
+        }
+        if (event.keyCode === 39) {
+            pressedKeys.right = false;
+        }
         calcNewForce();
     });
 
     function calcNewForce() {
-        force = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 0.6 : 0.0;
-        var x = pressedKeys.w + -pressedKeys.s;
-        var y = pressedKeys.d + -pressedKeys.a;
-        var direction = Math.atan2(y, x);
+        var force1 = (pressedKeys.w || pressedKeys.a || pressedKeys.s || pressedKeys.d) ? 0.3 : 0.0;
+        var force2 = (pressedKeys.up || pressedKeys.left || pressedKeys.down || pressedKeys.right) ? 0.3 : 0.0;
+
+        var x1 = pressedKeys.w + -pressedKeys.s;
+        var y1 = pressedKeys.d + -pressedKeys.a;
+        var direction1 = Math.atan2(y1, x1);
+
+        var x2 = pressedKeys.up + -pressedKeys.down;
+        var y2 = pressedKeys.right + -pressedKeys.left;
+        var direction2 = Math.atan2(y2, x2);
+
         // console.log(direction);
         socket.emit('force', {
-            force: force,
-            direction: direction
+            force1: force1,
+            force2: force2,
+            direction1: direction1,
+            direction2: direction2,
         });
-    }
-
-    var canvas1 = document.getElementById('absoluteCvs');
-    var ctx1 = canvas1.getContext('2d');
-    var canvas2 = document.getElementById('spheroAngleCvs');
-    var ctx2 = canvas2.getContext('2d');
-
-    var spheroState = {
-        abs: {},
-        rel: {},
-        drift: {},
-        angle: {}
-    };
-
-    var anglef = 0;
-
-    function circles() {
-        anglef += 2 / 20;
-        socket.emit('force', {
-            force: 0.4,
-            direction: anglef
-        });
-    }
-    // setInterval(circles, 1000 / 20);
-
-    function updateIpData(data) {
-        if (!spheroState.abs[data.name])
-            spheroState.abs[data.name] = {};
-        if (!spheroState.drift[data.name])
-            spheroState.drift[data.name] = {};
-        if (!spheroState.angle[data.name])
-            spheroState.angle[data.name] = {};
-
-        spheroState.abs[data.name].x = data.pos.x;
-        spheroState.abs[data.name].y = data.pos.y;
-
-        spheroState.drift[data.name] = data.drift;
-        spheroState.angle[data.name] = data.angle;
-
-
-        // var drift = spheroState.angle.boo + Math.atan2(spheroState.rel.boo.y, spheroState.rel.boo.x)
-
-
-        spheroDrift.append(new Date().getTime(), data.drift);
-        spheroIPAngle.append(new Date().getTime(), data.angle);
-
-    }
-
-    function updateSpheroData(data) {
-        if (!spheroState.rel[data.name])
-            spheroState.rel[data.name] = {};
-
-        var dx = spheroState.rel[data.name].x = data.data.x;
-        var dy = spheroState.rel[data.name].y = data.data.y;
-
-        var spheroAngle = Math.atan2(dy, dx);
-
-
-        spheroDataAngle.append(new Date().getTime(), spheroAngle);
-    }
-
-    function drawCircle(pos, r) {
-        ctx1.beginPath();
-        ctx1.arc(pos.x / 1280 * 600, pos.y / 720 * 400, r, 0, 2 * Math.PI);
-        ctx1.stroke();
-    }
-
-    function drawAbs(dt) {
-        ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-        for (var sphAbs in spheroState.abs) {
-            var sph = spheroState.abs[sphAbs];
-            drawCircle({
-                x: sph.x,
-                y: -sph.y
-            }, 5);
-        }
-    }
-
-    function drawRel(dt) {
-        ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
-        for (var name in spheroState.rel) {
-            var sphdata = spheroState.rel[name];
-
-
-            drawLine(ctx2,
-                100,
-                100,
-                sphdata.x / 10 + 100,
-                sphdata.y / 10 + 100
-            );
-
-        }
-        // for (var name in spheroState.drift) {
-        //     var angle = spheroState.drift[name];
-
-        //     drawLine(ctx2,
-        //         100,
-        //         100,
-        //         Math.cos(angle) * 250 + 100,
-        //         Math.sin(angle) * 250 + 100,
-        //         3
-        //     );
-        // }
-        for (var name in spheroState.angle) {
-            var angle = spheroState.angle[name];
-
-            drawLine(ctx2,
-                100,
-                100,
-                Math.cos(angle) * 250 + 100,
-                Math.sin(angle) * 250 + 100,
-                2
-            );
-        }
-    }
-
-    function draw(dt) {
-        drawAbs(dt);
-        drawRel(dt);
-        requestAnimationFrame(draw);
-    }
-    requestAnimationFrame(draw);
-
-    function drawLine(ctx, x1, y1, x2, y2, thickness) {
-        ctx.lineWidth = thickness || 1;
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
     }
     </script>
 </body>

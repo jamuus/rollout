@@ -1,0 +1,3 @@
+#!/bin/bash
+
+nodemon --ignore spheroManager/index.js server.js
