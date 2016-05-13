@@ -11,10 +11,10 @@ var vec2log = filters.vec2log;
 var Filter = filters.Filter;
 
 var spheroIds = [
-    'boo',
-    'gwo',
     // 'rob',
     // 'wyp',
+    'boo',
+    'gwo',
 ];
 
 var spheros = {};
@@ -86,8 +86,8 @@ function initSphero(dataOut) {
 
     // noise
     var R_k = $M([
-        [3, 0, 0, 0],
-        [0, 3, 0, 0],
+        [0.5, 0, 0, 0],
+        [0, 0.5, 0, 0],
         [0, 0, 0.1, 0],
         [0, 0, 0, 0.1],
     ]);
@@ -115,7 +115,7 @@ function initSphero(dataOut) {
     });
 
     var ret = {
-        ipPos: vec2log(40),
+        ipPos: vec2log(60),
         spheroVel: vec2log(100),
         spheroPos,
         batteryVoltage: -1,
@@ -177,13 +177,13 @@ var imageSize = {
     y: 720.0,
 };
 
-var spheroScale = 0.45;
-var outputScale = 1.8;
+var spheroScale = 0.54;
+var outputScale = 1.75;
 
 var debugLog = console.log;
 var offset = {
-    x: -4,
-    y: -19.5,
+    x: -1,
+    y: -22,
 };
 
 function updateSpheroDrift(sphero, result) {
@@ -216,7 +216,7 @@ function vecCMul(a, b) {
 }
 
 var exclusiveControl = true;
-
+var freezeOrientation = false;
 module.exports = function(fn, workers) {
     var dataOut = fn.dataOut;
 
@@ -234,28 +234,32 @@ module.exports = function(fn, workers) {
 
     workers[0].on('message', result => {
         var sphero = spheros[spheroIds[0]];
-        updateSpheroDrift(sphero, result);
-        // console.log(spheroIds[0], sphero.driftAngle);
-        dataOut({
-            name: spheroIds[0],
-            data: {
-                scale: result.scale,
-                driftAngle: result.driftAngle
-            }
-        });
+        if (!freezeOrientation) {
+            updateSpheroDrift(sphero, result);
+            // console.log(spheroIds[0], sphero.driftAngle);
+            dataOut({
+                name: spheroIds[0],
+                data: {
+                    scale: result.scale,
+                    driftAngle: result.driftAngle
+                }
+            });
+        }
     });
 
     workers[1].on('message', result => {
         var sphero = spheros[spheroIds[1]];
-        updateSpheroDrift(sphero, result);
-        // console.log(spheroIds[1], sphero.driftAngle);
-        dataOut({
-            name: spheroIds[1],
-            data: {
-                scale: result.scale,
-                driftAngle: result.driftAngle
-            }
-        });
+        if (!freezeOrientation) {
+            updateSpheroDrift(sphero, result);
+            // console.log(spheroIds[1], sphero.driftAngle);
+            dataOut({
+                name: spheroIds[1],
+                data: {
+                    scale: result.scale,
+                    driftAngle: result.driftAngle
+                }
+            });
+        }
     });
 
     // called by web client to test forces
@@ -286,15 +290,16 @@ module.exports = function(fn, workers) {
             outputScale = data.outputScale;
     });
 
+    fn.freezeCallback(function(data) {
+        console.log('freeze', data);
+        if (data === 'take') {
+            freezeOrientation = true;
+        } else {
+            freezeOrientation = false;
+        }
+    });
 
-    var p = 0.03;
-    fn.moveCallback(function(data) {
-        exclusiveControl = true;
-        var sphero = spheros[spheroIds[0]];
-        var target = {
-            x: -18,
-            y: 0
-        };
+    function moveSphero(sphero, target) {
         var startTime = new Date().getTime();
 
         var intervalRef = setInterval(() => {
@@ -310,12 +315,30 @@ module.exports = function(fn, workers) {
 
             console.log(velocity, forceangle * 180 / Math.PI, force);
 
-            if ((new Date().getTime() - startTime) > 5000) {
+            if ((new Date().getTime() - startTime) > 5 * 1000) {
                 sphero.force(0, 0, true);
                 exclusiveControl = false;
                 clearInterval(intervalRef);
             }
         }, 1000 / 30);
+    }
+
+    var p = 0.02;
+    fn.moveCallback(function(data) {
+        exclusiveControl = true;
+        var sphero1 = spheros[spheroIds[0]];
+        var target1 = {
+            x: -18,
+            y: 0
+        };
+        var sphero2 = spheros[spheroIds[1]];
+        var target2 = {
+            x: 18,
+            y: 0
+        };
+        moveSphero(sphero1, target1);
+        moveSphero(sphero2, target2);
+
     });
 
 
@@ -725,7 +748,7 @@ function newIpData(sphero, data, worker) {
 
     var aft = new Date().getTime();
     var dif = aft - sphero.lastCalib;
-    if (dif > 1500) {
+    if (dif > 2000) {
         sphero.lastCalib = aft;
         worker.send([sphero.ipPos, sphero.spheroPos]);
     }

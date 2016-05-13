@@ -167,6 +167,7 @@ function startVisServer() {
         socket.on('scale', spheroScale);
         socket.on('control', control);
         socket.on('move', move);
+        socket.on('freeze', freeze);
     });
 
     http.listen(3000, function() {
@@ -182,6 +183,8 @@ function startVisServer() {
     function control() {}
 
     function move() {}
+
+    function freeze() {}
 
     return {
         dataOut: function(data) {
@@ -201,6 +204,9 @@ function startVisServer() {
         },
         moveCallback: function(callback) {
             move = callback;
+        },
+        freezeCallback: function(callback) {
+            freeze = callback;
         }
     }
 }

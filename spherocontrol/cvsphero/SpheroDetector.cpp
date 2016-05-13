@@ -145,7 +145,7 @@ void trackFilteredObject(Sphero &theSphero, Mat threshold, Mat HSV, Mat &cameraF
                 drawObject(spheros, cameraFeed);
             }
 
-        } else putText(cameraFeed, "TOO MUCH NOISE! ADJUST FILTER", Point(0, 50), 1, 2, Scalar(0, 0, 255), 2);
+        } else putText(cameraFeed, "TOO MUCH COLOUR", Point(0, 50), 1, 2, Scalar(0, 0, 255), 2);
     }
     if (!objectFound) {
         theSphero.setXPos(-1);
@@ -196,7 +196,7 @@ void trackFilteredObject(Mat threshold, Mat HSV, Mat &cameraFeed)
                 drawObject(spheros, cameraFeed);
             }
 
-        } else putText(cameraFeed, "TOO MUCH NOISE! ADJUST FILTER", Point(0, 50), 1, 2, Scalar(0, 0, 255), 2);
+        } else putText(cameraFeed, "TOO MUCH COLOUR", Point(0, 50), 1, 2, Scalar(0, 0, 255), 2);
     }
 }
 
@@ -281,7 +281,7 @@ int main( int, char** argv )
     int i = 0;
     while (true) {
         if (capture.read(frame) == NULL) {
-            printf("!!! cvQueryFrame failed: no frame\n");
+            printf("Didn't read a frame\n");
             capture.set(CV_CAP_PROP_POS_AVI_RATIO , 0);
             continue;
         }
@@ -313,7 +313,7 @@ int main( int, char** argv )
             imshow(window_name, frame);
         }
 
-        if (waitKey(25) == 27)  break;
+        if (waitKey(10) == 27)  break;
     }
     capture.release();
     return 0;

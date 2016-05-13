@@ -66,7 +66,9 @@ div {
         <br />
         <input id="takecontrol" onclick="changeControl(this.value)" type="button" value="Take control" />
         <br />
-        <input id="move" onclick="move(this.value)" type="button" value="Move" />
+        <input id="move" onclick="move(this.value)" type="button" value="Reset Positions" />
+        <br/>
+        <input id="freeze" onclick="freeze(this.value)" type="button" value="Freeze" />
         <br/>
         <div class="spheroData" id="spheroData1"></div>
         <div class="spheroData" id="spheroData2"></div>
@@ -92,6 +94,17 @@ div {
         } else {
             controlbtn.value = "Take control";
             socket.emit('control', 'release');
+        }
+    }
+
+    var freezebtn = document.getElementById("freeze");
+    function freeze(val) {
+        if(val === "Freeze") {
+            freezebtn.value = "Unfreeze";
+            socket.emit('freeze', 'take');
+        } else {
+            freezebtn.value = "Freeze";
+            socket.emit('freeze', 'release');
         }
     }
 

@@ -33,6 +33,9 @@ Sphero::Sphero(string name)
         // V_MAX 230
 
 
+        // green light
+        // setHSVmin(Scalar(68, 126, 91));
+        // setHSVmax(Scalar(90, 256, 256));
         // red light
         setHSVmin(Scalar(0, 75, 196));
         setHSVmax(Scalar(51, 256, 256));
