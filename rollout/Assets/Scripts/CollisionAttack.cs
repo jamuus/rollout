@@ -26,6 +26,8 @@ public class CollisionAttack : MonoBehaviour
 		health = GetComponent<UniversalHealth> ();
 		particles = GetComponent<ParticleSystem> ();
 
+		music = gameObject.transform.Find("sound").gameObject;
+
         //Get the other player
         otherPlayer = GameObject.Find(gameObject.name == "player1" ? "player2" : "player1");
     }
@@ -43,7 +45,6 @@ public class CollisionAttack : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-		music = gameObject.transform.Find("sound").gameObject;
 		SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
         //If you collided with the other player
 		if (otherPlayer && col.gameObject.name == otherPlayer.name || col.gameObject.CompareTag("Shield")) {
@@ -61,7 +62,6 @@ public class CollisionAttack : MonoBehaviour
 		} else if (col.gameObject.tag == "Projectile") {
 			manager.CollideProjectile (col.relativeVelocity);
 		} else if (col.gameObject.tag == "DamageField") {
-			manager.CollideDamageField (col.relativeVelocity);
 		}
     }
 

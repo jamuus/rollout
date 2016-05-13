@@ -10,6 +10,8 @@ using System.Collections.Generic;
 
 public class GameStateManager : MonoBehaviour {
 	public int gameStateId = 0;
+	public GameObject level;
+	public GameObject[] levels;
 	private GameObject player1;
 	private GameObject player2;
 	private UniversalHealth player1Health;
@@ -17,7 +19,7 @@ public class GameStateManager : MonoBehaviour {
 	private GenerateLevel levelGenerator;
 	private SoundManager soundManager;
 	private Events events;
-	private List<Transform> levelObjects;
+	private List<Vector3> levelObjects  = new List<Vector3>();
 
 	// Use this for initialization
 	void Start () {
@@ -27,7 +29,12 @@ public class GameStateManager : MonoBehaviour {
 		player2Health = player2.GetComponent<UniversalHealth> ();
 		//levelGenerator = GameObject.Find ("Container").GetComponent<GenerateLevel> ();
 		events = GameObject.Find ("Container").GetComponent<Events>();
-		//saveLevel ("Level");
+		setRandomLevel ();
+		foreach (GameObject lvl in levels) {
+			lvl.SetActive (false);
+		}
+		level.SetActive (true);
+		saveLevel ();
 		setGameStates ();
 	}
 	
@@ -39,12 +46,14 @@ public class GameStateManager : MonoBehaviour {
 		}
 	}
 
-	private void saveLevel(string levelName){
-		GameObject level = GameObject.Find(levelName);
-		foreach (Transform child in level.transform)
+	private void saveLevel(){
+		levelObjects.Clear ();
+		Transform[] elements = level.GetComponentsInChildren<Transform>();
+		for(int i = 0; i < elements.Length; i++)
 		{
-			levelObjects.Add (child);
-			print ("object: " + child);
+			print (elements[i]);
+			print (levelObjects);
+			levelObjects.Add (elements[i].position);
 		}
 	}
 
@@ -56,10 +65,29 @@ public class GameStateManager : MonoBehaviour {
 		events.gameStateId = gameStateId;
 	}
 
+	private void restartLevel()
+	{
+		Transform[] elements = level.GetComponentsInChildren<Transform>();
+		for(int i = 0; i < elements.Length; i++)
+		{
+			elements[i].position = levelObjects [i];
+		}
+		level.SetActive(false);
+		setRandomLevel ();
+		level.SetActive (true);
+		saveLevel ();
+	}
+
+	private void setRandomLevel () {
+		System.Random random = new System.Random();
+		int randomNumber = random.Next(0, levels.Length);
+		level = levels[randomNumber];
+	}
+
 	public bool checkGameStateChange() {
 		if (gameStateId == 0) {
-			if (player1Health.currentHealth <=0 || 
-				player2Health.currentHealth <=0 ) {
+			if (player1Health.currentHealth <= 0 || 
+				player2Health.currentHealth <= 0 ) {
 				//change gameState
 				return true;
 			}
@@ -80,19 +108,20 @@ public class GameStateManager : MonoBehaviour {
 	
 		return false;
 	}
+
 	private void addVictoryScreen() {
 		TextMesh victoryMessage = GameObject.Find ("Victory").GetComponent<TextMesh> ();
 		if (player1Health.currentHealth <= 0) {
 			if (player2Health.currentHealth <= 0) {
 				victoryMessage.text = ("   2 way tie");
 			} else {
-				victoryMessage.text = ("  Player 2 is win");
+				victoryMessage.text = ("    Player 2 wins");
 			}
 		} else {
 			if (player2Health.currentHealth <= 0) {
-				victoryMessage.text = ("  Player 1 is win");
+				victoryMessage.text = ("    Player 1 wins");
 			} else {
-				victoryMessage.text = ("Press return again\n    to restart");
+				victoryMessage.text = ("    Press enter\n      to restart");
 			} 
 		}
 			
@@ -126,9 +155,8 @@ public class GameStateManager : MonoBehaviour {
 			addPreGameScreen ();
             SpheroManager.RestartGame();
             SpheroManager.SendStateToControllers();
-			//toNextState ();
 			//levelGenerator.restart ();
-			//restartLevel();
+			restartLevel();
 		}
 	}
 }

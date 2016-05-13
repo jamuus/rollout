@@ -8,6 +8,8 @@ public final class Sphero {
     private static final String TAG                 = "Sphero";
     public  static final int    UPDATE_MS_PER_TICK  = 16;           // ~ 64 ticks/s
 
+    public static final Object LOCK = new Object();
+
     private static String       name;
     private static float        voltage;
     private static float        health;
@@ -22,6 +24,8 @@ public final class Sphero {
     private static boolean      updateThreadIsRunning;
     private static boolean      recentDamage;
 
+    private static int count = 0;
+
     static {
         powerUps = new byte[0];
     }
@@ -29,37 +33,42 @@ public final class Sphero {
     private Sphero() { }
 
     public static void parseState(byte[] bytes) {
-        Log.d(TAG, "Parsing received Sphero state.");
+        //Log.d(TAG, "Parsing received Sphero state.");
 
-        float oldHealth = health;
-        float oldShiled = shield;
+        synchronized (LOCK) {
+            float oldHealth = health;
+            float oldShiled = shield;
 
-        int offset = 0;
-        health = BitConverter.toFloat(bytes, offset);
-        if (maxHealth == 0) maxHealth = health;
-        offset += 4;
-        shield = BitConverter.toFloat(bytes, offset);
-        offset += 4;
-        voltage = BitConverter.toFloat(bytes, offset);
+            int offset = 0;
+            health = BitConverter.toFloat(bytes, offset);
+            if (maxHealth == 0) maxHealth = health;
+            offset += 4;
+            shield = BitConverter.toFloat(bytes, offset);
+            offset += 4;
+            voltage = BitConverter.toFloat(bytes, offset);
 
-        offset += 4;
+            offset += 4;
 
-        weapons = new byte[bytes[offset]];
-        ++offset;
-        System.arraycopy(bytes, offset, weapons, 0, weapons.length);
-        offset += weapons.length;
+            weapons = new byte[bytes[offset]];
+            ++offset;
+            System.arraycopy(bytes, offset, weapons, 0, weapons.length);
+            offset += weapons.length;
 
-        powerUps = new byte[bytes[offset]];
-        ++offset;
-        System.arraycopy(bytes, offset, powerUps, 0, powerUps.length);
-        offset += powerUps.length;
+            powerUps = new byte[bytes[offset]];
+            ++offset;
+            System.arraycopy(bytes, offset, powerUps, 0, powerUps.length);
+            offset += powerUps.length;
 
-        activeWeapon = 0;
+            activeWeapon = 0;
 
-        if ((oldHealth > health) || (oldShiled > shield))
-            recentDamage = true;
+            if ((oldHealth > health) || (oldShiled > shield))
+                recentDamage = true;
 
-        Log.d(TAG, "Health: " + health + ", Shield: " + shield + ", Voltage: " + voltage);
+            if (count == 0) {
+                Log.d(TAG, "Health: " + health + ", Shield: " + shield + ", Voltage: " + voltage);
+                ++count;
+            }
+        }
     }
 
     public static void roll(float direction, float force) {

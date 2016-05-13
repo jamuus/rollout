@@ -11,7 +11,7 @@ public class HomingLauncher : MonoBehaviour
     private Vector3 projectilePosition;
     public int ammunition = 2;
     public int maxAmmo = 5;
-    public float fireRate = 1;
+    public float fireRate = 6;
 
 
     public void Fire(GameObject givenOtherPlayer)

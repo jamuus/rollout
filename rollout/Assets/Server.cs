@@ -118,6 +118,8 @@ public static class Server
     private static TcpServerModule      tcpServer;
     private static bool                 udpListening;
 
+    private static HttpServerModule httpServer;
+
     public static List<TcpServerModule.Connection>  Connections      { get { return tcpServer.Connections; } }
     public static IPEndPoint                        NodeServerTarget { get; private set; }
     public static string                            Name             { get; set; }
@@ -167,6 +169,9 @@ public static class Server
         tcpServer.DataReceived += TcpDataReceived;
         tcpServer.Start();
 
+        httpServer = new HttpServerModule("http://+:7890/webapp/");
+        httpServer.Start();
+
         udpListenThread.Start();
 
         Debug.LogFormat("[Server] Started \"{0}\" successfully, listening on port {1}.", Name, port);
@@ -174,6 +179,8 @@ public static class Server
 
     public static void StopListening()
     {
+        httpServer.Stop();
+
         tcpServer.Stop();
 
         udpIncoming.Close();
@@ -292,7 +299,7 @@ public static class Server
                 SpheroManager.ParseUpdatedState(bytes, 1);
                 break;
             case ServerMessageType.RollSphero:
-                SpheroManager.Roll(bytes);
+                //SpheroManager.Roll(bytes);
                 break;
             case ServerMessageType.ServerDiscover:
                 message.Type = ServerMessageType.ServerDiscover;

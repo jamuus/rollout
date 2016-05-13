@@ -102,6 +102,7 @@ public static class SpheroManager
                 Players[currentPlayerIndex].sphero = sphero;
                 MainThread.EnqueueAction(() =>
                 {
+                    Players[currentPlayerIndex].sphero.UnityObject = Players[currentPlayerIndex].GetComponent<PlayerControl>();
                     Players[currentPlayerIndex].sphero.UnityProjectileControl = Players[currentPlayerIndex].GetComponent<ProjectileControl>();
                     Debug.LogFormat("[SpheroManager] Added Sphero \"{0}\".", deviceName);
                 });
@@ -141,7 +142,9 @@ public static class SpheroManager
 
         // TODO Process with collisions etc, then forward on to node.
 
-        Instances[name].Roll(direction, force);
+        var sphero = Instances[name];
+        sphero.Roll(sphero.CorrectAngle(direction), force);
+        //Instances[name].Roll(direction, force);
 
         //Debug.LogFormat("Rolling Sphero {0} in direction {1} with force {2}.", name, direction, force);
     }
@@ -156,7 +159,10 @@ public static class SpheroManager
         string name = Encoding.ASCII.GetString(data, offset + 1, data[offset]);
 
         //Shoot from the relevant sphero
-        Instances[name].Shoot(SpheroWeaponType.Default, direction);
+        var sphero = Instances[name];
+        sphero.Shoot(SpheroWeaponType.Default, sphero.CorrectAngle(direction));
+
+        //Instances[name].Shoot(SpheroWeaponType.Default, direction);
 
         //Debug.LogFormat("Sphero {0} firing weapon with ID {1} in direction {2}.", name, weaponID, direction);
     }
@@ -197,6 +203,10 @@ public class Sphero
     public Vector3                      MoveForce               { get; set; }
     public Vector3                      EnvironmentForce        { get; set; }
 
+    public float                        PhysicalForceClamp      { get; set; }
+    public float                        PhysicalCollisionScale  { get; private set; }
+    public float                        PhysicalForceDecayRate  { get; private set; }
+
     public Sphero()
     {
         Weapons = new List<SpheroWeapon>();
@@ -208,6 +218,19 @@ public class Sphero
 
         MoveForce           = new Vector3(0, 0, 0);
         EnvironmentForce    = new Vector3(0, 0, 0);
+
+        PhysicalForceClamp = 0.3f;
+        PhysicalCollisionScale = 0.1f;
+        PhysicalForceDecayRate = 0.5f;
+    }
+
+    public float CorrectAngle(float angle)
+    {
+        if (UnityObject.SpheroName == "player1")
+            angle += Mathf.PI / 2.0f;
+        else
+            angle -= Mathf.PI / 2.0f;
+		return angle + Mathf.PI / 2.0f;
     }
 
     // RollSphero message format:
@@ -220,6 +243,7 @@ public class Sphero
 #if SOFTWARE_MODE
         Force = new Vector2(force * Mathf.Sin(direction) * 10.0f, force * -Mathf.Cos(direction) * 10.0f);
 #else
+        force *= 10.0f;
         MoveForce = new Vector3(force * Mathf.Cos(direction), 0.0f, force * Mathf.Sin(direction));
         // ServerMessage message = new ServerMessage(ServerMessageType.RollSphero);
 
@@ -240,7 +264,7 @@ public class Sphero
         //ProjectileControl playerProjectile = GameObject.Find(playerName).GetComponent<ProjectileControl>();
 
         //Put the direction into the correct range
-        direction += (float)Math.PI;
+        direction += (float)Math.PI * 1.5f;
 
         //Covert the direction into a vector
 #if SOFTWARE_MODE
@@ -260,10 +284,10 @@ public class Sphero
 
     public void SendMove()
     {
-        Vector3 resultant = MoveForce + EnvironmentForce;
+		Vector3 resultant = MoveForce + EnvironmentForce;
 
-        float force = Mathf.Clamp(resultant.magnitude, 0.0f, 0.3f);
-        float direction = Mathf.Atan2(resultant.x, resultant.z);
+		float force = Mathf.Clamp(resultant.magnitude, 0.0f, PhysicalForceClamp);
+        float direction = Mathf.Atan2(-resultant.x, resultant.z);
 
         //Debug.LogFormat("MV: {2} DIR: {0} FRC: {1}", direction, force, MoveForce);
 
@@ -358,9 +382,12 @@ public enum SpheroPowerUpType : byte {
     StunEnemey      = 2,
     SlowDownEnemy   = 3,
     Regeneration    = 4,
+    Shield          = 5,
     Gun             = 100,
     Homing_Launcher = 101,
     Grenade         = 102,
+    MachineGun      = 103,
+    Shotgun         = 104
 }
 
 public class SpheroPowerUp : IEquatable<SpheroPowerUp>

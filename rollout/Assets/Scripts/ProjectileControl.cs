@@ -7,7 +7,7 @@ public class ProjectileControl : MonoBehaviour
     private Vector3 velocity;
     public Projectile projectile;
     private GameObject music;
-
+	private SoundManager manager;
     //***TO ADD WEAPONS***
     //1) Write the weapon behaviour in a separate script
     //2) Add the weapon script as a component to each player, using projectile prefabs as needed
@@ -16,16 +16,18 @@ public class ProjectileControl : MonoBehaviour
     //4) Include the weapon firing and ammo reduction in the switch statement in Update
 
     //intialise the weapon structures
-    enum Weapons : int { basicGun, homingLauncher, grenadeThrower };
-    private int[] ammunition = new int[3];
-    private int[] maxAmmo = new int[3];
-    private float[] fireRates = new float[3];
+    enum Weapons : int { basicGun, homingLauncher, grenadeThrower, machineGun, shotgun };
+    private int[] ammunition = new int[5];
+    private int[] maxAmmo = new int[5];
+    private float[] fireRates = new float[5];
     private int activeWeapon;
 
     //weapon variables
     private BasicGun basicGun;
     private HomingLauncher homingLauncher;
     private GrenadeThrower grenadeThrower;
+    private MachineGun machineGun;
+    private Shotgun shotgun;
 
     //variables to aid firing
     private Vector3 projectilePosition;
@@ -43,11 +45,15 @@ public class ProjectileControl : MonoBehaviour
             otherPlayer = GameObject.Find("player1");
         }
 
+		music = gameObject.transform.Find("sound").gameObject;
+
         //Set the initial weapon to the basic gun
         activeWeapon = (int)Weapons.basicGun;
         ammunition[(int)Weapons.basicGun] = -1;
-        ammunition[(int)Weapons.homingLauncher] = 0;
-        ammunition[(int)Weapons.grenadeThrower] = 0;
+        ammunition[(int)Weapons.homingLauncher] = 10;
+        ammunition[(int)Weapons.grenadeThrower] = 10;
+        ammunition[(int)Weapons.machineGun] = 50;
+        ammunition[(int)Weapons.shotgun] = 20;
 
         //access the weapons
         basicGun = GetComponent<BasicGun>();
@@ -57,12 +63,22 @@ public class ProjectileControl : MonoBehaviour
         homingLauncher = GetComponent<HomingLauncher>();
         fireRates[ConvertID(101)] = homingLauncher.fireRate;
         maxAmmo[ConvertID(101)] = homingLauncher.maxAmmo;
-		try {
-	        grenadeThrower = GetComponent<GrenadeThrower>();
-	        fireRates[ConvertID(102)] = grenadeThrower.fireRate;
-	        maxAmmo[ConvertID(100)] = grenadeThrower.maxAmmo;
-		} catch(Exception e) {
-		}
+
+        grenadeThrower = GetComponent<GrenadeThrower>();
+        fireRates[ConvertID(102)] = grenadeThrower.fireRate;
+        maxAmmo[ConvertID(102)] = grenadeThrower.maxAmmo;
+
+        machineGun = GetComponent<MachineGun>();
+        fireRates[ConvertID(103)] = machineGun.fireRate;
+        maxAmmo[ConvertID(103)] = machineGun.maxAmmo;
+
+        shotgun = GetComponent<Shotgun>();
+        fireRates[ConvertID(104)] = shotgun.fireRate;
+        maxAmmo[ConvertID(104)] = shotgun.maxAmmo;
+
+		music = gameObject.transform.Find("sound").gameObject;
+		manager = (SoundManager) music.GetComponent(typeof(SoundManager));
+
     }
 
     public void Update()
@@ -82,13 +98,21 @@ public class ProjectileControl : MonoBehaviour
         {
             ChangeActiveWeapon("basicGun");
         }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
+        if(Input.GetKeyDown(KeyCode.Alpha2))
         {
             ChangeActiveWeapon("homingLauncher");
         }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
+        if(Input.GetKeyDown(KeyCode.Alpha3))
         {
             ChangeActiveWeapon("grenadeThrower");
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            ChangeActiveWeapon("machineGun");
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            ChangeActiveWeapon("shotgun");
         }
     }
 
@@ -99,10 +123,6 @@ public class ProjectileControl : MonoBehaviour
         //Checks if the weapon has ammunition and shoots according to fire rate
         if (ammunition[activeWeapon] != 0 && sinceLastShot >= (float)fireRates[activeWeapon])
         {
-            //play the shooting sound
-			music = gameObject.transform.Find("sound").gameObject;
-			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-
             //fire the weapon and reduce ammunition as needed
             switch (activeWeapon)
             {
@@ -114,16 +134,28 @@ public class ProjectileControl : MonoBehaviour
 
                 case (int)Weapons.homingLauncher:
                     homingLauncher.Fire(otherPlayer);
-					manager.Shoot ();
-
+					manager.Homing ();
+			
                     ReduceAmmo(101, 1);
                     break;
 
                 case (int)Weapons.grenadeThrower:
                     grenadeThrower.Fire();
-					manager.GrenadeShoot ();
+					manager.Grenade ();
 
                     ReduceAmmo(102, 1);
+                    break;
+
+                case (int)Weapons.machineGun:
+					manager.Shoot ();
+                    machineGun.Fire();
+                    ReduceAmmo(103, 1);
+                    break;
+
+                case (int)Weapons.shotgun:
+					manager.ShootBurst ();
+                    shotgun.Fire();
+                    ReduceAmmo(104, 1);
                     break;
             }
 
@@ -140,9 +172,7 @@ public class ProjectileControl : MonoBehaviour
         if (ammunition[activeWeapon] != 0 && sinceLastShot >= (float)fireRates[activeWeapon])
         {
             //play the shooting sound
-			music = gameObject.transform.Find("sound").gameObject;
 			SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
-			manager.Shoot ();
 
             //fire the weapon and reduce ammunition as needed
             switch (activeWeapon)
@@ -162,9 +192,19 @@ public class ProjectileControl : MonoBehaviour
 
                 case (int)Weapons.grenadeThrower:
                     grenadeThrower.Fire(velocity);
-					manager.GrenadeShoot ();
+					manager.Shoot ();
 
                     ReduceAmmo(102, 1);
+                    break;
+
+                case (int)Weapons.machineGun:
+                    machineGun.Fire(velocity);
+                    ReduceAmmo(103, 1);
+                    break;
+
+                case (int)Weapons.shotgun:
+                    shotgun.Fire(velocity);
+                    ReduceAmmo(104, 1);
                     break;
             }
 
@@ -198,6 +238,12 @@ public class ProjectileControl : MonoBehaviour
             ChangeActiveWeapon(100);
 
     }
+
+	public void resetAmmo() {
+		for (int i = 1; i < ammunition.Length; i++) {
+			ammunition [i] = 0;
+		}
+	}
 
     public void ChangeActiveWeapon(int ID)
     {

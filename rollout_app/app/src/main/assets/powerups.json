@@ -35,6 +35,13 @@
         "colour": "#4CAF50"
     },
     {
+        "id": 5,
+        "name": "Shield",
+        "description": "Spawns a protective shield around the player.",
+        "image": "null",
+        "colour": "#4CAF50"
+    },
+    {
         "id": 100,
         "name": "Gun",
         "description": "A basic weapon which won't run out of ammo",
@@ -52,6 +59,20 @@
         "id": 102,
         "name": "Grenade",
         "description": "Drops a powerful grenade behind you",
+        "image": "null",
+        "colour": "#4CAF50"
+    },
+    {
+        "id": 103,
+        "name": "Machine Gun",
+        "description": "A rapid firing gun",
+        "image": "null",
+        "colour": "#4CAF50"
+    },
+    {
+        "id": 104,
+        "name": "Shotgun",
+        "description": "Fires multiple shots in a cone",
         "image": "null",
         "colour": "#4CAF50"
     }

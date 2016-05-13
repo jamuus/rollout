@@ -21,6 +21,7 @@ public class PlayerControl : MonoBehaviour
     public string horizontalAxis;
     public string verticalAxis;
     private GameObject music;
+    public string SpheroName;
 
     private Player player;
     private GameObject playerObject;
@@ -38,8 +39,10 @@ public class PlayerControl : MonoBehaviour
 
     void Start()
     {
+        SpheroName = gameObject.name;
 		startingPosition = gameObject.transform.position;
         speed = baseSpeed;
+		music = gameObject.transform.Find("sound").gameObject;
         velocity = GetComponent<Rigidbody> ().velocity;
         container = GameObject.Find("Container");
         shield = gameObject.transform.Find("shield").gameObject;
@@ -48,6 +51,8 @@ public class PlayerControl : MonoBehaviour
         levelRadius = container.GetComponent<GenerateLevel>().levelRadius;
         boundaryHardness = container.GetComponent<GenerateLevel>().boundaryHardness * 2 + 1;
         rigidbody = GetComponent<Rigidbody>();
+
+        Physics.IgnoreCollision(GetComponent<SphereCollider>(), GameObject.Find("Circular Plane").GetComponent<MeshCollider>());
 
 		particles = gameObject.GetComponentsInChildren<ParticleSystem>();
 		foreach (ParticleSystem ps in particles) {
@@ -85,12 +90,12 @@ public class PlayerControl : MonoBehaviour
 
         // move ingame sphero
         #if !SOFTWARE_MODE
-        if (sphero != null) {
+		if (sphero != null && gameStateId != 2) {
             float moveHorizontal = sphero.Position.x;
 			float moveVertical = -sphero.Position.y;
             // print(moveHorizontal);
 
-            position = new Vector3(moveHorizontal, 1.5f, moveVertical);
+            position = new Vector3(moveHorizontal, 0.8f, moveVertical);
             //rb.position = position;
             rb.MovePosition(position);
 
@@ -118,7 +123,7 @@ public class PlayerControl : MonoBehaviour
     {
         if (sphero != null)
         {
-            sphero.MoveForce = new Vector3(0,0,0);
+            //sphero.MoveForce = new Vector3(0,0,0);
         }
 
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -129,7 +134,7 @@ public class PlayerControl : MonoBehaviour
 
         if (sphero != null)
         {
-            sphero.MoveForce = new Vector3(-moveHorizontal, 0.0f,moveVertical);
+            //sphero.MoveForce = new Vector3(-moveHorizontal, 0.0f,moveVertical);
         }
 
 #if SOFTWARE_MODE
@@ -188,7 +193,7 @@ public class PlayerControl : MonoBehaviour
             float n = collision.contacts.Length;
             sphero.EnvironmentForce = Vector3.zero;
             foreach (ContactPoint p in collision.contacts)
-                sphero.EnvironmentForce += Vector3.Reflect(rigidbody.velocity, p.normal);
+                sphero.EnvironmentForce += Vector3.Reflect(rigidbody.velocity, p.normal) * sphero.PhysicalCollisionScale;
             sphero.EnvironmentForce /= n;
         }
     }
@@ -202,6 +207,10 @@ public class PlayerControl : MonoBehaviour
     {
         if (sphero != null)
         {
+            Debug.DrawRay(rigidbody.position, sphero.EnvironmentForce * 10.0f, Color.red);
+            sphero.SendMove();
+            sphero.EnvironmentForce *= sphero.PhysicalForceDecayRate;
+
             //ClampEnvironmentForce(0.0f, 0.3f);
 
             // Debug.LogFormat("Env: {0}", sphero.EnvironmentForce);
@@ -248,8 +257,9 @@ public class PlayerControl : MonoBehaviour
 		try {
 			sphero.PowerUps.Add(new SpheroPowerUp((SpheroPowerUpType)powerUp.id));//allPowerUps.IndexOf(powerUp)));
 		}
-		catch {}
-		music = gameObject.transform.Find("sound").gameObject;
+		catch (Exception ex) {
+            Debug.LogFormat("THIS IS VERY BAD: {0}.", ex.Message);
+        }
 		SoundManager manager = (SoundManager) music.GetComponent(typeof(SoundManager));
 		manager.PickPowerUp ();
         print("PowerUp " + powerUp.name + " added to " + gameObject.name);
@@ -271,13 +281,13 @@ public class PlayerControl : MonoBehaviour
         }
         if (powerUp.name == "Slow Down Enemy") {
             otherPlayer.GetComponent<PlayerControl>().statuses [2] = statusList[2].time;
-            statuses [3] = 0;
+			otherPlayer.GetComponent<PlayerControl>().statuses [3] = 1;
 			otherPlayer.GetComponent<PlayerControl>().particles [2].Play ();
         }
         if (powerUp.name == "Boost") {
             statuses [3] = statusList[3].time;
-            statuses [2] = 0; // When boost used it removes negative speed effects
-            statuses [4] = 0; // Removing stunn status
+            statuses [2] = 1; // When boost used it removes negative speed effects
+            statuses [4] = 1; // Removing stunn status
 			particles [3].Play ();
         }
         if (powerUp.name == "Stun Enemy") {
@@ -322,7 +332,7 @@ public class PlayerControl : MonoBehaviour
 
         // reduce speed
         if (statuses[2] > 0) {
-            if (statuses[2] == statusList[2].time) speed = baseSpeed / statusList[2].magnitude;
+            speed = baseSpeed / statusList[2].magnitude;
             decrementStatusDuration(2);
             if (statuses[2] <= 0) {
 				particles [2].Stop ();
@@ -333,7 +343,7 @@ public class PlayerControl : MonoBehaviour
 
         // increase speed
         if (statuses[3] > 0) {
-            if (statuses[3] == statusList[3].time) speed = baseSpeed * statusList[3].magnitude;
+            speed = baseSpeed * statusList[3].magnitude;
             decrementStatusDuration(3);
             if (statuses[3] <= 0) {
                 speed = baseSpeed;
@@ -370,10 +380,13 @@ public class PlayerControl : MonoBehaviour
 		}
 
 		powerUps.Clear ();
+		shield.GetComponent<Shield>().health = 0;
+		shield.SetActive (false);
 		speed = baseSpeed;
 		gameObject.transform.rotation = Quaternion.identity;
 		gameObject.GetComponent<Rigidbody> ().velocity = new Vector3 (0f, 0f, 0f);
 		gameObject.GetComponent<UniversalHealth> ().currentHealth = gameObject.GetComponent<UniversalHealth> ().getMaxHealth ();
 		gameObject.transform.position = startingPosition;
+		gameObject.GetComponent<ProjectileControl> ().resetAmmo ();
 	}
 }
