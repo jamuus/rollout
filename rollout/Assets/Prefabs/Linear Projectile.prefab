@@ -231,6 +231,7 @@ MonoBehaviour:
   damage: 10
   colour: {r: 1, g: 0, b: 0, a: 1}
   collision: {fileID: 8300000, guid: 5fac6be26c670498f97f7daba0cbba4d, type: 3}
+  shield: {fileID: 0}
 --- !u!135 &13521176
 SphereCollider:
   m_ObjectHideFlags: 1

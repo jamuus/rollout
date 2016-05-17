@@ -388,5 +388,6 @@ public class PlayerControl : MonoBehaviour
 		gameObject.GetComponent<UniversalHealth> ().currentHealth = gameObject.GetComponent<UniversalHealth> ().getMaxHealth ();
 		gameObject.transform.position = startingPosition;
 		gameObject.GetComponent<ProjectileControl> ().resetAmmo ();
-	}
+        gameObject.GetComponent<ProjectileControl>().ChangeActiveWeapon(100);
+    }
 }

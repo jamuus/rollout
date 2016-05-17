@@ -132,7 +132,7 @@ public class SpecialField : MonoBehaviour
 
 		switch (option) {
         case 0:
-            color = new Color(.8f, .1f, .1f, 1f); //red
+            color = new Color(.8f, .1f, .8f, 0.6f); //red
             break;
         case 1:
             color = new Color(.1f, .8f, .1f, 1f); // green

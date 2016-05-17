@@ -38,14 +38,15 @@ public class Events : MonoBehaviour {
         timeUntilNextEvent = timeUntilFirstEvent;
         timeOfLastEvent = 0;
 
-		//Get the BGM
-		BGM = GameObject.Find("BGM");
+        powerups = GameObject.Find("Weapons");
+        if (powerups != null) powerups.SetActive(false);
+
+        //Get the BGM
+        BGM = GameObject.Find("BGM");
 
         SpectatorManager.EventsLastUpdated = -1;
 
 		random = new System.Random();
-
-        //powerups = gameObject.transform.Find("/Level/PowerUps/Special Powerups").gameObject;
     }
 
 	void Update () {
@@ -188,8 +189,8 @@ public class Events : MonoBehaviour {
 		while (spawnedObjects.Count > 0) {
 			Destroy (spawnedObjects [0]);
 			spawnedObjects.Remove (spawnedObjects[0]);
-            if (powerups != null) powerups.SetActive(false);
 		}
+        if (powerups != null) powerups.SetActive(false);
 		recurringID = 0;
 		BGMManager manager = (BGMManager) BGM.GetComponent(typeof(BGMManager));
 		manager.reset ();
